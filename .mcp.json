@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "gitmole": {
+      "command": "npx",
+      "args": ["tsx", "src/mcp/index.ts"],
+      "cwd": "."
+    }
+  }
+}
