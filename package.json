@@ -1,0 +1,42 @@
+{
+  "name": "gitmole",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "두더지 모루가 저장소를 파보고 무엇이 바뀌었는지 알려주는 개인용 도구",
+  "main": "electron/main.mjs",
+  "bin": {
+    "gitmole": "./bin/gitmole.js"
+  },
+  "scripts": {
+    "app": "node scripts/dev-app.mjs",
+    "app:build": "pnpm build && electron .",
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "icon": "tsx scripts/make-icon.ts",
+    "assets": "tsx scripts/make-assets.ts",
+    "sprites": "tsx scripts/preview-sprites.ts",
+    "serve": "node bin/gitmole.js",
+    "mcp": "tsx src/mcp/index.ts",
+    "typecheck": "tsc -b --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "motion": "^12.43.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.0",
+    "@types/node": "^22.15.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^4.4.0",
+    "electron": "^38.0.0",
+    "tailwindcss": "^4.1.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0",
+    "vite": "^7.0.0"
+  }
+}

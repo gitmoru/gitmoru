@@ -1,0 +1,6 @@
+packages:
+  - '.'
+allowBuilds:
+  # 둘 다 플랫폼 바이너리를 내려받아 연결하는 공식 설치 스크립트라 허용한다.
+  esbuild: true
+  electron: true

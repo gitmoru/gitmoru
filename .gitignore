@@ -1,0 +1,13 @@
+node_modules/
+dist/
+release/
+
+# 도트 동작 확인용으로 굽는 그림. 볼 때만 만들고 저장소에는 안 남긴다.
+.sprite-preview/
+
+# 훑은 결과를 내보낸 파일. 사건 내용이라 저장소에 들어가면 안 된다.
+cases/
+
+*.log
+.DS_Store
+Thumbs.db
