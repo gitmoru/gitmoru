@@ -1,0 +1,366 @@
+/**
+ * gitmole 도메인 타입.
+ *
+ * 이 파일은 UI / MCP / CLI 가 공유하는 유일한 계약이다.
+ * 핵심 원칙: 모든 화면과 동작은 CaseFile 하나만 바라본다.
+ *
+ * 주의 - CaseFile 에는 페이로드 원문을 넣지 않는다 (SAFETY.md 7번).
+ * 케이스 파일이 악성코드 운반체가 되면 안 되므로 해시, 크기, 경로, 근거만 담는다.
+ */
+
+// ─────────────────────────────────────────────────────────────
+// 기본
+// ─────────────────────────────────────────────────────────────
+
+/** 신호의 주목도. "얼마나 먼저 봐야 하는가"이지 "얼마나 위험한가"가 아니다. */
+export type Attention = 'first' | 'soon' | 'later'
+
+/**
+ * 브랜치 상태 - **사실만 적는다. 판정하지 않는다.**
+ *
+ * 이 도구는 "감염됐다/안 됐다"를 말하지 않는다. 규칙이 못 잡은 공격을
+ * "이상 없음"으로 칠하는 순간 도구가 거짓말을 하게 되기 때문이다.
+ * 판단은 diff 를 읽는 사람이나 에이전트가 한다.
+ */
+export type BranchStatus =
+  | 'changed' // 그 시간대에 내용이 바뀌었고, 아직 그 상태다
+  | 'reverted' // 바뀌었다가 공격 직전 커밋으로 되돌아왔다
+  | 'untouched' // 시간대 안에 푸시는 있었지만 내용 변화가 없다
+  | 'unknown' // 확인하지 못했다 (조회 실패, 기록 잘림). 절대 다른 값으로 접지 않는다
+
+export interface TimeWindow {
+  /** ISO 8601. 내부는 항상 UTC 로 보관하고 표시할 때만 변환한다. */
+  since: string
+  until: string
+  /** 사용자가 입력한 기준 시간대. 표시용. */
+  displayTz: 'KST' | 'UTC'
+}
+
+// ─────────────────────────────────────────────────────────────
+// 근거 (Evidence)
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * 사람이 "왜 이게 의심스러운지" 한눈에 보는 단위.
+ * label 은 화면에 그대로 뜨므로 숫자를 포함해 구체적으로 쓴다.
+ * 예: "정상 926B → 현재 10,148B"
+ */
+export interface Evidence {
+  label: string
+  detail?: string
+  /** GitHub 웹 링크. 우리 도메인 밖 URL 은 여기에만 허용한다 (사용자가 눌러서 확인). */
+  href?: string
+}
+
+// ─────────────────────────────────────────────────────────────
+// 탐지 결과 (Finding)
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * 탐지 신호.
+ *
+ * **판정이 아니라 형광펜이다.** "이건 악성이다"가 아니라
+ * "이건 먼저 읽어볼 만하다"를 뜻한다. 최종 판단은 diff 를 읽는 쪽이 한다.
+ *
+ * 그래서 이름이 Finding 이어도 화면에는 "신호"로 표시하고,
+ * 신호가 없다고 해서 안전하다는 뜻이 되지 않게 문구를 쓴다.
+ */
+export interface Finding {
+  id: string
+  /** 어느 탐지기가 올렸는지 */
+  detectorId: string
+  /** 얼마나 먼저 봐야 하는가 */
+  attention: Attention
+  /** 이 신호가 얼마나 확실한가. 낮다고 무시하라는 뜻은 아니다. */
+  confidence: 'high' | 'medium' | 'low'
+  repo: string
+  branch?: string
+  path?: string
+  sha?: string
+  /** 짧은 제목. 예: "설정 파일 크기가 11배 늘었습니다" */
+  title: string
+  /** 한 문장 설명 */
+  summary: string
+  evidence: Evidence[]
+  /**
+   * 페이로드 원문은 여기 담지 않는다. 필요할 때 API 로 다시 가져온다.
+   * 대신 어디서 가져올지만 기록한다.
+   */
+  sampleRef?: SampleRef
+}
+
+// ─────────────────────────────────────────────────────────────
+// 변경 내역 - 이 도구의 1차 산출물
+// ─────────────────────────────────────────────────────────────
+
+export type ChangeKind = 'added' | 'modified' | 'removed'
+
+/**
+ * 의심 시간대에 실제로 바뀐 파일 하나.
+ *
+ * 탐지 규칙과 무관하게 **무조건** 수집한다.
+ * 우리 규칙이 못 알아본 공격도 여기에는 반드시 나타난다.
+ */
+export interface FileChange {
+  path: string
+  kind: ChangeKind
+  /** 공격 직전 크기 (added 면 없음) */
+  sizeBefore?: number
+  /** 현재 크기 (removed 면 없음) */
+  sizeAfter?: number
+  blobBefore?: string
+  blobAfter?: string
+  /** 이 파일에 붙은 신호 id. 비어 있어도 안전하다는 뜻이 아니다. */
+  signalIds: string[]
+}
+
+export interface BranchChanges {
+  repo: string
+  branch: string
+  /** 비교 기준: 공격 직전 커밋 */
+  baseSha: string
+  /** 비교 대상: 현재 커밋 */
+  headSha: string
+  files: FileChange[]
+  /** 트리가 잘려서 일부만 비교했는지. true 면 목록이 완전하지 않다. */
+  partial: boolean
+}
+
+/** 의심 파일을 나중에 다시 읽어오기 위한 좌표. 내용은 담지 않는다. */
+export interface SampleRef {
+  repo: string
+  path: string
+  ref: string
+  sizeBytes: number
+  blobSha: string
+}
+
+// ─────────────────────────────────────────────────────────────
+// 탐지기 (Detector) - 플러그인
+// ─────────────────────────────────────────────────────────────
+
+/** UI 에서 사용자가 조정할 수 있는 설정 항목 */
+export interface DetectorOption {
+  key: string
+  label: string
+  help?: string
+  type: 'number' | 'boolean' | 'stringList'
+  default: number | boolean | string[]
+}
+
+export interface DetectorContext {
+  window: TimeWindow
+  actor?: string
+  /** 스캔 대상 저장소 */
+  repos: RepoRef[]
+  /** 시간대 안에서 수집한 푸시 이벤트 */
+  events: PushEvent[]
+  /** 현재 브랜치 상태 (SHA 포함) */
+  branches: BranchRef[]
+  /**
+   * 이미 수집해둔 변경 내역.
+   *
+   * 탐지기는 **이걸 먼저 본다.** 여기에 파일 경로, 전후 크기, blob 해시가 다 들어 있어서
+   * 대부분의 규칙은 API 를 한 번도 안 불러도 된다.
+   * 트리를 다시 받으면 브랜치 수만큼 같은 일을 반복하게 된다.
+   */
+  changes: BranchChanges[]
+  /** GitHub 읽기 전용 접근자. 프록시를 통해서만 나간다. */
+  gh: GitHubReader
+  /** 이 탐지기의 사용자 설정값 */
+  options: Record<string, number | boolean | string[]>
+  /** 검사 실패를 보고하는 통로. 삼키지 말고 반드시 여기로 올린다. */
+  reportFailure: (target: string, reason: string) => void
+  /** 오래 걸리는 규칙이 "아직 살아있다"고 알리는 통로. 조용하면 멈춘 줄 안다. */
+  reportProgress?: (message: string) => void
+}
+
+export interface Detector {
+  id: string
+  /** 화면에 뜨는 이름 */
+  name: string
+  /** 이 탐지기가 무엇을 근거로 눈에 띄게 하는지 한 문장 */
+  rationale: string
+  /** 이 신호를 얼마나 위로 올릴지 */
+  defaultAttention: Attention
+  /** 기본 활성화 여부 */
+  enabledByDefault: boolean
+  options?: DetectorOption[]
+  run(ctx: DetectorContext): Promise<Finding[]>
+}
+
+// ─────────────────────────────────────────────────────────────
+// GitHub 원시 데이터
+// ─────────────────────────────────────────────────────────────
+
+export interface RepoRef {
+  owner: string
+  name: string
+  /** `owner/name` */
+  fullName: string
+  defaultBranch: string
+}
+
+export interface BranchRef {
+  repo: string
+  branch: string
+  sha: string
+  isProtected?: boolean
+}
+
+export interface PushEvent {
+  repo: string
+  branch: string
+  actor: string
+  createdAt: string
+  /** 푸시 직전에 브랜치가 가리키던 커밋. 복구 타겟의 근거가 된다. */
+  before: string
+  head: string
+}
+
+export interface TreeEntry {
+  path: string
+  type: 'blob' | 'tree' | 'commit'
+  sha: string
+  size?: number
+}
+
+export interface CommitMeta {
+  sha: string
+  message: string
+  authorName: string
+  authorDate: string
+  committerName: string
+  committerDate: string
+  parents: string[]
+  treeSha: string
+}
+
+/**
+ * 탐지기가 쓸 수 있는 읽기 전용 GitHub 접근자.
+ * 쓰기 메서드를 여기에 추가하지 않는다 - 탐지 단계는 절대 변경하지 않는다.
+ */
+export interface GitHubReader {
+  listBranches(repo: string): Promise<BranchRef[]>
+  listTags(repo: string): Promise<BranchRef[]>
+  getTree(repo: string, sha: string): Promise<TreeEntry[]>
+  getCommit(repo: string, sha: string): Promise<CommitMeta>
+  /** 텍스트 파일 내용. 상한을 넘으면 잘라서 준다. 실행하지 않고 문자열로만 다룬다. */
+  getTextFile(repo: string, path: string, ref: string): Promise<string | null>
+  compare(repo: string, base: string, head: string): Promise<CompareResult>
+}
+
+export interface CompareResult {
+  status: 'ahead' | 'behind' | 'identical' | 'diverged'
+  aheadBy: number
+  behindBy: number
+}
+
+// ─────────────────────────────────────────────────────────────
+// 브랜치 상태 + 복구 계획
+// ─────────────────────────────────────────────────────────────
+
+export interface BranchState {
+  repo: string
+  branch: string
+  status: BranchStatus
+  currentSha: string | null
+  /** 공격 직전 커밋. 복구 대상. */
+  restoreTarget?: string
+  isProtected: boolean
+  /** 이 브랜치에 붙은 신호 id 목록. 비어 있어도 안전하다는 뜻이 아니다. */
+  findingIds: string[]
+  /** 바뀐 파일 수. 신호가 0이어도 이 값이 크면 사람이 읽어야 한다. */
+  changedFiles: number
+  /** status 가 unknown 일 때 그 이유 */
+  unknownReason?: string
+}
+
+export type RestoreOutcome = 'ok' | 'failed' | 'skipped' | 'already'
+
+export interface RestoreEntry {
+  repo: string
+  branch: string
+  /** 실행 직전의 SHA. 되돌릴 때 쓴다. */
+  previousSha: string
+  restoredTo: string
+  outcome: RestoreOutcome
+  error?: string
+  at: string
+}
+
+export interface RestorePlan {
+  id: string
+  caseId: string
+  createdAt: string
+  /** 사람이 승인했는지. 승인 없이는 실행 단계로 못 간다. */
+  approvedAt?: string
+  entries: Array<{
+    repo: string
+    branch: string
+    from: string
+    to: string
+    isProtected: boolean
+  }>
+}
+
+export interface RestoreRecord {
+  planId: string
+  startedAt: string
+  finishedAt?: string
+  entries: RestoreEntry[]
+}
+
+// ─────────────────────────────────────────────────────────────
+// 케이스 파일 - 모든 것의 중심
+// ─────────────────────────────────────────────────────────────
+
+export interface ScanStats {
+  reposScanned: number
+  branchesScanned: number
+  treesFetched: number
+  /** 검사 실패 건수. 0 이 아니면 화면에서 "확인 불가" 를 반드시 노출한다. */
+  failures: number
+}
+
+export interface ScanFailure {
+  target: string
+  reason: string
+  at: string
+}
+
+export interface TimelineEntry {
+  at: string
+  repo: string
+  branch: string
+  actor: string
+  kind: 'push' | 'restore' | 'note'
+}
+
+export interface CaseFile {
+  version: 1
+  id: string
+  /** 사용자가 붙이는 이름. 나중에 기록을 찾을 때 쓴다. */
+  title: string
+  createdAt: string
+  scope: {
+    orgs: string[]
+    repos: string[]
+  }
+  window: TimeWindow
+  actor?: string
+  /** 어떤 탐지기를 어떤 설정으로 돌렸는지. 재현 가능하게 남긴다. */
+  detectorConfig: Record<string, { enabled: boolean; options: Record<string, unknown> }>
+  stats: ScanStats
+  failures: ScanFailure[]
+  timeline: TimelineEntry[]
+  branches: BranchState[]
+  /**
+   * 시간대 안에 실제로 바뀐 파일 목록.
+   * 이게 이 도구의 1차 산출물이고, 신호(findings)는 이걸 정렬하기 위한 보조다.
+   */
+  changes: BranchChanges[]
+  /** 탐지 신호. 없다고 해서 안전하다는 뜻이 아니다. */
+  findings: Finding[]
+  restore?: RestoreRecord
+}
