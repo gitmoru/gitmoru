@@ -1,12 +1,12 @@
 {
-  "name": "gitmole",
+  "name": "gitmoru",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "description": "두더지 모루가 저장소를 파보고 무엇이 바뀌었는지 알려주는 개인용 도구",
   "main": "electron/main.mjs",
   "bin": {
-    "gitmole": "./bin/gitmole.js"
+    "gitmoru": "./bin/gitmoru.js"
   },
   "scripts": {
     "app": "node scripts/dev-app.mjs",
@@ -16,7 +16,8 @@
     "icon": "tsx scripts/make-icon.ts",
     "assets": "tsx scripts/make-assets.ts",
     "sprites": "tsx scripts/preview-sprites.ts",
-    "serve": "node bin/gitmole.js",
+    "avatar": "tsx scripts/make-org-avatar.ts",
+    "serve": "node bin/gitmoru.js",
     "mcp": "tsx src/mcp/index.ts",
     "typecheck": "tsc -b --noEmit"
   },
