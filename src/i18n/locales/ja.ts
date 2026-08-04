@@ -239,14 +239,14 @@ export const ja: Dict = {
     stepCreateFile: 'このファイルを作る',
     stepCreateConfig: '設定ファイルを作る',
     fileExists:
-      'すでにあるファイルです。今の内容は消さずに、次の手順の gitmole の部分だけを中に追加してください。',
+      'すでにあるファイルです。今の内容は消さずに、次の手順の gitmoru の部分だけを中に追加してください。',
     fileMissing: 'まだ存在しないファイルです。新しく作って、次の手順の内容をそのまま入れてください。',
     openFolder: 'フォルダを開く',
     stepPaste: 'この内容を貼り付ける',
     stepRestart: '再起動する',
     stepVerify: '接続できたか確認',
     askHint: '再起動したあと、こう聞いてみてください。',
-    ask: 'gitmole のツールで今できることを教えて',
+    ask: 'gitmoru のツールで今できることを教えて',
     askResult: 'ツール名が並べば接続できています。',
     otherTools:
       'ここに載っていないツールでも、MCP に対応していれば接続できます。上の設定内容を、そのツールの MCP 設定の場所にそのまま入れてください。',

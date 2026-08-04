@@ -41,7 +41,7 @@ async function waitFor(url, timeoutMs = 30_000) {
 const port = await findPort(4174)
 const url = `http://${HOST}:${port}`
 
-console.log(`\n  gitmole 준비 중... (${url})\n`)
+console.log(`\n  gitmoru 준비 중... (${url})\n`)
 
 const vite = spawn('npx', ['vite', '--host', HOST, '--port', String(port), '--strictPort'], {
   stdio: ['ignore', 'inherit', 'inherit'],

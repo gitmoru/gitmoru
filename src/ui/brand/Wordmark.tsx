@@ -1,7 +1,7 @@
 import { EYE, GAP, GH, GLYPHS, GW, INK, WORD } from './wordmarkGlyphs'
 
 /**
- * gitmole 글자 로고.
+ * gitmoru 글자 로고.
  *
  * 폰트를 쓰지 않고 도트를 직접 찍었다. 화면의 모든 것이 도트인데
  * 이름만 매끈한 폰트면 거기서 결이 끊긴다.
@@ -40,7 +40,7 @@ export function Wordmark({
       viewBox={`0 0 ${w} ${h}`}
       shapeRendering="crispEdges"
       role="img"
-      aria-label="gitmole"
+      aria-label="gitmoru"
     >
       {[...WORD].map((ch, i) => {
         const g = GLYPHS[ch]

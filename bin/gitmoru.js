@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * gitmole 실행 진입점.
+ * gitmoru 실행 진입점.
  *
  * 빌드된 화면을 127.0.0.1 에만 열고, GitHub 요청은 프록시로 중계한다.
  * 토큰은 이 프로세스 메모리에만 있고 브라우저로 내려가지 않는다 (SAFETY.md 4, 5번).
@@ -87,7 +87,7 @@ try {
 // 127.0.0.1 에만 바인딩한다. 같은 네트워크의 다른 기기에서는 접근할 수 없다.
 server.listen(PORT, '127.0.0.1', () => {
   console.log(`
-  gitmole
+  gitmoru
 
   http://127.0.0.1:${PORT}
 

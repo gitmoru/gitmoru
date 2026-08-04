@@ -1,5 +1,5 @@
 /**
- * gitmole 데스크톱 앱 (Electron 메인 프로세스).
+ * gitmoru 데스크톱 앱 (Electron 메인 프로세스).
  *
  * 웹 모드보다 격리가 강하다.
  *   - **열린 포트가 없다** - 같은 컴퓨터의 다른 프로그램이 접근할 경로 자체가 없다
@@ -119,7 +119,7 @@ const APP_DIR = resolve(__dirname, '..')
 const MCP_ARGS = ['tsx', join(APP_DIR, 'src', 'mcp', 'index.ts')]
 
 function mcpCommand() {
-  return `claude mcp add gitmole -- npx ${MCP_ARGS.join(' ')}`
+  return `claude mcp add gitmoru -- npx ${MCP_ARGS.join(' ')}`
 }
 
 /**
@@ -171,7 +171,7 @@ ipcMain.handle('radar:mcp-status', async () => {
     return {
       ok: true,
       hasCli: true,
-      registered: /(^|\s)gitmole[:\s]/.test(stdout),
+      registered: /(^|\s)gitmoru[:\s]/.test(stdout),
       command: mcpCommand(),
       scriptPath: MCP_ARGS[1],
       paths: clientPaths(),
@@ -192,7 +192,7 @@ ipcMain.handle('radar:mcp-status', async () => {
 
 ipcMain.handle('radar:mcp-register', async () => {
   try {
-    const { stdout } = await run('claude', ['mcp', 'add', 'gitmole', '--', 'npx', ...MCP_ARGS], {
+    const { stdout } = await run('claude', ['mcp', 'add', 'gitmoru', '--', 'npx', ...MCP_ARGS], {
       cwd: APP_DIR,
       windowsHide: true,
       timeout: 30_000,

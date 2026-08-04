@@ -14,7 +14,7 @@ import { registerCaseTools } from './tools/cases'
 import { callGitHub } from '../../server/proxy.mjs'
 
 /**
- * gitmole MCP 서버.
+ * gitmoru MCP 서버.
  *
  * 목적이 하나다 - **도구가 못 하는 판단을 에이전트가 하게 한다.**
  * 무엇이 바뀌었는지는 우리가 모으고, 그게 무슨 코드인지는 에이전트가 읽는다.
@@ -54,7 +54,7 @@ setGhTransport(async (path, opts) => {
   }
 })
 
-const server = new McpServer({ name: 'gitmole', version: '0.1.0' })
+const server = new McpServer({ name: 'gitmoru', version: '0.1.0' })
 const ctx = createContext()
 
 // 등록 순서가 곧 쓰는 순서다. 훑고 → 추리고 → 읽고 → 되돌릴지 본다.

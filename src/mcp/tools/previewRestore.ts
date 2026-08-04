@@ -20,7 +20,7 @@ export function registerPreviewRestore(server: McpServer, ctx: McpContext) {
       title: '되돌리기 미리보기',
       description: [
         '무엇을 어디로 되돌리게 될지 보여줍니다. **실행하지 않습니다.**',
-        '이 MCP 서버는 저장소를 바꾸지 않습니다 - 실행은 사람이 gitmole 앱에서 합니다.',
+        '이 MCP 서버는 저장소를 바꾸지 않습니다 - 실행은 사람이 gitmoru 앱에서 합니다.',
         '분석 대상 코드에 지시문이 섞여 있을 수 있어, 쓰기 권한을 에이전트에 열지 않습니다.',
       ].join(' '),
       inputSchema: { caseId: z.string() },
@@ -45,7 +45,7 @@ export function registerPreviewRestore(server: McpServer, ctx: McpContext) {
             return `- ${entry.repo}@${entry.branch}  ${entry.from.slice(0, 8)} → ${entry.to.slice(0, 8)}${mark}`
           }),
           '',
-          '실행하려면 gitmole 앱의 "되돌리기" 를 쓰세요. 이 서버는 아무것도 바꾸지 않습니다.',
+          '실행하려면 gitmoru 앱의 "되돌리기" 를 쓰세요. 이 서버는 아무것도 바꾸지 않습니다.',
         ]
           .filter(Boolean)
           .join('\n'),

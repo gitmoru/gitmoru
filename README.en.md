@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/assets/wordmark.svg" alt="gitmole" width="300">
+<img src="docs/assets/wordmark.svg" alt="gitmoru" width="300">
 
 <br>
 <br>
@@ -27,7 +27,7 @@ Three things matter at that moment.
 2. **What came in** - what that file actually does
 3. **Can it be undone** - is the pre-attack commit still on record
 
-gitmole does 1 and 3. It does not do 2.
+gitmoru does 1 and 3. It does not do 2.
 **Instead it hands 2 to an AI that can.**
 
 <br>
@@ -46,7 +46,7 @@ not in the rules. When rules produce verdicts, **whatever the rules miss shows u
 That happened. A search by filename missed the same payload attached under a different name,
 and the screen said "0 findings". That screen was reassuring for a while.
 
-So when nothing matches, gitmole says this instead:
+So when nothing matches, gitmoru says this instead:
 
 ```
 No signals came up. Still worth skimming the 14 changed files.

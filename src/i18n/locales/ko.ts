@@ -229,14 +229,14 @@ export const ko = {
     stepCreateFile: '이 파일 만들기',
     stepCreateConfig: '설정 파일 만들기',
     fileExists:
-      '이미 있는 파일이에요. 지금 들어 있는 내용은 지우지 말고, 다음 단계의 gitmole 부분만 안에 끼워 넣어 주세요.',
+      '이미 있는 파일이에요. 지금 들어 있는 내용은 지우지 말고, 다음 단계의 gitmoru 부분만 안에 끼워 넣어 주세요.',
     fileMissing: '아직 없는 파일이에요. 새로 만들고 다음 단계의 내용을 그대로 넣으면 됩니다.',
     openFolder: '폴더 열기',
     stepPaste: '이 내용 붙여넣기',
     stepRestart: '껐다 켜기',
     stepVerify: '붙었는지 확인',
     askHint: '다시 켠 다음 이렇게 물어보세요.',
-    ask: 'gitmole 도구로 지금 쓸 수 있는 게 뭔지 알려줘',
+    ask: 'gitmoru 도구로 지금 쓸 수 있는 게 뭔지 알려줘',
     askResult: '도구 이름들이 나오면 붙은 거예요.',
     otherTools:
       '여기 없는 도구라도 MCP 만 지원하면 붙습니다. 위 설정 내용을 그 도구의 MCP 설정 자리에 그대로 넣으세요.',

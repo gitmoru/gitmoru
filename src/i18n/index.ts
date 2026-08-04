@@ -30,7 +30,7 @@ export const LOCALE_NAMES: Record<Locale, string> = {
   ja: '日本語',
 }
 
-const STORAGE_KEY = 'gitmole.locale'
+const STORAGE_KEY = 'gitmoru.locale'
 
 /** 사용자가 직접 고른 적이 있는지. 첫 실행에 언어를 물어볼지 여기서 갈린다. */
 export function localeWasChosen(): boolean {

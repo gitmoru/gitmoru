@@ -14,7 +14,7 @@ const SESSION_KEY = randomBytes(24).toString('hex')
  */
 function radarServer(): Plugin {
   return {
-    name: 'gitmole-server',
+    name: 'gitmoru-server',
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
         for (const [k, v] of Object.entries(SECURITY_HEADERS as Record<string, string>)) {

@@ -36,9 +36,9 @@ GitHub 은 활동 기록을 90일 정도, 저장소당 300건쯤 보관한다.
 시험용 저장소를 하나 만들고 환경변수로 알려준다.
 
 ```bash
-export GITMOLE_TEST_REPO=내계정/gitmole-test
-export GITMOLE_TEST_GOOD=<정상 커밋 SHA>
-export GITMOLE_TEST_BAD=<공격당한 상태로 쓸 커밋 SHA>
+export GITMORU_TEST_REPO=내계정/gitmoru-test
+export GITMORU_TEST_GOOD=<정상 커밋 SHA>
+export GITMORU_TEST_BAD=<공격당한 상태로 쓸 커밋 SHA>
 bash scripts/reset-test-repo.sh
 ```
 

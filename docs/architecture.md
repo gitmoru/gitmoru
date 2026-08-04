@@ -70,7 +70,7 @@
 | `src/platform/bridge.ts` | 화면이 로컬 프로세스에 일을 시키는 통로 |
 | `server/proxy.mjs` | 바깥으로 나가는 유일한 문. 호스트 고정, 쓰기 화이트리스트 |
 | `electron/` | 창 만들기, IPC, CSP 적용 |
-| `bin/gitmole.js` | 브라우저 모드 진입점 |
+| `bin/gitmoru.js` | 브라우저 모드 진입점 |
 | `scripts/` | 아이콘 굽기, 개발 실행, MCP 두드려보기 |
 
 ## 지키는 것

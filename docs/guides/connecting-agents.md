@@ -1,6 +1,6 @@
 # 에이전트 붙이기
 
-gitmole 은 MCP 서버를 함께 들고 있다. 붙이면 AI 가 결과를 직접 읽고,
+gitmoru 은 MCP 서버를 함께 들고 있다. 붙이면 AI 가 결과를 직접 읽고,
 수상한 파일이 무슨 코드인지 설명해준다.
 
 ## 왜 붙이나
@@ -16,7 +16,7 @@ gitmole 은 MCP 서버를 함께 들고 있다. 붙이면 AI 가 결과를 직�
 ```json
 {
   "mcpServers": {
-    "gitmole": { "command": "npx", "args": ["tsx", "<gitmole>/src/mcp/index.ts"] }
+    "gitmoru": { "command": "npx", "args": ["tsx", "<gitmoru>/src/mcp/index.ts"] }
   }
 }
 ```
@@ -24,9 +24,9 @@ gitmole 은 MCP 서버를 함께 들고 있다. 붙이면 AI 가 결과를 직�
 Codex CLI 는 TOML 이다.
 
 ```toml
-[mcp_servers.gitmole]
+[mcp_servers.gitmoru]
 command = "npx"
-args = ["tsx", "<gitmole>/src/mcp/index.ts"]
+args = ["tsx", "<gitmoru>/src/mcp/index.ts"]
 ```
 
 VS Code 는 `servers` 키를 쓰고 `type: "stdio"` 가 필요하다.

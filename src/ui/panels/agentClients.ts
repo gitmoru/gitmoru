@@ -25,7 +25,7 @@ export type Client = {
 }
 
 const json = (body: object) => JSON.stringify(body, null, 2)
-const mcpServers = (p: string) => json({ mcpServers: { gitmole: { command: 'npx', args: ['tsx', p] } } })
+const mcpServers = (p: string) => json({ mcpServers: { gitmoru: { command: 'npx', args: ['tsx', p] } } })
 
 export const CLIENTS: Client[] = [
   {
@@ -33,7 +33,7 @@ export const CLIENTS: Client[] = [
     name: 'Claude Code',
     kind: 'cli',
     auto: true,
-    snippet: (p) => `claude mcp add gitmole -- npx tsx ${p}`,
+    snippet: (p) => `claude mcp add gitmoru -- npx tsx ${p}`,
     restart: 'claudeCode',
   },
   {
@@ -42,7 +42,7 @@ export const CLIENTS: Client[] = [
     kind: 'file',
     pathKey: 'codex',
     snippet: (p) =>
-      `[mcp_servers.gitmole]\ncommand = "npx"\nargs = ["tsx", "${p.replace(/\\/g, '\\\\')}"]`,
+      `[mcp_servers.gitmoru]\ncommand = "npx"\nargs = ["tsx", "${p.replace(/\\/g, '\\\\')}"]`,
     restart: 'codex',
   },
   {
@@ -82,7 +82,7 @@ export const CLIENTS: Client[] = [
     name: 'VS Code (Copilot)',
     kind: 'file',
     hasNoFixedPath: true,
-    snippet: (p) => json({ servers: { gitmole: { type: 'stdio', command: 'npx', args: ['tsx', p] } } }),
+    snippet: (p) => json({ servers: { gitmoru: { type: 'stdio', command: 'npx', args: ['tsx', p] } } }),
     restart: 'vscode',
   },
 ]

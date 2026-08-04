@@ -239,14 +239,14 @@ export const en: Dict = {
     stepCreateFile: 'Create this file',
     stepCreateConfig: 'Create the config file',
     fileExists:
-      'This file already exists. Keep what is in it and add only the gitmole entry from the next step.',
+      'This file already exists. Keep what is in it and add only the gitmoru entry from the next step.',
     fileMissing: 'This file does not exist yet. Create it and paste the next step as is.',
     openFolder: 'Open folder',
     stepPaste: 'Paste this in',
     stepRestart: 'Restart it',
     stepVerify: 'Check that it worked',
     askHint: 'After restarting, ask it this.',
-    ask: 'What gitmole tools can you use right now?',
+    ask: 'What gitmoru tools can you use right now?',
     askResult: 'If it lists tool names, you are connected.',
     otherTools:
       'Any tool that speaks MCP will work, even if it is not listed here. Paste the config above wherever that tool keeps its MCP servers.',
