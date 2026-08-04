@@ -11,3 +11,6 @@ cases/
 *.log
 .DS_Store
 Thumbs.db
+
+# tsc 가 만드는 증분 빌드 기록
+tsconfig.tsbuildinfo
