@@ -1,9 +1,10 @@
 import { useTr } from '../../i18n'
+import { DiffView } from './DiffView'
 import { reactMole } from '../scene/moleReactions'
 import { useState } from 'react'
 import type { GitHubClient } from '../../core/github'
 import { collapseHiddenPadding, defang, formatBytes, wrapUntrusted } from '../../core/safeText'
-import type { BranchState, Finding } from '../../core/types'
+import type { BranchState, Finding, CaseFile, FileTarget } from '../../core/types'
 
 /**
  * 오른쪽 상세 패널.
@@ -25,12 +26,21 @@ const STATUS_DOT: Record<BranchState['status'], string> = {
 interface Props {
   finding: Finding | null
   branch: BranchState | null
+  /** 신호 없이 열린 파일 하나 */
+  file?: FileTarget | null
+  /** 신호에 딸린 파일의 공격 직전 커밋을 찾을 때 쓴다 */
+  caseFile?: CaseFile | null
   gh: GitHubClient | null
   onClose: () => void
 }
 
-export function DetailPanel({ finding, branch, gh, onClose }: Props) {
+export function DetailPanel({ finding, branch, file, caseFile, gh, onClose }: Props) {
   const t = useTr()
+  /** 신호가 가리키는 파일이 어느 비교에서 나온 것인지. 공격 직전 커밋을 여기서 얻는다. */
+  const sampleChange = caseFile?.changes.find(
+    (c) => c.repo === finding?.repo && c.branch === finding?.branch,
+  )
+  const sampleFile = sampleChange?.files.find((f) => f.path === finding?.sampleRef?.path)
   const [sample, setSample] = useState<{ text: string; padding: number } | null>(null)
   const [loading, setLoading] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -86,6 +96,18 @@ export function DetailPanel({ finding, branch, gh, onClose }: Props) {
               </div>
               <h2 className="text-[13.5px] font-semibold">{finding.title}</h2>
             </>
+          ) : file ? (
+            <>
+              <div className="mb-1 flex items-center gap-2">
+                <span className="text-[10px] text-[var(--color-muted)]">
+                  {t.changeList.kinds[file.kind]}
+                </span>
+              </div>
+              <h2 className="truncate font-mono text-[13px] font-semibold">{file.path}</h2>
+              <p className="truncate font-mono text-[10.5px] text-[var(--color-muted)]">
+                {file.repo} / {file.branch}
+              </p>
+            </>
           ) : (
             <>
               <div className="mb-1 flex items-center gap-2">
@@ -112,6 +134,21 @@ export function DetailPanel({ finding, branch, gh, onClose }: Props) {
       </header>
 
       <div className="flex-1 overflow-y-auto p-4">
+        {file && (
+          <>
+            <SectionTitle>{t.detail.whatChanged}</SectionTitle>
+            <DiffView
+              gh={gh}
+              repo={file.repo}
+              path={file.path}
+              baseRef={file.baseSha}
+              headRef={file.headSha}
+              kind={file.kind}
+              sizeAfter={file.sizeAfter}
+            />
+          </>
+        )}
+
         {finding && (
           <>
             <p className="mb-4 text-[12px] leading-relaxed text-[var(--color-text)]">{finding.summary}</p>
@@ -140,6 +177,23 @@ export function DetailPanel({ finding, branch, gh, onClose }: Props) {
                 </li>
               ))}
             </ul>
+
+            {finding.sampleRef && sampleChange && (
+              <>
+                <SectionTitle>{t.detail.whatChanged}</SectionTitle>
+                <div className="mb-4">
+                  <DiffView
+                    gh={gh}
+                    repo={finding.sampleRef.repo}
+                    path={finding.sampleRef.path}
+                    baseRef={sampleChange.baseSha}
+                    headRef={sampleChange.headSha}
+                    kind={sampleFile?.kind ?? 'modified'}
+                    sizeAfter={finding.sampleRef.sizeBytes}
+                  />
+                </div>
+              </>
+            )}
 
             {finding.sampleRef && (
               <>

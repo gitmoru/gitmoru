@@ -162,6 +162,7 @@ export const ko = {
       unknown: '못 파봄',
     },
     evidence: '근거',
+    whatChanged: '바뀐 부분',
     fileContent: '파일 내용',
     textOnly: '글자로만 보여줘요. 실행 안 하고, 링크도 안 눌려요.',
     open: '열어보기',
@@ -180,6 +181,16 @@ export const ko = {
       `눈에 띈 건 ${n}개예요. 바뀐 파일도 한 번 봐주세요. 제 규칙이 못 잡는 게 있거든요.`,
     attention: { first: '먼저 보기', soon: '이어서 보기', later: '참고' },
     confidence: { high: '근거 뚜렷', medium: '근거 보통', low: '근거 약함' },
+  },
+
+  diffView: {
+    intro: '공격 직전 파일과 지금 파일을 맞대봅니다. 글자로만 보여주고, 실행도 링크도 안 돼요.',
+    open: '바뀐 부분 보기',
+    failed: '두 버전 중 하나를 못 읽었어요. 바이너리이거나 커밋이 정리됐을 수 있어요.',
+    counts: (removed: number, added: number, at: number) =>
+      `사라진 줄 ${removed}, 새로 생긴 줄 ${added} (${at}번째 줄부터)`,
+    longLine: (n: number) => `... 이 줄은 ${n}자 더 있어요`,
+    showAll: (n: number) => `나머지 ${n}줄 더 보기`,
   },
 
   restore: {

@@ -172,6 +172,7 @@ export const ja: Dict = {
       unknown: '未確認',
     },
     evidence: '根拠',
+    whatChanged: '変わった部分',
     fileContent: 'ファイルの中身',
     textOnly: 'テキストとして表示するだけです。実行もリンクも無効にしています。',
     open: '開く',
@@ -190,6 +191,16 @@ export const ja: Dict = {
       `検出は ${n} 件です。変更されたファイルにも目を通してください。ルールで拾えないものもあります。`,
     attention: { first: '最優先で確認', soon: '次に確認', later: '参考' },
     confidence: { high: '根拠が明確', medium: '根拠は中程度', low: '根拠は弱い' },
+  },
+
+  diffView: {
+    intro: '攻撃直前のファイルと現在のファイルを比べます。テキストとして表示するだけで、実行もリンクも無効です。',
+    open: '変わった部分を見る',
+    failed: '2 つのうち片方を読めませんでした。バイナリか、コミットが整理された可能性があります。',
+    counts: (removed, added, at) =>
+      `消えた行 ${removed}、増えた行 ${added}（${at} 行目から）`,
+    longLine: (n) => `... この行はあと ${n} 文字あります`,
+    showAll: (n) => `残り ${n} 行を見る`,
   },
 
   restore: {

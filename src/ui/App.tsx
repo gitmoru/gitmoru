@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { DETECTORS } from '../core/detectors'
 import { localeWasChosen, tr } from '../i18n'
 import { summarize } from '../core/scan'
-import type { BranchState, Finding } from '../core/types'
+import type { BranchState, FileTarget, Finding } from '../core/types'
 
 import { Dock } from './chrome/Dock'
 import { DockResizer } from './chrome/DockResizer'
@@ -70,6 +70,7 @@ export function App() {
 
   const [selectedFinding, setSelectedFinding] = useState<Finding | null>(null)
   const [selectedBranch, setSelectedBranch] = useState<BranchState | null>(null)
+  const [selectedFile, setSelectedFile] = useState<FileTarget | null>(null)
   const [focusedField, setFocusedField] = useState<string | null>(null)
   const [booting, setBooting] = useState(true)
   /** 처음 켠 사람에게만 한 번 묻는다 */
@@ -81,7 +82,7 @@ export function App() {
   const [connecting, setConnecting] = useState(false)
 
   const stats = session.caseFile ? summarize(session.caseFile) : null
-  const detailOpen = Boolean(selectedFinding || selectedBranch)
+  const detailOpen = Boolean(selectedFinding || selectedBranch || selectedFile)
 
   const reaction = useMoleReaction()
 
@@ -118,10 +119,17 @@ export function App() {
   const openFinding = (finding: Finding) => {
     setSelectedFinding(finding)
     setSelectedBranch(null)
+    setSelectedFile(null)
+  }
+  const openFile = (target: FileTarget) => {
+    setSelectedFile(target)
+    setSelectedFinding(null)
+    setSelectedBranch(null)
   }
   const closeDetail = () => {
     setSelectedFinding(null)
     setSelectedBranch(null)
+    setSelectedFile(null)
   }
 
   return (
@@ -173,6 +181,7 @@ export function App() {
                 if (!first) return
                 setSelectedBranch(first)
                 setSelectedFinding(null)
+                setSelectedFile(null)
               }}
               onSelectFinding={openFinding}
             />
@@ -198,6 +207,7 @@ export function App() {
             log={session.log}
             busy={session.scanning}
             onOpenFinding={openFinding}
+            onOpenFile={openFile}
           />
         </main>
 
@@ -207,6 +217,8 @@ export function App() {
               <DetailPanel
                 finding={selectedFinding}
                 branch={selectedBranch}
+                file={selectedFile}
+                caseFile={session.caseFile}
                 gh={session.github}
                 onClose={closeDetail}
               />
@@ -215,6 +227,8 @@ export function App() {
             <DetailPanel
               finding={selectedFinding}
               branch={selectedBranch}
+              file={selectedFile}
+              caseFile={session.caseFile}
               gh={session.github}
               onClose={closeDetail}
             />

@@ -1,7 +1,7 @@
 import { useTr } from '../../i18n'
 import { reactMole, type MoleEvent } from '../scene/moleReactions'
 import { useState } from 'react'
-import type { CaseFile, Finding } from '../../core/types'
+import type { CaseFile, Finding, FileTarget } from '../../core/types'
 import { ChangeList, SignalList } from '../panels/ChangeList'
 import { ConsoleLog, type LogLine } from './ConsoleLog'
 
@@ -22,9 +22,10 @@ interface Props {
   log: LogLine[]
   busy: boolean
   onOpenFinding: (f: Finding) => void
+  onOpenFile: (target: FileTarget) => void
 }
 
-export function Dock({ caseFile, log, busy, onOpenFinding }: Props) {
+export function Dock({ caseFile, log, busy, onOpenFinding, onOpenFile }: Props) {
   const t = useTr()
   const [tab, setTab] = useState<Tab>('changes')
 
@@ -77,7 +78,7 @@ export function Dock({ caseFile, log, busy, onOpenFinding }: Props) {
       </nav>
 
       <div className="min-h-0 flex-1 overflow-y-auto">
-        {tab === 'changes' && <ChangeList caseFile={caseFile} onOpenFinding={onOpenFinding} />}
+        {tab === 'changes' && <ChangeList caseFile={caseFile} onOpenFinding={onOpenFinding} onOpenFile={onOpenFile} />}
         {tab === 'signals' && <SignalList caseFile={caseFile} onOpenFinding={onOpenFinding} />}
         {tab === 'log' && <ConsoleLog lines={log} busy={busy} />}
       </div>

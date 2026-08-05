@@ -172,6 +172,7 @@ export const en: Dict = {
       unknown: 'Unchecked',
     },
     evidence: 'Evidence',
+    whatChanged: 'What changed',
     fileContent: 'File contents',
     textOnly: 'Shown as plain text. Nothing runs, links are dead.',
     open: 'Open it',
@@ -190,6 +191,16 @@ export const en: Dict = {
       `${n} ${plural(n, 'signal', 'signals')} came up. Skim the changed files too. My rules miss things.`,
     attention: { first: 'Look first', soon: 'Look next', later: 'FYI' },
     confidence: { high: 'Strong evidence', medium: 'Moderate evidence', low: 'Weak evidence' },
+  },
+
+  diffView: {
+    intro: 'Compares the file before the attack with the file now. Plain text only, nothing runs.',
+    open: 'Show what changed',
+    failed: 'One of the two versions could not be read. It may be binary, or the commit was pruned.',
+    counts: (removed, added, at) =>
+      `${removed} lines removed, ${added} added (starting at line ${at})`,
+    longLine: (n) => `... ${n} more characters on this line`,
+    showAll: (n) => `Show ${n} more lines`,
   },
 
   restore: {

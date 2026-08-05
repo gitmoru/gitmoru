@@ -2,7 +2,7 @@ import { useTr } from '../../i18n'
 import { growth } from '../../core/changes'
 import { formatBytes } from '../../core/safeText'
 import { verdictOf, verdictText } from '../../core/scan'
-import type { BranchChanges, CaseFile, FileChange, Finding } from '../../core/types'
+import type { BranchChanges, CaseFile, FileChange, FileTarget, Finding } from '../../core/types'
 
 /**
  * 변경 목록 - 이 도구가 실제로 내놓는 답.
@@ -23,7 +23,12 @@ interface Props {
   onOpenFinding: (f: Finding) => void
 }
 
-export function ChangeList({ caseFile, onOpenFinding }: Props) {
+interface ListProps extends Props {
+  /** 신호가 없는 파일도 열 수 있어야 한다 */
+  onOpenFile: (target: FileTarget) => void
+}
+
+export function ChangeList({ caseFile, onOpenFile }: ListProps) {
   const t = useTr()
   if (!caseFile) {
     return <p className="px-3 py-3 text-[11px] text-[var(--color-muted)]">{t.changeList.empty}</p>
@@ -87,9 +92,18 @@ export function ChangeList({ caseFile, onOpenFinding }: Props) {
                 <li key={f.path}>
                   <button
                     type="button"
-                    disabled={!finding}
-                    onClick={() => finding && onOpenFinding(finding)}
-                    className="flex w-full items-center gap-2  px-1.5 py-1 text-left hover:bg-white/5 disabled:cursor-default disabled:hover:bg-transparent"
+                    onClick={() =>
+                      onOpenFile({
+                        repo: c.repo,
+                        branch: c.branch,
+                        path: f.path,
+                        kind: f.kind,
+                        baseSha: c.baseSha,
+                        headSha: c.headSha,
+                        sizeAfter: f.sizeAfter,
+                      })
+                    }
+                    className="flex w-full items-center gap-2  px-1.5 py-1 text-left hover:bg-white/5"
                   >
                     <span
                       className="shrink-0 font-mono text-[9.5px]"

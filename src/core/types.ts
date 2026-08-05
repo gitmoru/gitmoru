@@ -127,6 +127,22 @@ export interface BranchChanges {
   partial: boolean
 }
 
+/**
+ * 화면에서 파일 하나를 열 때 넘기는 좌표.
+ *
+ * 신호가 붙지 않은 파일도 열 수 있어야 한다. 규칙이 못 잡은 공격이 거기 있을 수 있고,
+ * 신호가 있는 것만 열리면 화면이 "신호 없는 건 볼 필요 없다" 고 말하는 셈이 된다 (ADR 0002).
+ */
+export interface FileTarget {
+  repo: string
+  branch: string
+  path: string
+  kind: FileChange['kind']
+  baseSha: string
+  headSha: string
+  sizeAfter?: number
+}
+
 /** 의심 파일을 나중에 다시 읽어오기 위한 좌표. 내용은 담지 않는다. */
 export interface SampleRef {
   repo: string
