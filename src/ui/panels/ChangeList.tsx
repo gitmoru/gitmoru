@@ -2,6 +2,7 @@ import { useState } from 'react'
 
 import { useTr } from '../../i18n'
 import { growth } from '../../core/changes'
+import { roleOf } from '../../core/fileRole'
 import { formatBytes } from '../../core/safeText'
 import { verdictOf, verdictText } from '../../core/scan'
 import type { BranchChanges, CaseFile, FileChange, FileTarget, Finding } from '../../core/types'
@@ -83,8 +84,47 @@ export function ChangeList({ caseFile, onOpenFile }: ListProps) {
     return sig(b) - sig(a) || b.files.length - a.files.length
   })
 
+  const workflows = caseFile.changes.flatMap((c) =>
+    c.files.filter((f) => roleOf(f.path) === 'workflow').map((f) => ({ change: c, file: f })),
+  )
+
   return (
     <div className="px-3 py-2">
+      {/*
+        CI 정의는 맨 위에 따로 올린다. 임계값이 없는 사실이라 매번 보여줘도 소음이 아니고,
+        자체 호스팅 러너를 쓰는 곳에서는 이 파일 한 줄이 곧 그 서버의 셸이다.
+      */}
+      {workflows.length > 0 && (
+        <div className="mb-3 p-2.5" style={{ background: 'var(--color-apricot)/10' }}>
+          <p className="text-[11px] text-[var(--color-apricot)]">
+            {t.role.workflowChanged(workflows.length)}
+          </p>
+          <p className="mt-1 mb-1.5 text-[10.5px] leading-relaxed text-[var(--color-muted)]">
+            {t.role.workflowNote}
+          </p>
+          {workflows.slice(0, 6).map(({ change, file }) => (
+            <button
+              key={`${change.branch}/${file.path}`}
+              type="button"
+              onClick={() =>
+                onOpenFile({
+                  repo: change.repo,
+                  branch: change.branch,
+                  path: file.path,
+                  kind: file.kind,
+                  baseSha: change.baseSha,
+                  headSha: change.headSha,
+                  sizeAfter: file.sizeAfter,
+                })
+              }
+              className="block w-full truncate px-1 py-0.5 text-left font-mono text-[10px] text-[var(--color-text)] hover:bg-white/5"
+            >
+              {change.branch} :: {file.path}
+            </button>
+          ))}
+        </div>
+      )}
+
       {sorted.map((c) => {
         const key = `${c.repo}/${c.branch}`
         const expanded = open.has(key) || sorted.length === 1
@@ -120,6 +160,7 @@ export function ChangeList({ caseFile, onOpenFile }: ListProps) {
               const ratio = growth(f)
               const finding = caseFile.findings.find((s) => f.signalIds.includes(s.id))
               const grew = f.kind === 'modified' && ratio >= 2
+              const role = roleOf(f.path)
 
               return (
                 <li key={f.path}>
@@ -148,6 +189,17 @@ export function ChangeList({ caseFile, onOpenFile }: ListProps) {
                     <span className="min-w-0 flex-1 truncate font-mono text-[10.5px] text-[var(--color-text)]">
                       {f.path}
                     </span>
+
+                    {/* 자동으로 실행되는 자리면 표시한다. 위험하다는 뜻이 아니라 성격이다. */}
+                    {role && (
+                      <span
+                        className="shrink-0 text-[9px]"
+                        style={{ color: 'var(--color-sand)' }}
+                        title={t.role.autoRunTag}
+                      >
+                        {t.role[role]}
+                      </span>
+                    )}
 
                     {grew && (
                       <span className="shrink-0 font-mono text-[9.5px] text-[var(--color-apricot)]">

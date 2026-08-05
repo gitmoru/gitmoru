@@ -1,6 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 
+import { roleOf } from '../../core/fileRole'
 import { formatBytes } from '../../core/safeText'
 import { summarize } from '../../core/scan'
 import { findCase, locationOf, reply, type McpContext } from '../context'
@@ -43,6 +44,21 @@ export function registerTriage(server: McpServer, ctx: McpContext) {
         return `${i + 1}. [${finding.attention}] ${where}\n   ${finding.summary}`
       })
 
+      /*
+        자동으로 실행되는 자리에서 바뀐 파일을 먼저 올린다.
+
+        규칙에 걸렸는지와 무관하다. CI 정의가 바뀌었다는 건 임계값 없는 사실이고,
+        자체 호스팅 러너를 쓰는 곳에서는 브랜치 덮어쓰기보다 더 멀리 간다.
+      */
+      const autoRun = caseFile.changes
+        .flatMap((change) =>
+          change.files
+            .filter((file) => roleOf(file.path))
+            .map((file) => ({ change, file, role: roleOf(file.path)! })),
+        )
+        .filter((x) => x.role === 'workflow' || x.role === 'gitHook')
+        .slice(0, 10)
+
       const unsignalled = caseFile.changes
         .flatMap((change) =>
           change.files
@@ -58,6 +74,16 @@ export function registerTriage(server: McpServer, ctx: McpContext) {
           '',
           ranked.length ? ranked.join('\n') : '(규칙에 걸린 것 없음)',
           '',
+          autoRun.length
+            ? [
+                '자동으로 실행되는 자리에서 바뀐 파일 (규칙과 무관하게 먼저 보세요)',
+                ...autoRun.map(
+                  ({ change, file, role }) =>
+                    `- [${role}] ${locationOf(change.repo, change.branch, file.path)}`,
+                ),
+                '',
+              ].join('\n')
+            : '',
           `규칙에 안 걸린 변경 ${stats.unreviewed}개 - 규칙이 못 잡는 방식도 있으니 직접 봐야 합니다.`,
           ...unsignalled.map(({ change, file }) => {
             const size = file.sizeAfter !== undefined ? `, ${formatBytes(file.sizeAfter)}` : ''

@@ -78,6 +78,9 @@ export function registerScan(server: McpServer, ctx: McpContext) {
           stats.forcedBranches > 0
             ? `강제 푸시 ${stats.forcedBranches}곳, 그 과정에서 커밋 ${stats.droppedCommits}개가 사라졌습니다`
             : '',
+          stats.autoRun.workflow > 0
+            ? `CI 정의(.github/workflows) ${stats.autoRun.workflow}개가 바뀌었습니다. 다음 푸시부터 여기 적힌 대로 돕니다`
+            : '',
           stats.rewrittenBranches > 0
             ? `그중 ${stats.rewrittenBranches}곳은 이전 기록과 이어지지 않는 새 기록으로 갈아치워졌습니다 (사라진 커밋 수를 셀 수 없음)`
             : '',

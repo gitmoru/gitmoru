@@ -46,6 +46,7 @@ export function shareText(c: CaseFile): string {
   lines.push(t.breakdown(s.changed, s.reverted, s.untouched, s.unknown))
   if (s.forcedBranches > 0) lines.push(t.forced(s.forcedBranches, s.droppedCommits))
   if (s.rewrittenBranches > 0) lines.push(t.rewritten(s.rewrittenBranches))
+  if (s.autoRun.workflow > 0) lines.push(t.workflow(s.autoRun.workflow))
 
   // 확인 못 한 게 있으면 여기서 바로 말한다. 맨 끝에 두면 안 읽힌다.
   if (s.unknown > 0 || s.failures > 0) {
