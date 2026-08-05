@@ -48,6 +48,8 @@ export const en: Dict = {
     changedFiles: (changed, unreviewed) =>
       `${changed} ${plural(changed, 'file', 'files')} changed, ${unreviewed} without a signal`,
     failures: (n) => `${n} couldn't be checked`,
+    forced: (branches, commits) =>
+      `${branches} force-pushed, ${commits} ${commits === 1 ? 'commit' : 'commits'} dropped`,
     exportHint: 'A record you can reopen later or hand to someone else',
     exportLabel: 'Save record',
     restore: 'Restore',
@@ -363,6 +365,8 @@ export const en: Dict = {
       `Changed ${changed}, reverted ${reverted}, untouched ${untouched}, unchecked ${unknown}`,
     incomplete: (unknown, failures) =>
       `Note: ${unknown > 0 ? `${unknown} ${plural(unknown, 'branch', 'branches')} could not be checked` : `${failures} lookups failed`}. This result should not be read as "nothing found".`,
+    forced: (branches, commits) =>
+      `History was overwritten on ${branches} ${branches === 1 ? 'branch' : 'branches'}, dropping ${commits} ${commits === 1 ? 'commit' : 'commits'}.`,
     byRepo: 'By repository',
     repoChanged: (n) => `${n} changed`,
     repoUnknown: (n) => `${n} unchecked`,
@@ -390,6 +394,32 @@ export const en: Dict = {
     detector: (name) => `Running ${name}`,
     detectorFailed: (reason) => `Detector failed: ${reason}`,
     done: 'Collected',
+  },
+
+  push: {
+    noBefore: 'The commit before this push is not on record, so it could not be checked.',
+    compareFailed: (err) => `Could not compare before and after the push: ${err}`,
+    checking: (done, total) => `Checking pushes ${done}/${total}`,
+    forced: 'Force push',
+    dropped: (n) => `${n} ${n === 1 ? 'commit' : 'commits'} dropped`,
+    forcedCount: (n) => `${n} force ${n === 1 ? 'push' : 'pushes'}`,
+    unknownShape: 'Could not tell whether this was a force push',
+    note: 'Force pushing is normal work on your own branch. It is worth a look when it lands on branches across the org at once.',
+  },
+
+  diff: {
+    header: (repo, branch, path) => `${repo}@${branch} :: ${path}`,
+    commits: (before, after) => `before the attack ${before} → now ${after}`,
+    counts: (removed, added, at) =>
+      `${removed} lines removed, ${added} added (starting at line ${at})`,
+    longLine: (n) => `... ${n} more characters on this line`,
+    padding: (n) =>
+      `Contains ${n} characters of whitespace, which is how code gets pushed off screen to hide.`,
+    truncated: 'Too long, so it was cut short.',
+    unreadable:
+      'One of the two versions could not be read as text (binary, or the commit may have been pruned).',
+    noBranch: (repo, branch) => `Nothing changed on ${repo}@${branch} in that window.`,
+    noFile: (path) => `${path} is not in the changed file list. Check list_changes.`,
   },
 
   reasons: {

@@ -1,3 +1,4 @@
+import { fillPushShapes, forcedOn } from './pushShape'
 import { tr } from '../i18n'
 import { collectChanges } from './changes'
 import { DETECTORS, detectorById } from './detectors'
@@ -124,6 +125,17 @@ export async function runScan(
     }
   }
 
+  // ── 3.5. 푸시가 기록을 덮어썼는지 ───────────────────────
+  // 이벤트에는 그 정보가 없어서 전후 커밋을 맞대본다. 판정이 아니라 사실 수집이다.
+  await fillPushShapes(gh, events, fail, (done, total) =>
+    onProgress({
+      phase: 'branches',
+      message: tr().push.checking(done, total),
+      current: done,
+      total,
+    }),
+  )
+
   // ── 4. 무엇이 바뀌었는지 (1차 산출물) ───────────────────
   // 탐지 규칙과 무관하게 무조건 수집한다. 규칙이 못 알아본 공격도 여기에는 남는다.
   const changes: BranchChanges[] = []
@@ -196,6 +208,7 @@ export async function runScan(
     const current = branches.find((b) => b.repo === ev.repo && b.branch === ev.branch)
     const diff = changes.find((c) => c.repo === ev.repo && c.branch === ev.branch)
     const related = findings.filter((f) => f.repo === ev.repo && f.branch === ev.branch)
+    const forced = forcedOn(events, ev.repo, ev.branch)
 
     let status: BranchState['status']
     let unknownReason: string | undefined
@@ -232,6 +245,8 @@ export async function runScan(
       findingIds: related.map((f) => f.id),
       changedFiles: diff?.files.length ?? 0,
       unknownReason,
+      forcedPushes: forced,
+      droppedCommits: forced.reduce((n, p) => n + p.droppedCommits, 0),
     })
   }
 
@@ -299,6 +314,10 @@ export function summarize(c: CaseFile) {
     signalled,
     /** 신호 없이 바뀐 파일 수 - 사람이 직접 읽어야 하는 몫 */
     unreviewed: changedFiles - signalled,
+    /** 기록을 덮어쓴 푸시가 일어난 브랜치 수 */
+    forcedBranches: c.branches.filter((b) => b.forcedPushes.some((p) => p.kind === 'forced')).length,
+    /** 그렇게 사라진 커밋 수의 합. 되돌리기로도 못 살리는 작업의 양이다. */
+    droppedCommits: c.branches.reduce((n, b) => n + b.droppedCommits, 0),
     complete: c.failures.length === 0,
   }
 }

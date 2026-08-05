@@ -44,6 +44,8 @@ export const ja: Dict = {
     changedFiles: (changed, unreviewed) =>
       `変更されたファイル ${changed} 件、うち ${unreviewed} 件は検出にかかっていません`,
     failures: (n) => `未確認 ${n} 件`,
+    forced: (branches, commits) =>
+      `強制プッシュ ${branches} 本、コミット ${commits} 件が消えました`,
     exportHint: 'あとで見直したり、他の人に渡すための記録ファイルです',
     exportLabel: '記録を保存',
     restore: '巻き戻す',
@@ -363,6 +365,8 @@ export const ja: Dict = {
       `変更 ${changed}、復元済み ${reverted}、変化なし ${untouched}、未確認 ${unknown}`,
     incomplete: (unknown, failures) =>
       `※ ${unknown > 0 ? `ブランチ ${unknown} 本を確認できませんでした` : `取得失敗が ${failures} 件あります`}。この結果を「異常なし」と判断しないでください。`,
+    forced: (branches, commits) =>
+      `ブランチ ${branches} 本で履歴が上書きされ、コミット ${commits} 件が消えました。`,
     byRepo: 'リポジトリ別',
     repoChanged: (n) => `変更 ${n} 件`,
     repoUnknown: (n) => `未確認 ${n} 件`,
@@ -389,6 +393,31 @@ export const ja: Dict = {
     detector: (name) => `${name} を実行中`,
     detectorFailed: (reason) => `検出処理に失敗: ${reason}`,
     done: '収集完了',
+  },
+
+  push: {
+    noBefore: 'プッシュ直前のコミットが記録に残っておらず、確認できませんでした。',
+    compareFailed: (err) => `プッシュ前後を比較できませんでした: ${err}`,
+    checking: (done, total) => `プッシュの形を確認中 ${done}/${total}`,
+    forced: '強制プッシュ',
+    dropped: (n) => `コミット ${n} 件が消えました`,
+    forcedCount: (n) => `強制プッシュ ${n} 回`,
+    unknownShape: '強制プッシュだったか確認できませんでした',
+    note: '強制プッシュ自体は通常の作業でも行います。他人のブランチにまとめて起きていたら見てください。',
+  },
+
+  diff: {
+    header: (repo, branch, path) => `${repo}@${branch} :: ${path}`,
+    commits: (before, after) => `攻撃直前 ${before} → 現在 ${after}`,
+    counts: (removed, added, at) =>
+      `消えた行 ${removed}、増えた行 ${added}（${at} 行目から）`,
+    longLine: (n) => `... この行はあと ${n} 文字あります`,
+    padding: (n) => `空白が ${n} 文字入っています。コードを画面の外に押し出して隠す手口です。`,
+    truncated: '長すぎるので途中で切りました。',
+    unreadable:
+      '2 つのうち片方をテキストとして読めませんでした（バイナリか、コミットが整理された可能性があります）。',
+    noBranch: (repo, branch) => `その期間に ${repo}@${branch} で変わったものはありません。`,
+    noFile: (path) => `変更されたファイル一覧に ${path} がありません。list_changes で確認してください。`,
   },
 
   reasons: {

@@ -216,6 +216,27 @@ export interface PushEvent {
   /** 푸시 직전에 브랜치가 가리키던 커밋. 복구 타겟의 근거가 된다. */
   before: string
   head: string
+  /** 이 푸시가 기록을 덮어썼는지. 확인하기 전에는 비어 있다. */
+  push?: PushShape
+}
+
+/**
+ * 푸시가 어떤 모양이었는지.
+ *
+ * GitHub 이벤트에는 강제 푸시 여부가 안 들어 있다. 그래서 직접 확인한다.
+ * 푸시 전후 커밋을 비교했을 때 **전에 있던 커밋이 지금은 없으면** 기록이 덮어써진 것이다.
+ *
+ * 이건 판정이 아니라 사실이다. 강제 푸시 자체는 정상 작업에서도 한다.
+ * 다만 **남의 브랜치에 강제 푸시가 무더기로 일어났다면** 그건 사람이 봐야 한다.
+ */
+export interface PushShape {
+  kind: 'forced' | 'fast-forward' | 'unknown'
+  /** 이 푸시로 사라진 커밋 수. 강제 푸시가 아니면 0. */
+  droppedCommits: number
+  /** 이 푸시로 올라온 커밋 수 */
+  addedCommits: number
+  /** kind 가 unknown 일 때 그 이유 */
+  reason?: string
 }
 
 export interface TreeEntry {
@@ -274,6 +295,15 @@ export interface BranchState {
   changedFiles: number
   /** status 가 unknown 일 때 그 이유 */
   unknownReason?: string
+  /**
+   * 이 브랜치에 일어난 강제 푸시.
+   *
+   * 없으면 빈 배열이다. 확인하지 못했으면 `kind: 'unknown'` 이 들어 있다.
+   * 비어 있다는 게 "강제 푸시가 없었다" 는 뜻은 아니다 - 기록이 안 남은 것일 수도 있다.
+   */
+  forcedPushes: PushShape[]
+  /** 이 브랜치에서 사라진 커밋 수의 합 */
+  droppedCommits: number
 }
 
 export type RestoreOutcome = 'ok' | 'failed' | 'skipped' | 'already'

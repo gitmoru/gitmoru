@@ -270,6 +270,18 @@ export class GitHubClient implements GitHubReader {
     }
   }
 
+  /**
+   * 두 커밋을 맞대본다.
+   *
+   * 강제 푸시를 알아내는 유일한 길이다. GitHub 이벤트에는 그 정보가 없어서,
+   * 푸시 전 커밋(base)과 푸시 후 커밋(head)을 비교한다.
+   *
+   *   status 'ahead'    - 앞으로만 갔다. 평범한 푸시다
+   *   status 'diverged' - 갈라졌다. base 에 있던 커밋이 지금은 없다
+   *   behindBy          - 그렇게 사라진 커밋 수
+   *
+   * base 커밋이 이미 정리됐으면 404 가 온다. 그때는 모른다고 답해야 한다.
+   */
   async compare(repo: string, base: string, head: string): Promise<CompareResult> {
     const raw = await this.request<{
       status: CompareResult['status']

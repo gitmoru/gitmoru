@@ -67,6 +67,9 @@ export function registerScan(server: McpServer, ctx: McpContext) {
           `저장소 ${caseFile.stats.reposScanned}, 브랜치 ${stats.total}`,
           `변경됨 ${stats.changed}, 원복됨 ${stats.reverted}, 변경없음 ${stats.untouched}, 확인실패 ${stats.unknown}`,
           `바뀐 파일 ${stats.changedFiles} (그중 규칙에 걸린 것 ${stats.signalled}, 안 걸린 것 ${stats.unreviewed})`,
+          stats.forcedBranches > 0
+            ? `강제 푸시 ${stats.forcedBranches}곳, 그 과정에서 커밋 ${stats.droppedCommits}개가 사라졌습니다`
+            : '',
           '',
           incomplete
             ? '주의: 확인하지 못한 대상이 있습니다. 이 결과를 "이상 없음" 으로 결론내지 마세요.'

@@ -38,6 +38,8 @@ export const ko = {
     changedFiles: (changed: number, unreviewed: number) =>
       `바뀐 파일 ${changed}개, 그중 ${unreviewed}개는 봐주세요`,
     failures: (n: number) => `못 판 곳 ${n}개`,
+    forced: (branches: number, commits: number) =>
+      `강제 푸시 ${branches}곳, 커밋 ${commits}개 사라짐`,
     exportHint: '나중에 다시 보거나 남한테 넘길 기록 파일',
     exportLabel: '기록 파일 받기',
     restore: '되돌리기',
@@ -352,6 +354,8 @@ export const ko = {
       `변경됨 ${changed}, 원복됨 ${reverted}, 변경 없음 ${untouched}, 확인 실패 ${unknown}`,
     incomplete: (unknown: number, failures: number) =>
       `※ ${unknown > 0 ? `브랜치 ${unknown}개를 확인하지 못했습니다` : `조회 실패가 ${failures}건 있습니다`}. 이 결과를 "이상 없음"으로 판단하면 안 됩니다.`,
+    forced: (branches: number, commits: number) =>
+      `기록을 덮어쓴 푸시가 브랜치 ${branches}개에 있었고, 커밋 ${commits}개가 사라졌습니다.`,
     byRepo: '저장소별',
     repoChanged: (n: number) => `변경 ${n}건`,
     repoUnknown: (n: number) => `확인 실패 ${n}건`,
@@ -378,6 +382,30 @@ export const ko = {
     detector: (name: string) => `${name} 보는 중`,
     detectorFailed: (reason: string) => `탐지기 실행 실패: ${reason}`,
     done: '수집 완료',
+  },
+
+  push: {
+    noBefore: '푸시 직전 커밋이 기록에 없어서 확인하지 못했습니다.',
+    compareFailed: (err: string) => `푸시 전후를 비교하지 못했습니다: ${err}`,
+    checking: (done: number, total: number) => `푸시 모양 확인 ${done}/${total}`,
+    forced: '강제 푸시',
+    dropped: (n: number) => `커밋 ${n}개 사라짐`,
+    forcedCount: (n: number) => `강제 푸시 ${n}번`,
+    unknownShape: '강제 푸시였는지 확인 못 함',
+    note: '강제 푸시 자체는 정상 작업에서도 합니다. 남의 브랜치에 몰려 있으면 그때 봐주세요.',
+  },
+
+  diff: {
+    header: (repo: string, branch: string, path: string) => `${repo}@${branch} :: ${path}`,
+    commits: (before: string, after: string) => `공격 직전 ${before} → 지금 ${after}`,
+    counts: (removed: number, added: number, at: number) =>
+      `사라진 줄 ${removed}, 새로 생긴 줄 ${added} (${at}번째 줄부터)`,
+    longLine: (n: number) => `... 이 줄은 ${n}자 더 있습니다`,
+    padding: (n: string) => `공백 ${n}자가 들어 있습니다 - 코드를 화면 밖으로 밀어 숨기는 수법일 수 있습니다.`,
+    truncated: '너무 길어서 잘라서 보냅니다.',
+    unreadable: '두 버전 중 하나를 텍스트로 읽지 못했어요 (바이너리이거나 커밋이 정리됐을 수 있습니다).',
+    noBranch: (repo: string, branch: string) => `그 시간대에 ${repo}@${branch} 에서 바뀐 게 없어요.`,
+    noFile: (path: string) => `바뀐 파일 목록에 ${path} 가 없어요. list_changes 로 확인해 보세요.`,
   },
 
   reasons: {
