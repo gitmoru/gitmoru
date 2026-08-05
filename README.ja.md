@@ -70,14 +70,25 @@ gitmoru は 1 と 3 をやります。2 はやりません。
 
 ## はじめかた
 
+[Node 22 以上](https://nodejs.org)、[pnpm](https://pnpm.io)、[GitHub CLI](https://cli.github.com) が必要です。
+
 ```bash
-gh auth login     # トークンはここから借ります
+git clone https://github.com/gitmoru/gitmoru.git
+cd gitmoru
+gh auth login
 pnpm install
 pnpm app
 ```
 
 組織かリポジトリと期間を入れて `掘る` を押してください。
 既定は今日の 0 時から 7 時までです。だいたいこの時間帯に起きます。
+
+インストーラを配らないのは手抜きではありません。この道具はリポジトリへの
+アクセス権を使います。署名のない実行ファイルがそれを求める姿は、この道具が
+探している攻撃そのものと見分けがつきません。**使う人は、たった今やられた人です。**
+その日に渡すべきなのは、読めるソースのほうだと考えています。
+
+トークンは `gh` から借ります。ここでトークンを書き取る場所はありません。
 
 <br>
 

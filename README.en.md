@@ -70,14 +70,25 @@ Details in [SAFETY.md](SAFETY.md).
 
 ## Getting started
 
+You will need [Node 22+](https://nodejs.org), [pnpm](https://pnpm.io) and the [GitHub CLI](https://cli.github.com).
+
 ```bash
-gh auth login     # the token is borrowed from here
+git clone https://github.com/gitmoru/gitmoru.git
+cd gitmoru
+gh auth login
 pnpm install
 pnpm app
 ```
 
 Enter an org or repositories and a time window, then hit `Dig`.
 It defaults to midnight through 7am today. That is when this usually happens.
+
+There is no installer, and that is on purpose. This tool asks for access to your
+repositories. An unsigned binary asking for exactly that is indistinguishable from
+the attack it goes looking for. **Whoever runs this just got breached.** What you
+hand someone on that day is source they can read.
+
+The token is borrowed from `gh`. Nothing here ever writes one down.
 
 <br>
 

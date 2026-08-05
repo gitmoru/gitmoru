@@ -70,14 +70,24 @@ gitmoru 은 1번과 3번을 합니다. 2번은 안 합니다.
 
 ## 시작하기
 
+미리 있어야 하는 것은 [Node 22 이상](https://nodejs.org), [pnpm](https://pnpm.io), [GitHub CLI](https://cli.github.com) 셋입니다.
+
 ```bash
-gh auth login     # 토큰은 여기서 빌려 씁니다
+git clone https://github.com/gitmoru/gitmoru.git
+cd gitmoru
+gh auth login
 pnpm install
 pnpm app
 ```
 
 창이 뜨면 조직이나 저장소, 시간대를 넣고 `파보기` 를 누르세요.
 기본값은 오늘 새벽 0시부터 7시까지입니다. 사고는 대개 이 시간대예요.
+
+설치 파일을 안 내놓는 건 게을러서가 아니에요. 이 도구는 저장소 접근 권한을 씁니다.
+서명 없는 실행 파일이 그걸 요구하는 모습은, 이 도구가 찾아내는 공격과 구분이 안 됩니다.
+**받는 사람은 방금 털린 사람이에요.** 그런 날에 건네야 할 건 읽을 수 있는 코드입니다.
+
+토큰은 `gh` 에서 빌려 씁니다. 이 저장소가 토큰을 따로 받아 적는 곳은 없어요.
 
 <br>
 
