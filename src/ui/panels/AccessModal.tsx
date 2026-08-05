@@ -85,6 +85,29 @@ export function AccessModal({
 
         {!report && (
           <>
+            {/*
+              무엇을 보는지 돌리기 전에 알려준다.
+
+              결과가 "없음" 으로 나올 때가 대부분인데, 무엇을 확인했는지 모르면
+              그 "없음" 이 아무 뜻도 안 된다. 세 가지가 무엇이고 왜 알아야 하는지를
+              먼저 읽고 나서 누르게 한다.
+            */}
+            <p className="mb-1.5 text-[10.5px] font-semibold text-[var(--color-faint)]">
+              {t.access.looksFor}
+            </p>
+            <ul className="mb-4 space-y-1.5">
+              {(['deployKey', 'webhook', 'invitation'] as const).map((kind) => (
+                <li key={kind} className="bg-black/25 p-2.5">
+                  <p className="text-[11px]" style={{ color: TONE[kind] }}>
+                    {t.access.kinds[kind]}
+                  </p>
+                  <p className="mt-0.5 text-[10.5px] leading-relaxed text-[var(--color-muted)]">
+                    {t.access.why[kind]}
+                  </p>
+                </li>
+              ))}
+            </ul>
+
             <button
               type="button"
               onClick={run}
@@ -172,14 +195,30 @@ export function AccessModal({
 
             <div className="bg-black/25 p-2.5">
               <p className="text-[10.5px] text-[var(--color-muted)]">{t.access.orgHookTitle}</p>
-              <p className="mt-1 mb-2 text-[10px] leading-relaxed text-[var(--color-faint)]">
-                {t.access.orgHookNote}
+
+              {/* 어떤 권한이 없는지를 먼저 이름으로 말한다. "권한이 더 필요해요" 만으로는 뭘 할지 모른다. */}
+              <p className="mt-1.5 text-[10px] text-[var(--color-faint)]">
+                <span
+                  className="px-1 py-0.5 font-mono"
+                  style={{ background: 'var(--color-ink)', color: 'var(--color-sand)' }}
+                >
+                  {t.access.orgHookScope}
+                </span>
+              </p>
+              <p className="mt-1.5 text-[10px] leading-relaxed text-[var(--color-faint)]">
+                {t.access.orgHookWhy}
+              </p>
+              <p className="mt-1.5 mb-2 text-[10px] leading-relaxed text-[var(--color-faint)]">
+                {t.access.orgHookWhyNotAsk}
               </p>
               <p
                 className="px-2 py-1.5 font-mono text-[10px] break-all"
                 style={{ background: 'var(--color-ink)' }}
               >
                 {ORG_HOOK_SCOPE_CMD}
+              </p>
+              <p className="mt-1.5 text-[10px] text-[var(--color-faint)]">
+                {t.access.orgHookRunAgain}
               </p>
             </div>
           </>

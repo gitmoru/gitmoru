@@ -203,6 +203,7 @@ export const ja: Dict = {
     showRest: (n) => `残り ${n} 行を描画`,
     skipped: (n) => `変更なし ${n} 行`,
     keyHint: (at, total) => `${at} / ${total}  ↑↓ で移動`,
+    sideBySide: '左右に並べる',
     wholeFile: 'ファイル全体',
     onlyChanged: '変更箇所のみ',
     noWrap: '折り返しなし',
@@ -429,7 +430,8 @@ export const ja: Dict = {
 
   access: {
     title: '入り口の点検',
-    hint: 'ブランチに触れずに入ってくる経路を数えます。期間ではなく、今の状態を見ます。',
+    hint: 'パスワードを変えても残るものがあります。ブランチには触れないので「掘る」では見つからず、代わりにいつできたかが記録されているので今すぐ確認できます。',
+    looksFor: 'この 3 つを数えます',
     run: '点検する',
     running: '確認中...',
     progress: (done, total) => `リポジトリ確認 ${done}/${total}`,
@@ -453,8 +455,12 @@ export const ja: Dict = {
     gapNotAdmin: (n) => `${n} 件は管理者権限がなく確認できませんでした`,
     gapFailed: (n) => `${n} 件は取得に失敗しました`,
     orgHookTitle: '組織の Webhook は確認していません',
-    orgHookNote:
-      '組織全体にかかる Webhook はより広い権限が必要で、こちらから要求しない方針です。含めたい場合は次を実行してから、もう一度押してください。',
+    orgHookScope: 'admin:org_hook',
+    orgHookWhy:
+      '今の gh にこの権限がないため、組織の Webhook 一覧を読めませんでした。リポジトリ単位の Webhook は上のとおりすべて確認しています。',
+    orgHookWhyNotAsk:
+      'GitHub にはこの権限の読み取り専用版がありません。付与すると組織 Webhook の作成と削除までできるようになり、読み取りだけの道具が求める権限ではないと判断しました。必要なら手動で付与し、確認後に戻していただけます。',
+    orgHookRunAgain: '実行したらこの画面を閉じて、もう一度押してください。',
     notScanned: 'まだ調べていません。先に「掘る」でリポジトリを選んでください。',
   },
 

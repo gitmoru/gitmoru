@@ -193,6 +193,7 @@ export const ko = {
     showRest: (n: number) => `나머지 ${n}줄 더 그리기`,
     skipped: (n: number) => `${n}줄 접힘`,
     keyHint: (at: number, total: number) => `${at} / ${total}  ↑↓ 로 이동`,
+    sideBySide: '나란히',
     wholeFile: '파일 전체',
     onlyChanged: '바뀐 곳만',
     noWrap: '줄바꿈 끄기',
@@ -419,7 +420,8 @@ export const ko = {
 
   access: {
     title: '문단속',
-    hint: '브랜치를 안 건드리고 들어오는 문을 셉니다. 시간대와 무관하게 지금 상태를 봐요.',
+    hint: '계정 비밀번호를 바꿔도 그대로 남는 것들이 있어요. 이건 브랜치를 안 건드려서 파보기에는 안 잡히고, 대신 언제 생겼는지가 남아 있어서 지금 확인할 수 있습니다.',
+    looksFor: '이 세 가지를 셉니다',
     run: '문단속 하기',
     running: '보는 중...',
     progress: (done: number, total: number) => `저장소 확인 ${done}/${total}`,
@@ -443,8 +445,12 @@ export const ko = {
     gapNotAdmin: (n: number) => `${n}곳은 관리자 권한이 없어 못 봤어요`,
     gapFailed: (n: number) => `${n}곳은 조회에 실패했어요`,
     orgHookTitle: '조직 웹훅은 못 봤어요',
-    orgHookNote:
-      '조직 전체에 걸리는 웹훅은 권한이 더 필요해서 확인하지 않았습니다. 우리 쪽에서 더 큰 권한을 요구하지 않으려고요. 보시려면 아래를 실행한 다음 다시 눌러주세요.',
+    orgHookScope: 'admin:org_hook',
+    orgHookWhy:
+      '지금 gh 에 이 권한이 없어서 조직 웹훅 목록을 못 읽었어요. 저장소 단위 웹훅은 위에 나온 대로 다 봤습니다.',
+    orgHookWhyNotAsk:
+      'GitHub 에는 이 권한의 읽기 전용 버전이 없어요. 받으면 조직 웹훅을 만들고 지우는 것까지 할 수 있게 되는데, 읽기만 하는 도구가 요구할 권한은 아니라고 봤습니다. 필요하시면 직접 여시고, 확인이 끝나면 되돌리셔도 됩니다.',
+    orgHookRunAgain: '실행한 다음 이 창을 닫고 다시 눌러주세요.',
     notScanned: '아직 안 봤어요. 먼저 파보기로 저장소를 골라주세요.',
   },
 

@@ -203,6 +203,7 @@ export const en: Dict = {
     showRest: (n) => `Render ${n} more lines`,
     skipped: (n) => `${n} unchanged lines`,
     keyHint: (at, total) => `${at} / ${total}  ↑↓ to move`,
+    sideBySide: 'Side by side',
     wholeFile: 'Whole file',
     onlyChanged: 'Changes only',
     noWrap: 'No wrap',
@@ -430,7 +431,8 @@ export const en: Dict = {
 
   access: {
     title: 'Open doors',
-    hint: 'Counts the ways in that do not touch a branch. This is the state right now, not a time window.',
+    hint: 'Some things survive a password reset. They never touch a branch, so a dig will not find them, but each one records when it was created, so we can check right now.',
+    looksFor: 'These three are counted',
     run: 'Check doors',
     running: 'Checking...',
     progress: (done, total) => `Checked ${done}/${total} repos`,
@@ -454,8 +456,12 @@ export const en: Dict = {
     gapNotAdmin: (n) => `${n} could not be checked without admin access`,
     gapFailed: (n) => `${n} failed to load`,
     orgHookTitle: 'Organization webhooks were not checked',
-    orgHookNote:
-      'Webhooks that apply to the whole organization need a wider scope, and we would rather not ask for one. Run this and check again if you want them included.',
+    orgHookScope: 'admin:org_hook',
+    orgHookWhy:
+      'Your gh token does not carry this scope, so the organization webhook list could not be read. Repository webhooks above were all checked.',
+    orgHookWhyNotAsk:
+      'GitHub has no read-only version of this scope. Granting it also allows creating and deleting organization webhooks, which is more than a read-only tool should ask for. Grant it yourself if you need it, and revoke it afterwards.',
+    orgHookRunAgain: 'Run it, close this window, then check again.',
     notScanned: 'Nothing scanned yet. Pick some repositories with a dig first.',
   },
 

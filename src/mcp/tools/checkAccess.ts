@@ -84,7 +84,13 @@ export function registerCheckAccess(server: McpServer, ctx: McpContext) {
             ? `${byWhy('notAdmin')}곳은 관리자 권한이 없어 못 봤습니다. 이걸 "없다" 로 읽지 마세요.`
             : '',
           byWhy('failed') > 0 ? `${byWhy('failed')}곳은 조회에 실패했습니다.` : '',
-          `조직 전체에 걸리는 웹훅은 권한이 더 필요해서 확인하지 않았습니다. 보려면: ${ORG_HOOK_SCOPE_CMD}`,
+          '',
+          [
+            '조직 전체에 걸리는 웹훅(admin:org_hook)은 확인하지 않았습니다.',
+            'GitHub 에 이 권한의 읽기 전용 버전이 없어서, 받으면 조직 웹훅을 만들고 지우는 것까지 됩니다.',
+            '읽기만 하는 도구가 요구할 권한이 아니라고 보고 빼뒀습니다.',
+            `필요하면 사람이 직접 여세요: ${ORG_HOOK_SCOPE_CMD}`,
+          ].join(' '),
         ]
           .filter(Boolean)
           .join('\n'),
