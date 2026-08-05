@@ -1,7 +1,12 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 
-import { checkAccess, DEFAULT_RECENT_DAYS, ORG_HOOK_SCOPE_CMD } from '../../core/access'
+import {
+  checkAccess,
+  DEFAULT_RECENT_DAYS,
+  narrowRepos,
+  ORG_HOOK_SCOPE_CMD,
+} from '../../core/access'
 import { defang } from '../../core/safeText'
 import { reply, type McpContext } from '../context'
 
@@ -47,11 +52,7 @@ export function registerCheckAccess(server: McpServer, ctx: McpContext) {
 
       // 저장소 목록을 받아둔다. admin, archived, fork 가 여기 들어 있어서 추가 호출이 없다.
       const all = await ctx.github.listAccessibleRepos()
-      const picked = repos?.length
-        ? all.filter((r) => repos.includes(r.fullName))
-        : orgs?.length
-          ? all.filter((r) => orgs.includes(r.owner))
-          : all
+      const picked = narrowRepos(all, { repos, orgs })
 
       const report = await checkAccess(ctx.github, {
         repos: picked,

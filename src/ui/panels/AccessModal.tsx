@@ -1,6 +1,11 @@
 import { useState } from 'react'
 
-import { checkAccess, DEFAULT_RECENT_DAYS, ORG_HOOK_SCOPE_CMD } from '../../core/access'
+import {
+  checkAccess,
+  DEFAULT_RECENT_DAYS,
+  narrowRepos,
+  ORG_HOOK_SCOPE_CMD,
+} from '../../core/access'
 import type { GitHubClient } from '../../core/github'
 import { defang } from '../../core/safeText'
 import type { AccessKind, AccessReport } from '../../core/types'
@@ -49,11 +54,7 @@ export function AccessModal({
     setFailed(false)
     try {
       const all = await gh.listAccessibleRepos()
-      const picked = repos.length
-        ? all.filter((r) => repos.includes(r.fullName))
-        : orgs.length
-          ? all.filter((r) => orgs.includes(r.owner))
-          : all
+      const picked = narrowRepos(all, { repos, orgs })
 
       const since = new Date(Date.now() - DEFAULT_RECENT_DAYS * 86_400_000).toISOString()
       const result = await checkAccess(gh, { repos: picked, orgs, since }, (done, total) =>

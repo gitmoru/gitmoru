@@ -19,6 +19,25 @@ import type { AccessGap, AccessItem, AccessReport, RepoRef } from './types'
 /** 최근으로 볼 기본 기간 (일) */
 export const DEFAULT_RECENT_DAYS = 30
 
+/**
+ * 사용자가 고른 범위를 실제 저장소 목록으로 좁힌다.
+ *
+ * 화면과 MCP 가 같은 함수를 쓴다. 예전에는 양쪽에 같은 조건문이 따로 있었는데,
+ * 한쪽만 고치면 사람이 보는 "저장소 12곳을 봤습니다" 와 에이전트가 받는 숫자가
+ * 말없이 어긋난다. **범위가 어긋나면 둘 다 못 믿는 결과가 된다.**
+ *
+ * 저장소를 콕 집었으면 그것만, 조직만 골랐으면 그 조직 것 전부,
+ * 아무것도 안 골랐으면 손이 닿는 전부를 본다.
+ */
+export function narrowRepos(
+  all: RepoRef[],
+  pick: { repos?: string[]; orgs?: string[] },
+): RepoRef[] {
+  if (pick.repos?.length) return all.filter((r) => pick.repos!.includes(r.fullName))
+  if (pick.orgs?.length) return all.filter((r) => pick.orgs!.includes(r.owner))
+  return all
+}
+
 export interface AccessScope {
   /** 볼 저장소. 이미 받아둔 목록을 그대로 넘긴다 */
   repos: RepoRef[]
