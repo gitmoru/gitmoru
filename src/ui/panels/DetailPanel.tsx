@@ -207,13 +207,19 @@ export function DetailPanel({ finding, branch, gh, onClose }: Props) {
             {branch.forcedPushes.length > 0 && (
               <div className="bg-[var(--color-apricot)]/10 p-2.5">
                 <p className="text-[11px] text-[var(--color-apricot)]">
-                  {t.push.forcedCount(branch.forcedPushes.filter((p) => p.kind === 'forced').length)}
+                  {branch.forcedPushes.some((p) => p.kind === 'unrelated')
+                    ? t.push.rewritten
+                    : t.push.forcedCount(
+                        branch.forcedPushes.filter((p) => p.kind === 'forced').length,
+                      )}
                   {branch.droppedCommits > 0 && `, ${t.push.dropped(branch.droppedCommits)}`}
                 </p>
                 <p className="mt-1 text-[10.5px] leading-relaxed text-[var(--color-muted)]">
-                  {branch.forcedPushes.some((p) => p.kind === 'unknown')
-                    ? t.push.unknownShape
-                    : t.push.note}
+                  {branch.forcedPushes.some((p) => p.kind === 'unrelated')
+                    ? t.push.rewrittenNote
+                    : branch.forcedPushes.some((p) => p.kind === 'unknown')
+                      ? t.push.unknownShape
+                      : t.push.note}
                 </p>
               </div>
             )}

@@ -315,7 +315,12 @@ export function summarize(c: CaseFile) {
     /** 신호 없이 바뀐 파일 수 - 사람이 직접 읽어야 하는 몫 */
     unreviewed: changedFiles - signalled,
     /** 기록을 덮어쓴 푸시가 일어난 브랜치 수 */
-    forcedBranches: c.branches.filter((b) => b.forcedPushes.some((p) => p.kind === 'forced')).length,
+    forcedBranches: c.branches.filter((b) =>
+      b.forcedPushes.some((p) => p.kind === 'forced' || p.kind === 'unrelated'),
+    ).length,
+    /** 이전 기록과 아예 이어지지 않게 갈아치워진 브랜치 수. 사라진 양을 셀 수조차 없다. */
+    rewrittenBranches: c.branches.filter((b) => b.forcedPushes.some((p) => p.kind === 'unrelated'))
+      .length,
     /** 그렇게 사라진 커밋 수의 합. 되돌리기로도 못 살리는 작업의 양이다. */
     droppedCommits: c.branches.reduce((n, b) => n + b.droppedCommits, 0),
     complete: c.failures.length === 0,

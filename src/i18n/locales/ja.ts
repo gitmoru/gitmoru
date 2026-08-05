@@ -46,6 +46,7 @@ export const ja: Dict = {
     failures: (n) => `未確認 ${n} 件`,
     forced: (branches, commits) =>
       `強制プッシュ ${branches} 本、コミット ${commits} 件が消えました`,
+    rewritten: (n) => `履歴がまるごと置き換え ${n} 本`,
     exportHint: 'あとで見直したり、他の人に渡すための記録ファイルです',
     exportLabel: '記録を保存',
     restore: '巻き戻す',
@@ -365,6 +366,8 @@ export const ja: Dict = {
       `※ ${unknown > 0 ? `ブランチ ${unknown} 本を確認できませんでした` : `取得失敗が ${failures} 件あります`}。この結果を「異常なし」と判断しないでください。`,
     forced: (branches, commits) =>
       `ブランチ ${branches} 本で履歴が上書きされ、コミット ${commits} 件が消えました。`,
+    rewritten: (n) =>
+      `そのうち ${n} 本は、つながらない別の履歴に置き換えられており、消えたコミット数を数えられません。`,
     byRepo: 'リポジトリ別',
     repoChanged: (n) => `変更 ${n} 件`,
     repoUnknown: (n) => `未確認 ${n} 件`,
@@ -400,6 +403,9 @@ export const ja: Dict = {
     forced: '強制プッシュ',
     dropped: (n) => `コミット ${n} 件が消えました`,
     forcedCount: (n) => `強制プッシュ ${n} 回`,
+    rewritten: '履歴がまるごと置き換えられました',
+    rewrittenNote:
+      'プッシュ前の履歴とつながらない新しい履歴で上書きされています。2 つのコミットに共通の祖先がまったくないため、消えたコミット数を数えることすらできません。リポジトリを一括で書き換えるツールがこの形を残します。',
     unknownShape: '強制プッシュだったか確認できませんでした',
     note: '強制プッシュ自体は通常の作業でも行います。他人のブランチにまとめて起きていたら見てください。',
   },

@@ -231,8 +231,14 @@ export interface PushEvent {
  * 다만 **남의 브랜치에 강제 푸시가 무더기로 일어났다면** 그건 사람이 봐야 한다.
  */
 export interface PushShape {
-  kind: 'forced' | 'fast-forward' | 'unknown'
-  /** 이 푸시로 사라진 커밋 수. 강제 푸시가 아니면 0. */
+  /**
+   * `fast-forward` - 앞으로만 갔다. 평범한 푸시다
+   * `forced`       - 기록을 덮어썼고, 사라진 커밋을 셀 수 있었다
+   * `unrelated`    - **이어지지 않는 새 기록으로 통째로 갈아치웠다.** 공통 조상이 없다
+   * `unknown`      - 확인하지 못했다
+   */
+  kind: 'forced' | 'unrelated' | 'fast-forward' | 'unknown'
+  /** 이 푸시로 사라진 커밋 수. `unrelated` 면 셀 수 없어서 0 이다. */
   droppedCommits: number
   /** 이 푸시로 올라온 커밋 수 */
   addedCommits: number

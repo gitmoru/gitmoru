@@ -50,6 +50,7 @@ export const en: Dict = {
     failures: (n) => `${n} couldn't be checked`,
     forced: (branches, commits) =>
       `${branches} force-pushed, ${commits} ${commits === 1 ? 'commit' : 'commits'} dropped`,
+    rewritten: (n) => `${n} with history replaced`,
     exportHint: 'A record you can reopen later or hand to someone else',
     exportLabel: 'Save record',
     restore: 'Restore',
@@ -365,6 +366,8 @@ export const en: Dict = {
       `Note: ${unknown > 0 ? `${unknown} ${plural(unknown, 'branch', 'branches')} could not be checked` : `${failures} lookups failed`}. This result should not be read as "nothing found".`,
     forced: (branches, commits) =>
       `History was overwritten on ${branches} ${branches === 1 ? 'branch' : 'branches'}, dropping ${commits} ${commits === 1 ? 'commit' : 'commits'}.`,
+    rewritten: (n) =>
+      `${n} of them were replaced with an unrelated history, so the number of lost commits cannot be counted.`,
     byRepo: 'By repository',
     repoChanged: (n) => `${n} changed`,
     repoUnknown: (n) => `${n} unchecked`,
@@ -401,6 +404,9 @@ export const en: Dict = {
     forced: 'Force push',
     dropped: (n) => `${n} ${n === 1 ? 'commit' : 'commits'} dropped`,
     forcedCount: (n) => `${n} force ${n === 1 ? 'push' : 'pushes'}`,
+    rewritten: 'History replaced outright',
+    rewrittenNote:
+      'This was overwritten with a history that does not connect to what was there before. The two commits share no ancestor at all, so the number of lost commits cannot even be counted. Tooling that overwrites repositories in bulk leaves this shape.',
     unknownShape: 'Could not tell whether this was a force push',
     note: 'Force pushing is normal work on your own branch. It is worth a look when it lands on branches across the org at once.',
   },

@@ -78,6 +78,9 @@ export function registerScan(server: McpServer, ctx: McpContext) {
           stats.forcedBranches > 0
             ? `강제 푸시 ${stats.forcedBranches}곳, 그 과정에서 커밋 ${stats.droppedCommits}개가 사라졌습니다`
             : '',
+          stats.rewrittenBranches > 0
+            ? `그중 ${stats.rewrittenBranches}곳은 이전 기록과 이어지지 않는 새 기록으로 갈아치워졌습니다 (사라진 커밋 수를 셀 수 없음)`
+            : '',
           '',
           incomplete
             ? '주의: 확인하지 못한 대상이 있습니다. 이 결과를 "이상 없음" 으로 결론내지 마세요.'

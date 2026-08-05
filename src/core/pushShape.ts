@@ -1,3 +1,4 @@
+import { ApiError } from './github'
 import type { GitHubReader, PushEvent, PushShape } from './types'
 import { tr } from '../i18n'
 
@@ -17,6 +18,29 @@ import { tr } from '../i18n'
 
 /** 한 번에 몇 개까지 동시에 물어볼지. 저장소 하나에 브랜치가 수백 개일 수 있다. */
 const BATCH = 6
+
+/**
+ * 두 커밋이 아예 다른 기록에 있는지.
+ *
+ * GitHub 은 이 경우 404 에 "No common ancestor between ..." 을 담아 준다.
+ * 커밋이 정리돼서 없는 404 와 구분해야 한다. 앞은 사실이고 뒤는 확인 실패다.
+ */
+function isUnrelatedHistory(err: unknown): boolean {
+  return err instanceof ApiError && err.status === 404 && /No common ancestor/i.test(err.message)
+}
+
+/**
+ * 사람이 읽을 만큼만 남긴다.
+ *
+ * ApiError 는 응답 본문을 그대로 물고 있어서, 화면에 흘리면 JSON 덩어리가 뜬다.
+ * 실패한 이유를 알려주는 게 목적이지 응답을 보여주는 게 목적이 아니다.
+ */
+function shortReason(err: unknown): string {
+  if (!(err instanceof ApiError)) return String(err)
+  const body = err.message.replace(/^\d+\s*/, '')
+  const message = body.match(/"message"\s*:\s*"([^"]+)"/)?.[1]
+  return message ? `${err.status} ${message}` : `${err.status}`
+}
 
 async function shapeOf(
   gh: GitHubReader,
@@ -41,8 +65,22 @@ async function shapeOf(
       addedCommits: result.aheadBy,
     }
   } catch (err) {
-    // 확인 못 한 것을 '평범한 푸시' 로 접지 않는다 (SAFETY.md 11번).
-    const reason = tr().push.compareFailed(String(err))
+    /*
+      "공통 조상이 없다" 는 실패가 아니라 **사실이다.**
+
+      두 커밋이 아예 다른 기록에 있다는 뜻이라, 브랜치가 이어붙은 게 아니라
+      **통째로 갈아치워진 것**이다. `git checkout --orphan` 이나 새로 만든 기록을
+      강제 푸시하면 이렇게 된다. 자동화 도구로 저장소를 덮어쓸 때 흔한 모양이다.
+
+      사라진 커밋 수는 셀 수 없다. 비교 자체가 안 되기 때문이다.
+      그래서 숫자 대신 "이어지지 않는다" 는 사실만 남긴다.
+    */
+    if (isUnrelatedHistory(err)) {
+      return { kind: 'unrelated', droppedCommits: 0, addedCommits: 0 }
+    }
+
+    // 나머지는 확인 못 한 것이다. '평범한 푸시' 로 접지 않는다 (SAFETY.md 11번).
+    const reason = tr().push.compareFailed(shortReason(err))
     onFailure(`${event.repo}/${event.branch}`, reason)
     return { kind: 'unknown', droppedCommits: 0, addedCommits: 0, reason }
   }

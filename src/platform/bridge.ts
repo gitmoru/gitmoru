@@ -58,8 +58,19 @@ declare global {
   }
 }
 
-export const isDesktopApp = () =>
-  typeof window !== 'undefined' && Boolean(window.radar?.isApp)
+export const isDesktopApp = () => Boolean(desktop()?.isApp)
+
+/**
+ * 앱이 열어준 창구. 없으면 null.
+ *
+ * `window` 를 직접 만지지 않는다. 이 파일은 MCP 서버에서도 불려 오는데,
+ * 거기는 Node 라 `window` 가 아예 없다. 속성을 읽는 게 아니라 **이름 자체가 없어서**
+ * 참조하는 순간 터진다. 한 군데로 모아서 그 함정을 없앤다.
+ */
+function desktop(): NonNullable<Window['radar']> | null {
+  if (typeof window === 'undefined') return null
+  return window.radar ?? null
+}
 
 /**
  * GitHub 을 실제로 부르는 방식.
@@ -81,34 +92,37 @@ export function setGhTransport(t: GhTransport) {
 
 /** 창 조작. 앱 모드가 아니면 아무 일도 안 한다. */
 export function windowAction(action: WinAction) {
-  void window.radar?.win(action)
+  void desktop()?.win(action)
 }
 
 /** Claude 연결 상태. 앱 모드가 아니면 확인할 수 없다. */
 export async function mcpStatus(): Promise<McpStatus | null> {
-  if (!window.radar) return null
-  return window.radar.mcpStatus()
+  const app = desktop()
+  if (!app) return null
+  return app.mcpStatus()
 }
 
 /** 지난번에 고른 언어. 앱이 아니면 null 이고, 그때는 브라우저 저장소를 쓴다. */
 export function savedLocale(): string | null {
-  return window.radar?.startupLocale || null
+  return desktop()?.startupLocale || null
 }
 
 /** 고른 언어를 남긴다. 앱 밖에서는 아무 일도 하지 않는다. */
 export function rememberLocale(locale: string) {
-  void window.radar?.setLocale(locale)
+  void desktop()?.setLocale(locale)
 }
 
 /** 설정 파일이 있는 폴더 열기 */
 export async function revealPath(target: string) {
-  if (!window.radar) return { ok: false }
-  return window.radar.reveal(target)
+  const app = desktop()
+  if (!app) return { ok: false }
+  return app.reveal(target)
 }
 
 export async function mcpRegister() {
-  if (!window.radar) return { ok: false, error: tr().reasons.desktopOnly }
-  return window.radar.mcpRegister()
+  const app = desktop()
+  if (!app) return { ok: false, error: tr().reasons.desktopOnly }
+  return app.mcpRegister()
 }
 
 /** 로컬 세션 키 (웹 모드에서만 필요). GitHub 토큰이 아니다. */
@@ -118,8 +132,9 @@ export function setSessionKey(key: string) {
 }
 
 export async function whoami(): Promise<{ login: string; name: string }> {
-  if (typeof window !== 'undefined' && window.radar) {
-    const res = await window.radar.whoami()
+  const app = desktop()
+  if (app) {
+    const res = await app.whoami()
     if (!res.ok || !res.data) throw new Error(res.error ?? tr().reasons.authFailed)
     return res.data
   }
@@ -138,8 +153,9 @@ export async function ghCall(
 ): Promise<GhResponse> {
   if (transport) return transport(path, opts)
 
-  if (typeof window !== 'undefined' && window.radar) {
-    const res = await window.radar.gh({ path, ...opts })
+  const app = desktop()
+  if (app) {
+    const res = await app.gh({ path, ...opts })
     if (!res.ok || !res.data) throw new Error(res.error ?? tr().reasons.callFailed)
     return res.data
   }

@@ -62,6 +62,12 @@ export function StatusBar({ caseFile, onExport, onRestore, error }: Props) {
         </span>
       )}
 
+      {s.rewrittenBranches > 0 && (
+        <span className="shrink-0 text-[var(--color-apricot)]">
+          {t.statusBar.rewritten(s.rewrittenBranches)}
+        </span>
+      )}
+
       {s.forcedBranches > 0 && (
         <span className="shrink-0 text-[var(--color-apricot)]">
           {t.statusBar.forced(s.forcedBranches, s.droppedCommits)}

@@ -40,6 +40,7 @@ export const ko = {
     failures: (n: number) => `못 판 곳 ${n}개`,
     forced: (branches: number, commits: number) =>
       `강제 푸시 ${branches}곳, 커밋 ${commits}개 사라짐`,
+    rewritten: (n: number) => `기록 통째로 갈아치움 ${n}곳`,
     exportHint: '나중에 다시 보거나 남한테 넘길 기록 파일',
     exportLabel: '기록 파일 받기',
     restore: '되돌리기',
@@ -355,6 +356,8 @@ export const ko = {
       `※ ${unknown > 0 ? `브랜치 ${unknown}개를 확인하지 못했습니다` : `조회 실패가 ${failures}건 있습니다`}. 이 결과를 "이상 없음"으로 판단하면 안 됩니다.`,
     forced: (branches: number, commits: number) =>
       `기록을 덮어쓴 푸시가 브랜치 ${branches}개에 있었고, 커밋 ${commits}개가 사라졌습니다.`,
+    rewritten: (n: number) =>
+      `그중 ${n}개는 이전 기록과 이어지지 않는 새 기록으로 갈아치워졌습니다. 사라진 커밋 수를 셀 수 없습니다.`,
     byRepo: '저장소별',
     repoChanged: (n: number) => `변경 ${n}건`,
     repoUnknown: (n: number) => `확인 실패 ${n}건`,
@@ -390,6 +393,9 @@ export const ko = {
     forced: '강제 푸시',
     dropped: (n: number) => `커밋 ${n}개 사라짐`,
     forcedCount: (n: number) => `강제 푸시 ${n}번`,
+    rewritten: '기록을 통째로 갈아치움',
+    rewrittenNote:
+      '푸시 전 기록과 이어지지 않는 새 기록으로 덮어썼습니다. 두 커밋에 공통 조상이 아예 없어서, 사라진 커밋 수는 셀 수조차 없어요. 저장소를 일괄로 덮어쓰는 도구가 이런 모양을 만듭니다.',
     unknownShape: '강제 푸시였는지 확인 못 함',
     note: '강제 푸시 자체는 정상 작업에서도 합니다. 남의 브랜치에 몰려 있으면 그때 봐주세요.',
   },
