@@ -115,7 +115,8 @@ Claude Code, Codex CLI, Gemini CLI, Claude Desktop, Cursor, Windsurf, and VS Cod
 | `scan` | Start here. Returns a caseId |
 | `triage` | What to look at first |
 | `list_changes` | Every changed file |
-| `read_file` | Read a suspicious file. **This is where judgment happens** |
+| `diff_file` | Compare the file before and after the attack. **This is where judgment happens** |
+| `read_file` | Read the whole file |
 | `preview_restore` | What would be rewound where (it does not execute) |
 | `share_summary` | A summary for your team channel |
 

@@ -115,7 +115,8 @@ Claude Code、Codex CLI、Gemini CLI、Claude デスクトップ、Cursor、Wind
 | `scan` | 最初に。caseId が返ります |
 | `triage` | 何から見るか |
 | `list_changes` | 変更されたファイル全件 |
-| `read_file` | 疑わしいファイルを読む。**ここで判断が起きます** |
+| `diff_file` | 攻撃直前と現在のファイルを比較。**ここで判断が起きます** |
+| `read_file` | ファイル全体を読む |
 | `preview_restore` | 何をどこへ戻すことになるか（実行はしません） |
 | `share_summary` | チームに貼る要約 |
 
