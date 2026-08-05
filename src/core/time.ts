@@ -42,9 +42,27 @@ function shownAt(instant: number, zone: string): number {
  * 고정된 숫자를 쓸 수 없다. 한 번 더 맞춰보는 이유는, 오프셋이 바뀌는 경계에서
  * 첫 계산이 한 시간 어긋날 수 있어서다.
  */
+/**
+ * `YYYY-MM-DD HH:mm` 만 받는다.
+ *
+ * `Date.parse` 에 그냥 넘기면 안 된다. 알아보지 못한 글자를 던지지 않고
+ * 2000년 1월 1일 같은 값으로 만들어 낸다. 그러면 엉뚱한 시간대를 훑고
+ * "그 시간대엔 아무도 안 건드렸어요" 가 뜬다. 이 도구가 제일 막아야 할 거짓 안심이다.
+ */
+const SHAPE = /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})$/
+
 export function zonedToUtc(local: string, zone: string): string {
-  const naive = Date.parse(`${local.trim().replace(' ', 'T')}:00Z`)
-  if (Number.isNaN(naive)) throw new Error(`시각을 읽지 못했어요: ${local}`)
+  const parts = SHAPE.exec(local.trim())
+  if (!parts) throw new Error(`시각을 읽지 못했어요: ${local}`)
+
+  const [, y, mo, d, h, mi] = parts.map(Number) as [number, number, number, number, number, number]
+  if (mo < 1 || mo > 12 || d < 1 || d > 31 || h > 23 || mi > 59) {
+    throw new Error(`시각을 읽지 못했어요: ${local}`)
+  }
+
+  const naive = Date.UTC(y, mo - 1, d, h, mi)
+  // 2월 30일처럼 넘치는 날짜는 다른 날로 굴러간다. 굴렀으면 그건 없는 날이다.
+  if (new Date(naive).getUTCDate() !== d) throw new Error(`시각을 읽지 못했어요: ${local}`)
 
   let guess = naive - (shownAt(naive, zone) - naive)
   guess = naive - (shownAt(guess, zone) - guess)
