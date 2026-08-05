@@ -94,6 +94,12 @@ if (hit) {
   console.log(body.slice(0, 1400))
 }
 
+if (hit) {
+  const [, r2, b2, path2] = hit
+  line(`4-1) diff_file - ${path2} 에서 새로 생긴 줄만`)
+  console.log((await call('diff_file', { caseId, repo: r2, branch: b2, path: path2 })).slice(0, 1600))
+}
+
 line('5) preview_restore - 되돌리기 미리보기 (실행 안 함)')
 console.log(await call('preview_restore', { caseId }))
 

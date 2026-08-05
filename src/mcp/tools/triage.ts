@@ -67,7 +67,7 @@ export function registerTriage(server: McpServer, ctx: McpContext) {
             ? `- 외 ${stats.unreviewed - unsignalled.length}개`
             : '',
           '',
-          '다음: read_file 로 의심스러운 파일을 읽어보세요.',
+          '다음: diff_file 로 무슨 줄이 새로 생겼는지 보세요. 전체가 필요하면 read_file 입니다.',
         ]
           .filter(Boolean)
           .join('\n'),
