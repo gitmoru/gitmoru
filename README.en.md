@@ -117,6 +117,7 @@ Claude Code, Codex CLI, Gemini CLI, Claude Desktop, Cursor, Windsurf, and VS Cod
 | `list_changes` | Every changed file |
 | `diff_file` | Compare the file before and after the attack. **This is where judgment happens** |
 | `read_file` | Read the whole file |
+| `check_access` | Deploy keys, webhooks, pending invites. A standing checkup, not a time window |
 | `preview_restore` | What would be rewound where (it does not execute) |
 | `share_summary` | A summary for your team channel |
 

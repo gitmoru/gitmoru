@@ -14,6 +14,7 @@ import { TitleBar } from './chrome/TitleBar'
 import { useIdleTimer } from './hooks/useIdleTimer'
 import { useScanSession } from './hooks/useScanSession'
 import { useViewport } from './hooks/useViewport'
+import { AccessModal } from './panels/AccessModal'
 import { ConnectAgent } from './panels/ConnectAgent'
 import { DetailPanel } from './panels/DetailPanel'
 import { FileModal } from './panels/FileModal'
@@ -81,6 +82,7 @@ export function App() {
   const [asideOpen, setAsideOpen] = useState(true)
   const [restoring, setRestoring] = useState(false)
   const [connecting, setConnecting] = useState(false)
+  const [checkingAccess, setCheckingAccess] = useState(false)
 
   const stats = session.caseFile ? summarize(session.caseFile) : null
   const detailOpen = Boolean(selectedFinding || selectedBranch)
@@ -136,6 +138,7 @@ export function App() {
         onToggleAside={view.tight ? () => setAsideOpen((open) => !open) : undefined}
         asideOpen={asideOpen}
         onConnectAgent={() => setConnecting(true)}
+        onCheckAccess={() => setCheckingAccess(true)}
       />
 
       {/*
@@ -275,6 +278,15 @@ export function App() {
           gh={session.github}
           onPick={setSelectedFile}
           onClose={() => setSelectedFile(null)}
+        />
+      )}
+
+      {checkingAccess && (
+        <AccessModal
+          gh={session.github}
+          orgs={form.scope.orgs}
+          repos={form.scope.repos}
+          onClose={() => setCheckingAccess(false)}
         />
       )}
 

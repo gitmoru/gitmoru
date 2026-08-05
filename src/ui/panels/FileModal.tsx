@@ -126,7 +126,7 @@ export function FileModal({
                   </span>
                   <span className="mt-0.5 block text-[9.5px] text-[var(--color-faint)]">
                     {t.changeList.kinds[file.kind]}
-                    {file.sizeAfter !== undefined && ` · ${formatBytes(file.sizeAfter)}`}
+                    {file.sizeAfter !== undefined && `, ${formatBytes(file.sizeAfter)}`}
                   </span>
                 </button>
               )

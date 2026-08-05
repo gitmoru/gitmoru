@@ -31,6 +31,8 @@ export type MoleEvent =
   | 'tabChanges'
   | 'tabSignals'
   | 'tabLog'
+  | 'nothingOpen'
+  | 'doorsFound'
 
 type Reaction = { mood: MoleMood; say: string }
 
@@ -49,6 +51,8 @@ const HOW: Record<MoleEvent, { mood: MoleMood; ms: number }> = {
   tabChanges: { mood: 'curious', ms: 2200 },
   tabSignals: { mood: 'found', ms: 2200 },
   tabLog: { mood: 'curious', ms: 2200 },
+  nothingOpen: { mood: 'nod', ms: 2400 },
+  doorsFound: { mood: 'found', ms: 3000 },
 }
 
 let current: Reaction | null = null

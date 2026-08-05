@@ -21,6 +21,7 @@ export function TitleBar({
   onToggleAside,
   asideOpen,
   onConnectAgent,
+  onCheckAccess,
 }: {
   viewer: { login: string } | null
   caseFile: CaseFile | null
@@ -28,6 +29,7 @@ export function TitleBar({
   onToggleAside?: () => void
   asideOpen?: boolean
   onConnectAgent?: () => void
+  onCheckAccess?: () => void
 }) {
   const t = useTr()
   const s = caseFile ? summarize(caseFile) : null
@@ -78,6 +80,18 @@ export function TitleBar({
       ) : null}
 
       <div className="ml-auto flex shrink-0 items-center gap-2">
+        {onCheckAccess && (
+          <button
+            type="button"
+            onClick={onCheckAccess}
+            title={t.access.hint}
+            className="no-drag px-2 py-0.5 text-[10.5px] text-[var(--color-muted)] hover:text-[var(--color-text)]"
+            style={{ boxShadow: '0 -2px 0 var(--color-edge), 0 2px 0 var(--color-edge), -2px 0 0 var(--color-edge), 2px 0 0 var(--color-edge)' }}
+          >
+            {t.access.title}
+          </button>
+        )}
+
         {onConnectAgent && (
           <button
             type="button"

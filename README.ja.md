@@ -117,6 +117,7 @@ Claude Code、Codex CLI、Gemini CLI、Claude デスクトップ、Cursor、Wind
 | `list_changes` | 変更されたファイル全件 |
 | `diff_file` | 攻撃直前と現在のファイルを比較。**ここで判断が起きます** |
 | `read_file` | ファイル全体を読む |
+| `check_access` | デプロイキー、Webhook、保留中の招待。期間ではなく現状の点検 |
 | `preview_restore` | 何をどこへ戻すことになるか（実行はしません） |
 | `share_summary` | チームに貼る要約 |
 
