@@ -90,7 +90,6 @@ export const ja: Dict = {
     heading: 'どこを掘りますか',
     where: '対象',
     when: '期間',
-    whenHint: '韓国時間',
     actor: '疑わしいアカウント',
     actorHint: 'わからなければ空欄で',
     name: '名前',
@@ -357,7 +356,7 @@ export const ja: Dict = {
   share: {
     scopeNone: '指定なし',
     scope: (what) => `対象: ${what}`,
-    window: (since, until) => `期間: ${since} 〜 ${until}（KST）`,
+    window: (since, until, zone) => `期間: ${since} 〜 ${until}（${zone}）`,
     actor: (who) => `対象アカウント: ${who}`,
     counted: (repos, branches) =>
       `リポジトリ ${repos} 件、ブランチ ${branches} 本を確認しました。`,

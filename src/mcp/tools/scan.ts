@@ -3,7 +3,8 @@ import { z } from 'zod'
 
 import { defaultDetectorConfig } from '../../core/detectors'
 import { runScan, summarize, verdictText } from '../../core/scan'
-import { kstToUtc, reply, type McpContext } from '../context'
+import { localZone, zonedToUtc } from '../../core/time'
+import { reply, type McpContext } from '../context'
 
 /**
  * 훑기. 모든 작업의 출발점이다.
@@ -29,8 +30,14 @@ export function registerScan(server: McpServer, ctx: McpContext) {
           .array(z.string())
           .optional()
           .describe('`소유자/저장소@브랜치`. 지정하면 이 브랜치만 봅니다.'),
-        sinceKst: z.string().describe('시작 시각. 한국시간 `YYYY-MM-DD HH:mm`'),
-        untilKst: z.string().describe('끝 시각. 한국시간 `YYYY-MM-DD HH:mm`'),
+        since: z.string().describe('시작 시각. `YYYY-MM-DD HH:mm`'),
+        until: z.string().describe('끝 시각. `YYYY-MM-DD HH:mm`'),
+        timezone: z
+          .string()
+          .optional()
+          .describe(
+            '위 시각을 어느 시간대로 읽을지 (예: `Asia/Seoul`). 안 주면 이 컴퓨터의 시간대로 읽습니다. 서버에서 도는 에이전트는 UTC 인데 사람은 다른 곳에 있는 경우가 많으니, 사람이 말한 시간대를 넣어 주세요.',
+          ),
         actor: z
           .string()
           .optional()
@@ -39,15 +46,16 @@ export function registerScan(server: McpServer, ctx: McpContext) {
       },
     },
     async (args) => {
+      const zone = args.timezone || localZone()
       const caseFile = await runScan(ctx.github, {
         title: args.title ?? '이름 없는 사건',
         orgs: args.orgs ?? [],
         repos: args.repos ?? [],
         branches: args.branches,
         window: {
-          since: kstToUtc(args.sinceKst),
-          until: kstToUtc(args.untilKst),
-          displayTz: 'KST',
+          since: zonedToUtc(args.since, zone),
+          until: zonedToUtc(args.until, zone),
+          displayTz: zone,
         },
         actor: args.actor,
         detectorConfig: defaultDetectorConfig(),

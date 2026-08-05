@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { defaultDetectorConfig } from '../../core/detectors'
 import { GitHubClient } from '../../core/github'
 import { runScan, type ScanProgress } from '../../core/scan'
+import { localZone } from '../../core/time'
 import type { CaseFile } from '../../core/types'
 import { whoami } from '../../platform/bridge'
 import { tr } from '../../i18n'
@@ -17,9 +18,13 @@ export type Finale = { kind: 'sparkle' | 'alert'; seed: number }
 
 const FINALE_MS = { sparkle: 1600, alert: 2200 }
 
-/** KST 로 입력받은 시각을 GitHub 이 쓰는 UTC 로 바꾼다. */
-function kstToUtc(local: string): string {
-  return new Date(`${local}:00+09:00`).toISOString().slice(0, 19)
+/**
+ * 화면에서 받은 시각을 GitHub 이 쓰는 UTC 로 바꾼다.
+ *
+ * 입력칸은 이 컴퓨터의 시간대로 보여주고 있으니, `new Date()` 가 그대로 그 시간대로 읽는다.
+ */
+function localToUtc(local: string): string {
+  return new Date(local).toISOString().slice(0, 19)
 }
 
 /** 어디를 파는지 한 마디로. 기록과 사건 제목에 같은 말을 쓴다. */
@@ -104,9 +109,9 @@ export function useScanSession() {
           repos: form.scope.repos,
           branches: form.scope.branches,
           window: {
-            since: kstToUtc(form.sinceKst),
-            until: kstToUtc(form.untilKst),
-            displayTz: 'KST',
+            since: localToUtc(form.sinceKst),
+            until: localToUtc(form.untilKst),
+            displayTz: localZone(),
           },
           actor: form.actor.trim() || undefined,
           detectorConfig,

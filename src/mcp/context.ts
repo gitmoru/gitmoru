@@ -37,12 +37,6 @@ export function findCase(ctx: McpContext, caseId: string) {
   }
 }
 
-/** 한국시간 문자열(`YYYY-MM-DD HH:mm`)을 UTC ISO 로 */
-export function kstToUtc(value: string): string {
-  const normalized = value.trim().replace(' ', 'T')
-  return new Date(`${normalized}:00+09:00`).toISOString().slice(0, 19)
-}
-
 /** 파일 하나를 한 줄로. 목록 도구들이 같은 모양을 쓰게 한다. */
 export const locationOf = (repo: string, branch?: string, path?: string) =>
   `${branch ? `${repo}@${branch}` : repo}${path ? ` :: ${path}` : ''}`

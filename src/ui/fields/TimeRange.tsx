@@ -23,9 +23,9 @@ interface Props {
   onBlur?: () => void
 }
 
-function nowKst(): Date {
-  const d = new Date()
-  return new Date(d.getTime() + (d.getTimezoneOffset() + 540) * 60_000)
+/** 지금. 이 컴퓨터의 시간대 그대로 다룬다. */
+function now(): Date {
+  return new Date()
 }
 
 const p2 = (n: number) => String(n).padStart(2, '0')
@@ -34,7 +34,7 @@ function fmt(d: Date): string {
   return `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}T${p2(d.getHours())}:${p2(d.getMinutes())}`
 }
 
-/** `YYYY-MM-DDTHH:mm` → Date (한국시간으로 해석) */
+/** `YYYY-MM-DDTHH:mm` → Date (이 컴퓨터의 시간대로 해석) */
 function parse(v: string): Date | null {
   const m = v.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/)
   if (!m) return null
@@ -46,7 +46,7 @@ const PRESETS: Array<{ key: keyof Dict['timeRange']['presets']; make: () => [Dat
   {
     key: 'lastNight',
     make: () => {
-      const a = nowKst()
+      const a = now()
       a.setHours(0, 0, 0, 0)
       return [a, 7 * 60]
     },
@@ -54,7 +54,7 @@ const PRESETS: Array<{ key: keyof Dict['timeRange']['presets']; make: () => [Dat
   {
     key: 'yesterdayNight',
     make: () => {
-      const a = nowKst()
+      const a = now()
       a.setDate(a.getDate() - 1)
       a.setHours(20, 0, 0, 0)
       return [a, 11 * 60]
@@ -62,11 +62,11 @@ const PRESETS: Array<{ key: keyof Dict['timeRange']['presets']; make: () => [Dat
   },
   {
     key: 'last6h',
-    make: () => [new Date(nowKst().getTime() - 6 * 3600_000), 6 * 60],
+    make: () => [new Date(now().getTime() - 6 * 3600_000), 6 * 60],
   },
   {
     key: 'last24h',
-    make: () => [new Date(nowKst().getTime() - 24 * 3600_000), 24 * 60],
+    make: () => [new Date(now().getTime() - 24 * 3600_000), 24 * 60],
   },
 ]
 
@@ -213,7 +213,7 @@ function StartRow({
 
   const set = (next: Partial<{ y: string; mo: string; d: string; h: string; mi: string }>) => {
     const pad = (v: string, len: number) => v.padStart(len, '0').slice(-len)
-    const Y = next.y ?? (y || String(nowKst().getFullYear()))
+    const Y = next.y ?? (y || String(now().getFullYear()))
     const MO = next.mo ?? (mo || '01')
     const D = next.d ?? (d || '01')
     const H = next.h ?? (h || '00')

@@ -1,4 +1,5 @@
 import { tr } from '../i18n'
+import { utcToZoned, zoneLabel } from './time'
 import { summarize } from './scan'
 import type { CaseFile } from './types'
 
@@ -18,14 +19,7 @@ import type { CaseFile } from './types'
  *   - 규칙에 안 걸린 것도 사람이 봐야 할 몫으로 숫자를 남긴다
  */
 
-const p2 = (n: number) => String(n).padStart(2, '0')
-
-/** UTC ISO → 한국시간 표기 */
-function kst(iso: string): string {
-  const d = new Date(iso.endsWith('Z') ? iso : `${iso}Z`)
-  const k = new Date(d.getTime() + 9 * 3600_000)
-  return `${k.getFullYear()}-${p2(k.getMonth() + 1)}-${p2(k.getDate())} ${p2(k.getHours())}:${p2(k.getMinutes())}`
-}
+// 시각은 훑을 때 쓴 시간대로 되돌려 적는다. 읽는 사람이 넣은 숫자와 같아야 한다.
 
 export function shareText(c: CaseFile): string {
   const s = summarize(c)
@@ -38,7 +32,13 @@ export function shareText(c: CaseFile): string {
     ? c.scope.repos.join(', ')
     : c.scope.orgs.join(', ') || t.scopeNone
   lines.push(t.scope(scope))
-  lines.push(t.window(kst(c.window.since), kst(c.window.until)))
+  lines.push(
+    t.window(
+      utcToZoned(c.window.since, c.window.displayTz),
+      utcToZoned(c.window.until, c.window.displayTz),
+      zoneLabel(c.window.displayTz),
+    ),
+  )
   if (c.actor) lines.push(t.actor(c.actor))
   lines.push('')
 

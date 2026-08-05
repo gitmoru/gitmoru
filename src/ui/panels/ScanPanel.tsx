@@ -1,4 +1,5 @@
 import { useTr } from '../../i18n'
+import { localZone, zoneLabel } from '../../core/time'
 import { useState } from 'react'
 import { DETECTORS } from '../../core/detectors'
 import type { GitHubClient } from '../../core/github'
@@ -66,7 +67,7 @@ export function ScanPanel({
           />
         </Field>
 
-        <Field label={t.scanPanel.when} hint={t.scanPanel.whenHint}>
+        <Field label={t.scanPanel.when} hint={zoneLabel(localZone())}>
           <TimeRange
             since={form.sinceKst}
             until={form.untilKst}

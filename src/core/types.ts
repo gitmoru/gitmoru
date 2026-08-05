@@ -33,7 +33,8 @@ export interface TimeWindow {
   since: string
   until: string
   /** 사용자가 입력한 기준 시간대. 표시용. */
-  displayTz: 'KST' | 'UTC'
+  /** 사람이 넣은 시각을 어느 시간대로 읽었는지 (IANA 이름). 요약문에 그대로 쓴다. */
+  displayTz: string
 }
 
 // ─────────────────────────────────────────────────────────────

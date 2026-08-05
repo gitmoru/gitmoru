@@ -38,12 +38,11 @@ const SCENE_MIN = 260
 /** 창이 짧을 때 아래 칸을 눌러둘 높이 */
 const DOCK_WHEN_SHORT = 200
 
-/** 한국시간 기준 오늘 새벽 0시~7시. 사고는 대개 이 시간대다. */
+/** 오늘 새벽 0시~7시. 사고는 대개 이 시간대다. 시각은 이 컴퓨터의 시간대로 읽는다. */
 function defaultRange(): { since: string; until: string } {
   const now = new Date()
-  const kst = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60_000)
   const pad = (n: number) => String(n).padStart(2, '0')
-  const day = `${kst.getFullYear()}-${pad(kst.getMonth() + 1)}-${pad(kst.getDate())}`
+  const day = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
   return { since: `${day}T00:00`, until: `${day}T07:00` }
 }
 

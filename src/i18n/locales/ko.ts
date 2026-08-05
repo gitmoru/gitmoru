@@ -80,7 +80,6 @@ export const ko = {
     heading: '어디를 파볼까요',
     where: '어디를',
     when: '언제',
-    whenHint: '한국시간',
     actor: '수상한 계정',
     actorHint: '모르면 비워두세요',
     name: '이름',
@@ -346,7 +345,8 @@ export const ko = {
   share: {
     scopeNone: '지정 안 함',
     scope: (what: string) => `검사 범위: ${what}`,
-    window: (since: string, until: string) => `검사 시간대: ${since} ~ ${until} (KST)`,
+    window: (since: string, until: string, zone: string) =>
+      `검사 시간대: ${since} ~ ${until} (${zone})`,
     actor: (who: string) => `대상 계정: ${who}`,
     counted: (repos: number, branches: number) =>
       `저장소 ${repos}곳, 브랜치 ${branches}개를 확인했습니다.`,

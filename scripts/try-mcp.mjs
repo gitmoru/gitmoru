@@ -4,7 +4,7 @@
  * 에이전트를 붙이기 전에 도구가 실제로 도는지 확인할 때 쓴다.
  * 한 프로세스 안에서 scan → triage → read_file 을 차례로 부른다.
  *
- *   node scripts/try-mcp.mjs <소유자/저장소> <시작 KST> <끝 KST>
+ *   node scripts/try-mcp.mjs <소유자/저장소> <시작> <끝>   (이 컴퓨터 시간대로 읽습니다)
  *
  * 예)
  *   node scripts/try-mcp.mjs 내계정/시험용저장소 "2026-08-05 02:00" "2026-08-05 03:00"
@@ -15,7 +15,7 @@ import { createInterface } from 'node:readline'
 
 const [repo, since, until] = process.argv.slice(2)
 if (!repo || !since || !until) {
-  console.error('사용법: node scripts/try-mcp.mjs <소유자/저장소> "<시작 KST>" "<끝 KST>"')
+  console.error('사용법: node scripts/try-mcp.mjs <소유자/저장소> "<시작>" "<끝>"')
   process.exit(2)
 }
 
@@ -69,7 +69,7 @@ await send('initialize', {
 notify('notifications/initialized')
 
 line('1) scan - 무엇이 바뀌었는지 모으기')
-const scanned = await call('scan', { repos: [repo], sinceKst: since, untilKst: until, title: '시험' })
+const scanned = await call('scan', { repos: [repo], since, until, title: '시험' })
 console.log(scanned)
 
 const caseId = scanned.match(/caseId:\s*(\S+)/)?.[1]

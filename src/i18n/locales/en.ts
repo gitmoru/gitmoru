@@ -90,7 +90,6 @@ export const en: Dict = {
     heading: 'Where should I dig?',
     where: 'Where',
     when: 'When',
-    whenHint: 'KST',
     actor: 'Suspect account',
     actorHint: "Leave blank if you don't know",
     name: 'Name',
@@ -357,7 +356,7 @@ export const en: Dict = {
   share: {
     scopeNone: 'not specified',
     scope: (what) => `Scope: ${what}`,
-    window: (since, until) => `Window: ${since} - ${until} (KST)`,
+    window: (since, until, zone) => `Window: ${since} - ${until} (${zone})`,
     actor: (who) => `Account: ${who}`,
     counted: (repos, branches) =>
       `Checked ${repos} ${plural(repos, 'repository', 'repositories')} and ${branches} ${plural(branches, 'branch', 'branches')}.`,
