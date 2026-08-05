@@ -33,6 +33,34 @@ function decodeBase64Utf8(base64: string): string {
   return new TextDecoder('utf-8').decode(bytes)
 }
 
+/** 저장소 목록 응답에서 우리가 쓰는 부분 */
+interface RepoPayload {
+  name: string
+  full_name: string
+  default_branch: string
+  archived?: boolean
+  fork?: boolean
+  permissions?: { admin?: boolean }
+}
+
+/**
+ * 목록 응답을 우리 모양으로.
+ *
+ * `admin`, `archived`, `fork` 가 여기 이미 들어 있다. 문단속에서 볼 대상을 추릴 때
+ * 저장소마다 다시 물어볼 필요가 없다는 뜻이다.
+ */
+function toRepoRef(raw: RepoPayload, owner: string): RepoRef {
+  return {
+    owner,
+    name: raw.name,
+    fullName: raw.full_name,
+    defaultBranch: raw.default_branch,
+    isAdmin: raw.permissions?.admin ?? false,
+    archived: raw.archived ?? false,
+    fork: raw.fork ?? false,
+  }
+}
+
 export class ApiError extends Error {
   constructor(
     message: string,
@@ -111,15 +139,8 @@ export class GitHubClient implements GitHubReader {
   // ── 스캔 대상 수집 ────────────────────────────────────────
 
   async listOrgRepos(org: string): Promise<RepoRef[]> {
-    const raw = await this.paginate<{ name: string; full_name: string; default_branch: string }>(
-      `orgs/${org}/repos`,
-    )
-    return raw.map((r) => ({
-      owner: org,
-      name: r.name,
-      fullName: r.full_name,
-      defaultBranch: r.default_branch,
-    }))
+    const raw = await this.paginate<RepoPayload>(`orgs/${org}/repos`)
+    return raw.map((r) => toRepoRef(r, org))
   }
 
   /**
@@ -129,19 +150,67 @@ export class GitHubClient implements GitHubReader {
    * 조직 목록만 쓰면 `내계정/무언가` 같은 개인 저장소를 아예 못 고른다.
    */
   async listAccessibleRepos(maxPages = 5): Promise<RepoRef[]> {
-    const raw = await this.paginate<{
-      name: string
-      full_name: string
-      default_branch: string
-      owner: { login: string }
-    }>('user/repos?affiliation=owner,organization_member,collaborator&sort=pushed', maxPages)
+    const raw = await this.paginate<RepoPayload & { owner: { login: string } }>(
+      'user/repos?affiliation=owner,organization_member,collaborator&sort=pushed',
+      maxPages,
+    )
+    return raw.map((r) => toRepoRef(r, r.owner.login))
+  }
 
-    return raw.map((r) => ({
-      owner: r.owner.login,
-      name: r.name,
-      fullName: r.full_name,
-      defaultBranch: r.default_branch,
-    }))
+  // ── 문단속: 브랜치를 안 건드리고 들어오는 문 ──────────────
+
+  /**
+   * 배포 키.
+   *
+   * 저장소에 붙는 SSH 키다. 계정이 막혀도 이 키가 살아 있으면 계속 들어올 수 있다.
+   * 관리자 권한이 있어야 볼 수 있어서, 없으면 403 이 온다.
+   */
+  async listDeployKeys(repo: string) {
+    return this.paginate<{
+      id: number
+      title: string
+      created_at: string
+      read_only: boolean
+      url: string
+    }>(`repos/${repo}/keys`, 2)
+  }
+
+  /**
+   * 웹훅.
+   *
+   * 커밋마다 저장소 내용이 여기 적힌 주소로 나간다. 공격자가 심었다면 그게 곧 유출 경로고,
+   * 잊힌 웹훅이 외부 서비스로 계속 흘리고 있는 경우도 흔하다.
+   */
+  async listWebhooks(repo: string) {
+    return this.paginate<{
+      id: number
+      name: string
+      active: boolean
+      created_at: string
+      config: { url?: string }
+    }>(`repos/${repo}/hooks`, 2)
+  }
+
+  /** 저장소에 보낸 초대. 아직 수락 전이라 이건 막을 수 있다. */
+  async listRepoInvitations(repo: string) {
+    return this.paginate<{
+      id: number
+      created_at: string
+      permissions: string
+      invitee: { login: string } | null
+      html_url: string
+    }>(`repos/${repo}/invitations`, 2)
+  }
+
+  /** 조직에 보낸 초대. 저장소마다 안 물어도 되고 한 번이면 된다. */
+  async listOrgInvitations(org: string) {
+    return this.paginate<{
+      id: number
+      created_at: string
+      login: string | null
+      email: string | null
+      role: string
+    }>(`orgs/${org}/invitations`, 2)
   }
 
   /** 조직 사람들. 의심 계정을 칠 때 골라 쓰게 한다. */

@@ -216,6 +216,46 @@ export interface RepoRef {
   /** `owner/name` */
   fullName: string
   defaultBranch: string
+  /**
+   * 아래 셋은 저장소 목록 응답에 이미 들어 있다. 따로 물어볼 필요가 없다.
+   * 문단속에서 볼 대상을 추릴 때 쓴다.
+   */
+  isAdmin?: boolean
+  archived?: boolean
+  fork?: boolean
+}
+
+/** 저장소로 들어오는 문. 브랜치를 안 건드리고도 열 수 있는 것들이다. */
+export type AccessKind = 'deployKey' | 'webhook' | 'invitation'
+
+export interface AccessItem {
+  kind: AccessKind
+  repo: string
+  /** 사람이 알아볼 이름. 키 제목, 웹훅 주소, 초대받은 사람 */
+  label: string
+  createdAt: string
+  /** 웹훅이면 어디로 보내는지. 페이로드라 화면에 그릴 때 무력화한다. */
+  target?: string
+  /** 읽기 전용 배포 키인지 */
+  readOnly?: boolean
+  /** GitHub 에서 열어볼 주소 */
+  href?: string
+}
+
+/** 못 본 이유. 권한이 없는 것과 실패한 것은 다르다. */
+export type AccessGap = 'notAdmin' | 'needsScope' | 'failed'
+
+export interface AccessReport {
+  /** 기준 시각. 이보다 뒤에 생긴 것을 '최근' 으로 본다. */
+  since: string
+  /** 기준 시각 뒤에 생긴 것 */
+  recent: AccessItem[]
+  /** 그 밖에 이미 있던 것. 개수만 센다. */
+  existing: Record<AccessKind, number>
+  /** 본 저장소 수 */
+  checked: number
+  /** 못 본 것. 이유별로 나눈다. */
+  gaps: Array<{ target: string; why: AccessGap; detail?: string }>
 }
 
 export interface BranchRef {
