@@ -16,6 +16,7 @@ import { useScanSession } from './hooks/useScanSession'
 import { useViewport } from './hooks/useViewport'
 import { ConnectAgent } from './panels/ConnectAgent'
 import { DetailPanel } from './panels/DetailPanel'
+import { FileModal } from './panels/FileModal'
 import { RestoreDialog } from './panels/RestoreDialog'
 import { ScanPanel, type ScanForm } from './panels/ScanPanel'
 import { Celebrate } from './scene/Celebrate'
@@ -82,7 +83,7 @@ export function App() {
   const [connecting, setConnecting] = useState(false)
 
   const stats = session.caseFile ? summarize(session.caseFile) : null
-  const detailOpen = Boolean(selectedFinding || selectedBranch || selectedFile)
+  const detailOpen = Boolean(selectedFinding || selectedBranch)
 
   const reaction = useMoleReaction()
 
@@ -119,17 +120,12 @@ export function App() {
   const openFinding = (finding: Finding) => {
     setSelectedFinding(finding)
     setSelectedBranch(null)
-    setSelectedFile(null)
   }
-  const openFile = (target: FileTarget) => {
-    setSelectedFile(target)
-    setSelectedFinding(null)
-    setSelectedBranch(null)
-  }
+  /** 파일은 옆 칸이 아니라 모달로 연다. 보던 목록을 밀어내지 않는다. */
+  const openFile = (target: FileTarget) => setSelectedFile(target)
   const closeDetail = () => {
     setSelectedFinding(null)
     setSelectedBranch(null)
-    setSelectedFile(null)
   }
 
   return (
@@ -192,7 +188,6 @@ export function App() {
                 if (!first) return
                 setSelectedBranch(first)
                 setSelectedFinding(null)
-                setSelectedFile(null)
               }}
               onSelectFinding={openFinding}
             />
@@ -228,20 +223,20 @@ export function App() {
               <DetailPanel
                 finding={selectedFinding}
                 branch={selectedBranch}
-                file={selectedFile}
                 caseFile={session.caseFile}
                 gh={session.github}
                 onClose={closeDetail}
+                onOpenFile={openFile}
               />
             </div>
           ) : (
             <DetailPanel
               finding={selectedFinding}
               branch={selectedBranch}
-              file={selectedFile}
               caseFile={session.caseFile}
               gh={session.github}
               onClose={closeDetail}
+              onOpenFile={openFile}
             />
           ))}
       </div>
@@ -270,6 +265,14 @@ export function App() {
             }
             reactMole(failed.length > 0 ? 'restoreFailed' : 'restored')
           }}
+        />
+      )}
+
+      {selectedFile && (
+        <FileModal
+          file={selectedFile}
+          gh={session.github}
+          onClose={() => setSelectedFile(null)}
         />
       )}
 

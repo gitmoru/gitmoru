@@ -38,6 +38,7 @@ export function DiffView({
   headRef,
   kind,
   sizeAfter,
+  autoLoad = false,
 }: {
   gh: GitHubClient | null
   repo: string
@@ -46,18 +47,13 @@ export function DiffView({
   headRef: string
   kind: 'added' | 'modified' | 'removed'
   sizeAfter?: number
+  /** 열자마자 가져올지. 파일을 보려고 연 화면이면 한 번 더 누르게 할 이유가 없다. */
+  autoLoad?: boolean
 }) {
   const t = useTr()
   const [state, setState] = useState<'idle' | 'loading' | 'failed'>('idle')
   const [loaded, setLoaded] = useState<Loaded | null>(null)
   const [expanded, setExpanded] = useState(false)
-
-  // 파일이 바뀌면 접힌 상태로 되돌린다. 앞 파일에서 펼쳐둔 게 따라오면 안 된다.
-  useEffect(() => {
-    setLoaded(null)
-    setState('idle')
-    setExpanded(false)
-  }, [repo, path, baseRef, headRef])
 
   const load = async () => {
     if (!gh) return
@@ -84,6 +80,15 @@ export function DiffView({
       setState('failed')
     }
   }
+
+  // 파일이 바뀌면 접힌 상태로 되돌린다. 앞 파일에서 펼쳐둔 게 따라오면 안 된다.
+  useEffect(() => {
+    setLoaded(null)
+    setState('idle')
+    setExpanded(false)
+    if (autoLoad) void load()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [repo, path, baseRef, headRef])
 
   if (!loaded) {
     return (
@@ -134,7 +139,10 @@ export function DiffView({
         </p>
       )}
 
-      <div className="payload-text max-h-96 overflow-auto bg-black/40">
+      <div
+        className="payload-text overflow-auto bg-black/40"
+        style={{ maxHeight: autoLoad ? undefined : 384 }}
+      >
         {shown.map((row, i) => (
           <div
             key={i}

@@ -1,5 +1,4 @@
 import { useTr } from '../../i18n'
-import { DiffView } from './DiffView'
 import { reactMole } from '../scene/moleReactions'
 import { useState } from 'react'
 import type { GitHubClient } from '../../core/github'
@@ -26,15 +25,15 @@ const STATUS_DOT: Record<BranchState['status'], string> = {
 interface Props {
   finding: Finding | null
   branch: BranchState | null
-  /** 신호 없이 열린 파일 하나 */
-  file?: FileTarget | null
   /** 신호에 딸린 파일의 공격 직전 커밋을 찾을 때 쓴다 */
   caseFile?: CaseFile | null
   gh: GitHubClient | null
   onClose: () => void
+  /** 파일은 이 칸이 아니라 모달에서 연다. 여긴 좁아서 코드가 다 접힌다. */
+  onOpenFile?: (target: FileTarget) => void
 }
 
-export function DetailPanel({ finding, branch, file, caseFile, gh, onClose }: Props) {
+export function DetailPanel({ finding, branch, caseFile, gh, onClose, onOpenFile }: Props) {
   const t = useTr()
   /** 신호가 가리키는 파일이 어느 비교에서 나온 것인지. 공격 직전 커밋을 여기서 얻는다. */
   const sampleChange = caseFile?.changes.find(
@@ -96,18 +95,6 @@ export function DetailPanel({ finding, branch, file, caseFile, gh, onClose }: Pr
               </div>
               <h2 className="text-[13.5px] font-semibold">{finding.title}</h2>
             </>
-          ) : file ? (
-            <>
-              <div className="mb-1 flex items-center gap-2">
-                <span className="text-[10px] text-[var(--color-muted)]">
-                  {t.changeList.kinds[file.kind]}
-                </span>
-              </div>
-              <h2 className="truncate font-mono text-[13px] font-semibold">{file.path}</h2>
-              <p className="truncate font-mono text-[10.5px] text-[var(--color-muted)]">
-                {file.repo} / {file.branch}
-              </p>
-            </>
           ) : (
             <>
               <div className="mb-1 flex items-center gap-2">
@@ -134,21 +121,6 @@ export function DetailPanel({ finding, branch, file, caseFile, gh, onClose }: Pr
       </header>
 
       <div className="flex-1 overflow-y-auto p-4">
-        {file && (
-          <>
-            <SectionTitle>{t.detail.whatChanged}</SectionTitle>
-            <DiffView
-              gh={gh}
-              repo={file.repo}
-              path={file.path}
-              baseRef={file.baseSha}
-              headRef={file.headSha}
-              kind={file.kind}
-              sizeAfter={file.sizeAfter}
-            />
-          </>
-        )}
-
         {finding && (
           <>
             <p className="mb-4 text-[12px] leading-relaxed text-[var(--color-text)]">{finding.summary}</p>
@@ -178,21 +150,24 @@ export function DetailPanel({ finding, branch, file, caseFile, gh, onClose }: Pr
               ))}
             </ul>
 
-            {finding.sampleRef && sampleChange && (
-              <>
-                <SectionTitle>{t.detail.whatChanged}</SectionTitle>
-                <div className="mb-4">
-                  <DiffView
-                    gh={gh}
-                    repo={finding.sampleRef.repo}
-                    path={finding.sampleRef.path}
-                    baseRef={sampleChange.baseSha}
-                    headRef={sampleChange.headSha}
-                    kind={sampleFile?.kind ?? 'modified'}
-                    sizeAfter={finding.sampleRef.sizeBytes}
-                  />
-                </div>
-              </>
+            {finding.sampleRef && sampleChange && onOpenFile && (
+              <button
+                type="button"
+                onClick={() =>
+                  onOpenFile({
+                    repo: finding.sampleRef!.repo,
+                    branch: sampleChange.branch,
+                    path: finding.sampleRef!.path,
+                    kind: sampleFile?.kind ?? 'modified',
+                    baseSha: sampleChange.baseSha,
+                    headSha: sampleChange.headSha,
+                    sizeAfter: finding.sampleRef!.sizeBytes,
+                  })
+                }
+                className="px-btn mb-4 w-full bg-[var(--color-edge)] py-2 text-[11.5px]"
+              >
+                {t.detail.whatChanged}
+              </button>
             )}
 
             {finding.sampleRef && (
