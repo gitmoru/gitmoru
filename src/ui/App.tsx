@@ -142,12 +142,23 @@ export function App() {
         onConnectAgent={() => setConnecting(true)}
       />
 
+      {/*
+        칸 목록을 실제로 그리는 것만으로 만든다.
+
+        예전에는 설정 칸이 접혀도 `0px` 짜리 칸을 남겨뒀는데, 그 자리에 들어갈 요소는
+        안 그렸다. 그러면 나머지가 한 칸씩 앞으로 밀려서 본문이 `0px` 칸에 들어가고
+        화면이 통째로 비어 보인다.
+      */}
       <div
         className="relative grid min-h-0 flex-1"
         style={{
-          gridTemplateColumns: `${showAside ? (view.narrow ? '264px' : '300px') : '0px'} minmax(0,1fr)${
-            detailOpen && !detailFloats ? ' 380px' : ''
-          }`,
+          gridTemplateColumns: [
+            showAside ? (view.narrow ? '264px' : '300px') : null,
+            'minmax(0,1fr)',
+            detailOpen && !detailFloats ? '380px' : null,
+          ]
+            .filter(Boolean)
+            .join(' '),
         }}
       >
         {showAside && (
