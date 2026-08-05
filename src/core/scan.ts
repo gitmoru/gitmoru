@@ -1,3 +1,4 @@
+import { countByRole } from './fileRole'
 import { fillPushShapes, forcedOn } from './pushShape'
 import { tr } from '../i18n'
 import { collectChanges } from './changes'
@@ -314,6 +315,13 @@ export function summarize(c: CaseFile) {
     signalled,
     /** 신호 없이 바뀐 파일 수 - 사람이 직접 읽어야 하는 몫 */
     unreviewed: changedFiles - signalled,
+    /**
+     * 자동으로 실행되는 자리에서 바뀐 파일 수.
+     *
+     * 임계값이 없다. 바뀌었거나 안 바뀌었거나 둘 중 하나라 판정할 게 없고,
+     * 그래서 매번 보고해도 소음이 되지 않는다.
+     */
+    autoRun: countByRole(c.changes.flatMap((x) => x.files.map((f) => f.path))),
     /** 기록을 덮어쓴 푸시가 일어난 브랜치 수 */
     forcedBranches: c.branches.filter((b) =>
       b.forcedPushes.some((p) => p.kind === 'forced' || p.kind === 'unrelated'),

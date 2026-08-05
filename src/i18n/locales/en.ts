@@ -384,6 +384,8 @@ export const en: Dict = {
       `History was overwritten on ${branches} ${branches === 1 ? 'branch' : 'branches'}, dropping ${commits} ${commits === 1 ? 'commit' : 'commits'}.`,
     rewritten: (n) =>
       `${n} of them were replaced with an unrelated history, so the number of lost commits cannot be counted.`,
+    workflow: (n) =>
+      `${n} CI ${n === 1 ? 'definition' : 'definitions'} under .github/workflows changed. From the next push on, that is what runs.`,
     byRepo: 'By repository',
     repoChanged: (n) => `${n} changed`,
     repoUnknown: (n) => `${n} unchecked`,
@@ -411,6 +413,17 @@ export const en: Dict = {
     detector: (name) => `Running ${name}`,
     detectorFailed: (reason) => `Detector failed: ${reason}`,
     done: 'Collected',
+  },
+
+  role: {
+    workflow: 'CI definition',
+    gitHook: 'git hook',
+    editor: 'editor config',
+    buildConfig: 'build config',
+    workflowChanged: (n) => `${n} CI ${n === 1 ? 'definition' : 'definitions'} changed`,
+    workflowNote:
+      'From the next push on, this is what runs. On a self-hosted runner it is effectively a shell on that machine. Check that you were the one who changed it.',
+    autoRunTag: 'runs on its own',
   },
 
   push: {

@@ -384,6 +384,8 @@ export const ja: Dict = {
       `ブランチ ${branches} 本で履歴が上書きされ、コミット ${commits} 件が消えました。`,
     rewritten: (n) =>
       `そのうち ${n} 本は、つながらない別の履歴に置き換えられており、消えたコミット数を数えられません。`,
+    workflow: (n) =>
+      `.github/workflows の CI 定義が ${n} 件変わりました。次のプッシュからそのとおりに動きます。`,
     byRepo: 'リポジトリ別',
     repoChanged: (n) => `変更 ${n} 件`,
     repoUnknown: (n) => `未確認 ${n} 件`,
@@ -410,6 +412,17 @@ export const ja: Dict = {
     detector: (name) => `${name} を実行中`,
     detectorFailed: (reason) => `検出処理に失敗: ${reason}`,
     done: '収集完了',
+  },
+
+  role: {
+    workflow: 'CI 定義',
+    gitHook: 'git フック',
+    editor: 'エディタ設定',
+    buildConfig: 'ビルド設定',
+    workflowChanged: (n) => `CI 定義が ${n} 件変わりました`,
+    workflowNote:
+      '次のプッシュからここに書かれたとおりに動きます。セルフホストランナーなら、このファイルはそのサーバーのシェルそのものです。自分が変えたものか確認してください。',
+    autoRunTag: '自動実行',
   },
 
   push: {

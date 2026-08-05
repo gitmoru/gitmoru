@@ -374,6 +374,8 @@ export const ko = {
       `기록을 덮어쓴 푸시가 브랜치 ${branches}개에 있었고, 커밋 ${commits}개가 사라졌습니다.`,
     rewritten: (n: number) =>
       `그중 ${n}개는 이전 기록과 이어지지 않는 새 기록으로 갈아치워졌습니다. 사라진 커밋 수를 셀 수 없습니다.`,
+    workflow: (n: number) =>
+      `CI 정의(.github/workflows) ${n}개가 바뀌었습니다. 다음 푸시부터 여기 적힌 대로 돕니다.`,
     byRepo: '저장소별',
     repoChanged: (n: number) => `변경 ${n}건`,
     repoUnknown: (n: number) => `확인 실패 ${n}건`,
@@ -400,6 +402,17 @@ export const ko = {
     detector: (name: string) => `${name} 보는 중`,
     detectorFailed: (reason: string) => `탐지기 실행 실패: ${reason}`,
     done: '수집 완료',
+  },
+
+  role: {
+    workflow: 'CI 정의',
+    gitHook: 'git 훅',
+    editor: '편집기 설정',
+    buildConfig: '빌드 설정',
+    workflowChanged: (n: number) => `CI 정의 ${n}개가 바뀌었어요`,
+    workflowNote:
+      '다음 푸시부터 여기 적힌 대로 돕니다. 자체 호스팅 러너를 쓰면 이 파일이 곧 그 서버의 셸이에요. 내가 바꾼 게 맞는지 먼저 봐주세요.',
+    autoRunTag: '자동 실행',
   },
 
   push: {
