@@ -11,9 +11,17 @@
 
 const { contextBridge, ipcRenderer } = require('electron')
 
+/** 메인이 창을 만들 때 실어 보낸 값. 화면이 뜨기 전에 이미 여기 있다. */
+const startupLocale =
+  process.argv.find((a) => a.startsWith('--gitmoru-locale='))?.split('=')[1] || null
+
 contextBridge.exposeInMainWorld('radar', {
   /** 데스크톱 앱으로 실행 중인지. 화면이 통신 방식을 고르는 데 쓴다. */
   isApp: true,
+
+  /** 지난번에 고른 언어. 없으면 null 이고, 그때는 처음 실행이라 물어본다. */
+  startupLocale,
+  setLocale: (locale) => ipcRenderer.invoke('radar:set-locale', locale),
 
   /** Claude 에 붙이기 - 상태 확인과 등록. */
   mcpStatus: () => ipcRenderer.invoke('radar:mcp-status'),

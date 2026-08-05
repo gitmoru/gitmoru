@@ -10,7 +10,7 @@
 
 import { app, BrowserWindow, ipcMain, session, shell } from 'electron'
 import { execFile } from 'node:child_process'
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { dirname, join, resolve } from 'node:path'
@@ -23,6 +23,23 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const DEV_URL = process.env.RADAR_DEV_URL
 
 let win = null
+
+/**
+ * 사용자가 고른 것들. 지금은 언어 하나뿐이다.
+ *
+ * 화면의 `localStorage` 를 안 쓴다. 빌드된 앱은 `file://` 로 열리는데,
+ * 그 출처에서는 브라우저가 저장소 접근을 막는다. 그래서 껐다 켤 때마다
+ * 언어를 다시 묻게 된다. 저장은 메인 프로세스가 맡는 게 확실하다.
+ */
+const prefsPath = () => join(app.getPath('userData'), 'prefs.json')
+
+function readPrefs() {
+  try {
+    return JSON.parse(readFileSync(prefsPath(), 'utf8'))
+  } catch {
+    return {}
+  }
+}
 
 function createWindow() {
   win = new BrowserWindow({
@@ -41,6 +58,11 @@ function createWindow() {
     frame: false,
     webPreferences: {
       preload: join(__dirname, 'preload.cjs'),
+      /*
+        고른 언어를 창이 뜨기 전에 넘긴다.
+        화면이 뜬 다음 물어보면 한글 화면이 먼저 번쩍이고 영어로 바뀐다.
+      */
+      additionalArguments: [`--gitmoru-locale=${readPrefs().locale ?? ''}`],
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
@@ -150,6 +172,16 @@ function clientPaths() {
 }
 
 /** 설정 파일이 있는 폴더를 열어준다. 읽기만 하고 아무것도 안 바꾼다. */
+ipcMain.handle('radar:set-locale', async (_e, locale) => {
+  try {
+    if (typeof locale !== 'string' || !/^[a-z]{2}$/.test(locale)) return { ok: false }
+    writeFileSync(prefsPath(), JSON.stringify({ ...readPrefs(), locale }, null, 2), 'utf8')
+    return { ok: true }
+  } catch (err) {
+    return { ok: false, error: String(err?.message ?? err) }
+  }
+})
+
 ipcMain.handle('radar:reveal', async (_e, target) => {
   try {
     if (typeof target !== 'string' || !target) return { ok: false }

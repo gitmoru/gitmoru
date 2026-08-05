@@ -67,7 +67,13 @@ export function utcToZoned(iso: string, zone: string): string {
   }).format(new Date(instant))
 }
 
-/** 화면에 붙일 짧은 시간대 표기 (`GMT+9` 같은 것) */
+/**
+ * 공유문에 붙일 짧은 시간대 표기 (`GMT+9` 같은 것).
+ *
+ * 화면에는 안 쓴다. 자기 컴퓨터 시계 옆에 `GMT+9` 라고 적어두면 알려주는 게 아니라
+ * 읽을 것만 하나 늘어난다. 이 표기가 필요한 자리는 **남이 읽는 요약문** 하나뿐이다.
+ * 받는 사람은 다른 시간대에 있을 수 있으니 거기서는 반드시 있어야 한다.
+ */
 export function zoneLabel(zone: string): string {
   try {
     const parts = new Intl.DateTimeFormat('en-US', {

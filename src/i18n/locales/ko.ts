@@ -86,9 +86,8 @@ export const ko = {
     nameHint: '선택',
     namePlaceholder: '무슨 일이었는지 한 줄로',
     rules: (n: number) => `모루가 눈여겨보는 것 ${n}가지`,
-    rulesNote:
-      '검사 범위가 아니에요. 바뀐 파일은 전부 목록에 남고, 이건 그중 먼저 볼 걸 위로 올려주는 것뿐이에요.',
-    rulesNoteStrong: '바뀐 파일은 전부 목록에 남고',
+    rulesNoteStrong: '바뀐 파일은 전부 목록에 남아요.',
+    rulesNote: ' 규칙은 그중 먼저 볼 것을 골라줄 뿐이라, 꺼도 목록에서 빠지지 않아요.',
     scan: '파보기',
     scanning: '파는 중...',
   },

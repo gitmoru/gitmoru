@@ -3,6 +3,7 @@ import { useSyncExternalStore } from 'react'
 import { ko } from './locales/ko'
 import { en } from './locales/en'
 import { ja } from './locales/ja'
+import { rememberLocale, savedLocale } from '../platform/bridge'
 
 /**
  * 말 고르기.
@@ -32,8 +33,14 @@ export const LOCALE_NAMES: Record<Locale, string> = {
 
 const STORAGE_KEY = 'gitmoru.locale'
 
-/** 사용자가 직접 고른 적이 있는지. 첫 실행에 언어를 물어볼지 여기서 갈린다. */
+/**
+ * 사용자가 직접 고른 적이 있는지. 첫 실행에 언어를 물어볼지 여기서 갈린다.
+ *
+ * 앱은 메인 프로세스가 남긴 값을 먼저 본다. 빌드된 앱은 `file://` 로 열려서
+ * 브라우저 저장소를 못 쓰는데, 그걸 모르고 저장소만 보면 껐다 켤 때마다 다시 묻게 된다.
+ */
 export function localeWasChosen(): boolean {
+  if (savedLocale()) return true
   try {
     return localStorage.getItem(STORAGE_KEY) !== null
   } catch {
@@ -42,6 +49,9 @@ export function localeWasChosen(): boolean {
 }
 
 function detect(): Locale {
+  const fromApp = savedLocale()
+  if (fromApp && (LOCALES as readonly string[]).includes(fromApp)) return fromApp as Locale
+
   try {
     const saved = localStorage.getItem(STORAGE_KEY)
     if (saved && (LOCALES as readonly string[]).includes(saved)) return saved as Locale
@@ -68,10 +78,11 @@ export function getLocale(): Locale {
 export function setLocale(next: Locale) {
   if (next === current) return
   current = next
+  rememberLocale(next)
   try {
     localStorage.setItem(STORAGE_KEY, next)
   } catch {
-    // 못 저장해도 이번 실행 동안은 바뀐 말로 쓴다
+    // 브라우저 저장소를 못 쓰는 자리도 있다. 앱에서는 위에서 이미 남겼다.
   }
   if (typeof document !== 'undefined') document.documentElement.lang = next
   listeners.forEach((notify) => notify())

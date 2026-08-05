@@ -96,9 +96,8 @@ export const en: Dict = {
     nameHint: 'optional',
     namePlaceholder: 'One line about what happened',
     rules: (n) => `${n} ${plural(n, 'thing', 'things')} Moru watches for`,
-    rulesNote:
-      "These don't limit the scan. Every changed file stays in the list. Signals only decide what floats to the top.",
-    rulesNoteStrong: 'Every changed file stays in the list',
+    rulesNoteStrong: 'Every changed file stays in the list.',
+    rulesNote: ' Rules only pick what to read first, so turning one off never hides a file.',
     scan: 'Dig',
     scanning: 'Digging...',
   },

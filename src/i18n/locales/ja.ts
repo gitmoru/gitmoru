@@ -96,9 +96,8 @@ export const ja: Dict = {
     nameHint: '任意',
     namePlaceholder: '何があったのか一行で',
     rules: (n) => `モルが見ている観点 ${n} 件`,
-    rulesNote:
-      'スキャンの範囲ではありません。変更されたファイルはすべて一覧に残ります。検出は、その中で先に見るものを上に出すだけです。',
-    rulesNoteStrong: '変更されたファイルはすべて一覧に残ります',
+    rulesNoteStrong: '変更されたファイルはすべて一覧に残ります。',
+    rulesNote: '検出は先に見るものを選ぶだけなので、オフにしてもファイルが消えることはありません。',
     scan: '掘る',
     scanning: '掘っています...',
   },

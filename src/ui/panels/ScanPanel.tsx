@@ -1,5 +1,4 @@
 import { useTr } from '../../i18n'
-import { localZone, zoneLabel } from '../../core/time'
 import { useState } from 'react'
 import { DETECTORS } from '../../core/detectors'
 import type { GitHubClient } from '../../core/github'
@@ -67,7 +66,7 @@ export function ScanPanel({
           />
         </Field>
 
-        <Field label={t.scanPanel.when} hint={zoneLabel(localZone())}>
+        <Field label={t.scanPanel.when}>
           <TimeRange
             since={form.sinceKst}
             until={form.untilKst}
@@ -120,6 +119,7 @@ export function ScanPanel({
               그래서 먼저 무엇인지 설명하고, 끄는 건 부수적인 동작으로 둔다.
             */}
             <p className="mb-3 text-[11px] leading-relaxed text-[var(--color-muted)]">
+              <span className="text-[var(--color-text)]">{t.scanPanel.rulesNoteStrong}</span>
               {t.scanPanel.rulesNote}
             </p>
 

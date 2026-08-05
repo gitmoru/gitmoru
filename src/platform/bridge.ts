@@ -40,6 +40,9 @@ interface RadarBridge {
   mcpStatus(): Promise<McpStatus>
   mcpRegister(): Promise<{ ok: boolean; message?: string; error?: string }>
   reveal(target: string): Promise<{ ok: boolean }>
+  /** 지난번에 고른 언어. 창이 뜨기 전에 메인이 실어 보낸 값이다. */
+  startupLocale: string | null
+  setLocale(locale: string): Promise<{ ok: boolean }>
   whoami(): Promise<{ ok: boolean; data?: { login: string; name: string }; error?: string }>
   gh(req: {
     path: string
@@ -85,6 +88,16 @@ export function windowAction(action: WinAction) {
 export async function mcpStatus(): Promise<McpStatus | null> {
   if (!window.radar) return null
   return window.radar.mcpStatus()
+}
+
+/** 지난번에 고른 언어. 앱이 아니면 null 이고, 그때는 브라우저 저장소를 쓴다. */
+export function savedLocale(): string | null {
+  return window.radar?.startupLocale || null
+}
+
+/** 고른 언어를 남긴다. 앱 밖에서는 아무 일도 하지 않는다. */
+export function rememberLocale(locale: string) {
+  void window.radar?.setLocale(locale)
 }
 
 /** 설정 파일이 있는 폴더 열기 */
