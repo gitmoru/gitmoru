@@ -18,9 +18,9 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      # 버전을 여기 안 적는다. package.json 의 packageManager 를 읽어 간다.
+      # 양쪽에 적으면 액션이 어느 쪽을 믿을지 몰라서 아예 멈춘다.
       - uses: pnpm/action-setup@v4
-        with:
-          version: 11
 
       - uses: actions/setup-node@v5
         with:
