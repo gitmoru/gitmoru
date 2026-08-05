@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+
 import type { GitHubClient } from '../../core/github'
 import { formatBytes } from '../../core/safeText'
 import type { CaseFile, FileTarget } from '../../core/types'
@@ -15,6 +17,9 @@ import { DiffView } from './DiffView'
  *
  * 왼쪽에 같은 브랜치의 바뀐 파일을 늘어놓는다. 한 브랜치에 수십 개가 바뀐 경우가 흔한데,
  * 하나 보고 닫고 다시 찾아 누르게 하면 목록에서 어디까지 봤는지를 사람이 외워야 한다.
+ *
+ * 위아래 화살표로도 넘어간다. 파일 수십 개를 훑을 때 마우스로 하나씩 찍는 것은
+ * 손이 너무 많이 간다. 넘길 때마다 diff 는 알아서 다시 불러온다.
  */
 
 /** 파일 목록 칸 너비. 경로가 길어서 이보다 좁으면 뒷부분만 보인다. */
@@ -47,6 +52,37 @@ export function FileModal({
   /** 파일이 하나뿐이면 목록 칸은 자리만 차지한다 */
   const showNav = siblings.length > 1 && view.w >= 900
 
+  const at = siblings.findIndex((f) => f.path === target.path)
+
+  const step = (delta: number) => {
+    if (siblings.length < 2) return
+    const next = siblings[(at + delta + siblings.length) % siblings.length]
+    if (!next) return
+    onPick({
+      repo: target.repo,
+      branch: target.branch,
+      path: next.path,
+      kind: next.kind,
+      baseSha: target.baseSha,
+      headSha: target.headSha,
+      sizeAfter: next.sizeAfter,
+    })
+  }
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowDown' || e.key === 'j') {
+        e.preventDefault()
+        step(1)
+      } else if (e.key === 'ArrowUp' || e.key === 'k') {
+        e.preventDefault()
+        step(-1)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  })
+
   return (
     <Modal title={target.branch} onClose={onClose} width={width} height={height}>
       <div className="flex min-h-0 flex-1">
@@ -55,8 +91,11 @@ export function FileModal({
             className="min-h-0 shrink-0 overflow-y-auto border-r border-[var(--color-edge)] py-2"
             style={{ width: NAV_WIDTH }}
           >
-            <p className="truncate px-3 pb-2 font-mono text-[10px] text-[var(--color-faint)]">
+            <p className="truncate px-3 pb-1 font-mono text-[10px] text-[var(--color-faint)]">
               {target.repo}
+            </p>
+            <p className="px-3 pb-2 text-[9.5px] text-[var(--color-faint)]">
+              {t.diffView.keyHint(at + 1, siblings.length)}
             </p>
             {siblings.map((file) => {
               const on = file.path === target.path
