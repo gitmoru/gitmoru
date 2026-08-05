@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 import { useTr } from '../../i18n'
 import { growth } from '../../core/changes'
 import { formatBytes } from '../../core/safeText'
@@ -30,6 +32,21 @@ interface ListProps extends Props {
 
 export function ChangeList({ caseFile, onOpenFile }: ListProps) {
   const t = useTr()
+  /*
+    브랜치를 처음에는 접어둔다.
+
+    브랜치 스무 개에 파일이 이백 개씩 달리는 게 흔한데, 다 펼쳐 놓으면
+    어느 브랜치가 어디까지인지가 안 읽힌다. 먼저 "어느 브랜치가 몇 개" 를 보고
+    들어갈 곳을 고르는 게 순서다.
+  */
+  const [open, setOpen] = useState<Set<string>>(new Set())
+  const toggle = (key: string) =>
+    setOpen((prev) => {
+      const next = new Set(prev)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
   if (!caseFile) {
     return <p className="px-3 py-3 text-[11px] text-[var(--color-muted)]">{t.changeList.empty}</p>
   }
@@ -68,18 +85,34 @@ export function ChangeList({ caseFile, onOpenFile }: ListProps) {
 
   return (
     <div className="px-3 py-2">
-      {sorted.map((c) => (
-        <section key={`${c.repo}/${c.branch}`} className="mb-3">
-          <div className="mb-1 flex items-baseline gap-2">
+      {sorted.map((c) => {
+        const key = `${c.repo}/${c.branch}`
+        const expanded = open.has(key) || sorted.length === 1
+        const signals = c.files.reduce((n, f) => n + f.signalIds.length, 0)
+
+        return (
+        <section key={key} className="mb-3">
+          <button
+            type="button"
+            onClick={() => toggle(key)}
+            className="mb-1 flex w-full items-baseline gap-2 py-0.5 text-left hover:bg-white/5"
+          >
+            <span className="shrink-0 select-none text-[9px] text-[var(--color-faint)]">
+              {expanded ? '▼' : '▶'}
+            </span>
             <span className="font-mono text-[11px] font-semibold">{c.branch}</span>
             <span className="truncate font-mono text-[10px] text-[var(--color-faint)]">
               {c.repo}
             </span>
+            {signals > 0 && (
+              <span className="shrink-0 text-[9.5px] text-[var(--color-apricot)]">●</span>
+            )}
             <span className="ml-auto shrink-0 text-[10px] text-[var(--color-muted)]">
               {t.changeList.fileCount(c.files.length)}
             </span>
-          </div>
+          </button>
 
+          {expanded && (
           <ul className="space-y-0.5">
             {c.files.slice(0, 40).map((f) => {
               const kindColor = KIND_COLOR[f.kind]
@@ -143,14 +176,16 @@ export function ChangeList({ caseFile, onOpenFile }: ListProps) {
               )
             })}
           </ul>
+          )}
 
-          {c.files.length > 40 && (
+          {expanded && c.files.length > 40 && (
             <p className="mt-1 px-1.5 text-[10px] text-[var(--color-sand)]">
               {t.changeList.folded(c.files.length - 40)}
             </p>
           )}
         </section>
-      ))}
+        )
+      })}
     </div>
   )
 }
