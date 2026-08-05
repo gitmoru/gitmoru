@@ -51,8 +51,19 @@ async function shapeOf(
     return { kind: 'unknown', droppedCommits: 0, addedCommits: 0, reason: tr().push.noBefore }
   }
 
-  // 같은 자리면 비교할 것이 없다. 브랜치를 만들거나 지운 경우다.
+  // 같은 자리면 비교할 것이 없다.
   if (event.before === event.head) {
+    return { kind: 'fast-forward', droppedCommits: 0, addedCommits: 0 }
+  }
+
+  /*
+    0 으로 채워진 자리는 **브랜치가 그때 생겼다** 는 뜻이다. 덮어쓴 게 아니라 없던 게 생긴 것이라
+    비교할 이전 상태가 없다. 확인 실패로 올리면 정상적인 브랜치 생성이 경고로 뜬다.
+
+    지금 쓰는 이벤트 목록에서는 브랜치 생성이 CreateEvent 로 따로 와서 여기까지 잘 안 오지만,
+    들어와도 놀라지 않게 막아둔다.
+  */
+  if (/^0+$/.test(event.before)) {
     return { kind: 'fast-forward', droppedCommits: 0, addedCommits: 0 }
   }
 

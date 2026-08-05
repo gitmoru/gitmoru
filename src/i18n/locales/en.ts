@@ -406,7 +406,7 @@ export const en: Dict = {
     forcedCount: (n) => `${n} force ${n === 1 ? 'push' : 'pushes'}`,
     rewritten: 'History replaced outright',
     rewrittenNote:
-      'This was overwritten with a history that does not connect to what was there before. The two commits share no ancestor at all, so the number of lost commits cannot even be counted. Tooling that overwrites repositories in bulk leaves this shape.',
+      'This was overwritten with a history that does not connect to what was there before. The two commits share no ancestor at all, so the number of lost commits cannot even be counted. Bulk-overwrite tooling leaves this shape, but so does rewriting all history to scrub a leaked key. Check who did it and when.',
     unknownShape: 'Could not tell whether this was a force push',
     note: 'Force pushing is normal work on your own branch. It is worth a look when it lands on branches across the org at once.',
   },
