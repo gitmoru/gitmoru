@@ -17,6 +17,22 @@ import type {
  * 어느 쪽이든 토큰은 반대편에만 있어서 이 파일에는 토큰이 등장하지 않는다.
  */
 
+/**
+ * GitHub 이 준 base64 를 글자로 되돌린다.
+ *
+ * `atob` 만 쓰면 안 된다. 그건 바이트 하나를 글자 하나로 놓기 때문에
+ * 한 글자가 3바이트인 한글은 세 글자로 흩어져서 깨진다.
+ * 바이트로 되돌린 다음 UTF-8 로 읽어야 한다.
+ *
+ * 여기 들어오는 것은 공격자가 쓴 파일일 수 있다. 그래도 하는 일은 문자열 변환뿐이고,
+ * 실행하거나 디스크에 쓰지 않는다 (SAFETY.md 2, 3번).
+ */
+function decodeBase64Utf8(base64: string): string {
+  const binary = atob(base64.replace(/\s/g, ''))
+  const bytes = Uint8Array.from(binary, (ch) => ch.charCodeAt(0))
+  return new TextDecoder('utf-8').decode(bytes)
+}
+
 export class ApiError extends Error {
   constructor(
     message: string,
@@ -263,7 +279,7 @@ export class GitHubClient implements GitHubReader {
         `repos/${repo}/contents/${path}?ref=${encodeURIComponent(ref)}`,
       )
       if (!raw.content || raw.encoding !== 'base64') return null
-      return atob(raw.content.replace(/\n/g, ''))
+      return decodeBase64Utf8(raw.content)
     } catch (err) {
       if (err instanceof ApiError && err.status === 404) return null
       throw err
