@@ -153,13 +153,24 @@ function mcpCommand() {
  */
 function clientPaths() {
   const home = homedir()
-  const mac = process.platform === 'darwin'
   const p = (...bits) => join(...bits)
 
+  /**
+   * Claude Desktop 만 운영체제마다 자리가 다르다.
+   *
+   * 세 갈래를 다 적어둔다. 없는 경로를 보여주면 사람은 그걸 찾아 헤매고,
+   * 못 찾으면 자기가 뭘 잘못한 줄 안다. 안내하려다 헷갈리게 만드는 셈이다.
+   */
+  const claudeDesktop = {
+    darwin: () => p(home, 'Library', 'Application Support', 'Claude', 'claude_desktop_config.json'),
+    win32: () =>
+      p(process.env.APPDATA ?? p(home, 'AppData', 'Roaming'), 'Claude', 'claude_desktop_config.json'),
+    linux: () =>
+      p(process.env.XDG_CONFIG_HOME ?? p(home, '.config'), 'Claude', 'claude_desktop_config.json'),
+  }
+
   const list = {
-    'claude-desktop': mac
-      ? p(home, 'Library', 'Application Support', 'Claude', 'claude_desktop_config.json')
-      : p(process.env.APPDATA ?? p(home, 'AppData', 'Roaming'), 'Claude', 'claude_desktop_config.json'),
+    'claude-desktop': (claudeDesktop[process.platform] ?? claudeDesktop.linux)(),
     cursor: p(home, '.cursor', 'mcp.json'),
     windsurf: p(home, '.codeium', 'windsurf', 'mcp_config.json'),
     codex: p(home, '.codex', 'config.toml'),
