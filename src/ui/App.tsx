@@ -270,8 +270,10 @@ export function App() {
 
       {selectedFile && (
         <FileModal
-          file={selectedFile}
+          caseFile={session.caseFile}
+          target={selectedFile}
           gh={session.github}
+          onPick={setSelectedFile}
           onClose={() => setSelectedFile(null)}
         />
       )}
