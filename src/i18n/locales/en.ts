@@ -200,7 +200,12 @@ export const en: Dict = {
     counts: (removed, added, at) =>
       `${removed} lines removed, ${added} added (starting at line ${at})`,
     longLine: (n) => `... ${n} more characters on this line`,
-    showAll: (n) => `Show ${n} more lines`,
+    showRest: (n) => `Render ${n} more lines`,
+    skipped: (n) => `${n} unchanged lines`,
+    keyHint: (at, total) => `${at} / ${total}  ↑↓ to move`,
+    wholeFile: 'Whole file',
+    onlyChanged: 'Changes only',
+    noWrap: 'No wrap',
   },
 
   restore: {

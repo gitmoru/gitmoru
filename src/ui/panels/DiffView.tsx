@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
 import type { GitHubClient } from '../../core/github'
-import { diffLines } from '../../core/lineDiff'
+import { diffLines, unifiedRows, type DiffRow } from '../../core/lineDiff'
 import { collapseHiddenPadding, defang, formatBytes } from '../../core/safeText'
 import { useTr } from '../../i18n'
 
@@ -18,35 +18,30 @@ import { useTr } from '../../i18n'
  *   - 공백으로 밀어낸 코드는 접어서, 숨겨둔 꼬리가 제 줄을 갖게 한다
  *
  * **양을 줄이지는 않는다.** 에이전트에게 넘길 때는 토큰을 아끼려고 자르지만,
- * 여기는 사람이 읽는 자리다. 읽으려고 연 화면에서 내용을 잘라내면 안 된다.
- * 아래 상한은 전부 화면이 멈추는 걸 막는 용도이고, 실제 코드가 걸릴 일은 없다.
+ * 여기는 사람이 읽는 자리다. 아래 상한은 전부 화면이 멈추는 걸 막는 용도다.
  */
 
 /**
  * 한 줄이 이보다 길면 잘라서 보여준다.
  *
- * 읽을 양을 줄이려는 게 아니다. 화면은 길어도 스크롤하면 그만이고,
- * 공백으로 밀어낸 부분은 이미 접어서 넘어온다. 남은 건 진짜 코드라 자를 이유가 없다.
- *
- * 이 상한은 **한 줄짜리 번들** 하나를 위한 것이다. 압축된 js 는 파일 전체가 한 줄이라
- * 수백만 자가 될 수 있고, 그걸 그대로 그리면 줄바꿈 계산하다 화면이 멈춘다.
- * 그 경우만 막으면 되므로 넉넉하게 잡는다. 사람이 쓴 코드가 여기 걸릴 일은 없다.
+ * 압축된 js 는 파일 전체가 한 줄이라 수백만 자가 될 수 있고, 그대로 그리면
+ * 줄바꿈 계산하다 화면이 멈춘다. 그 경우만 막으면 되므로 넉넉하게 잡는다.
  */
 const MAX_LINE = 20_000
 
-/**
- * 한 번에 그릴 줄 수.
- *
- * 이건 내용을 줄이는 게 아니라 나눠 그리는 것이다. 나머지는 버튼 한 번으로 다 보인다.
- * 줄 하나가 DOM 하나라, 수만 줄을 한꺼번에 그리면 여는 순간 멈춘다.
- */
-const MAX_LINES = 500
+/** 한 번에 그릴 줄 수. 내용을 줄이는 게 아니라 나눠 그리는 것이다. */
+const MAX_ROWS = 500
 
-type Loaded = {
-  before: string
-  after: string
-  padding: number
-}
+/** 바뀐 줄 앞뒤로 같이 보여줄 줄 수 */
+const CONTEXT = 3
+
+type Loaded = { before: string; after: string; padding: number }
+
+const TONE = {
+  added: 'var(--color-moss)',
+  removed: 'var(--color-clay)',
+  context: 'var(--color-faint)',
+} as const
 
 export function DiffView({
   gh,
@@ -71,7 +66,10 @@ export function DiffView({
   const t = useTr()
   const [state, setState] = useState<'idle' | 'loading' | 'failed'>('idle')
   const [loaded, setLoaded] = useState<Loaded | null>(null)
+  const [showAll, setShowAll] = useState(false)
   const [expanded, setExpanded] = useState(false)
+  /** 긴 줄을 접을지 가로로 흘릴지. 코드는 접으면 들여쓰기가 무너져서 읽기 어렵다. */
+  const [wrap, setWrap] = useState(true)
 
   const load = async () => {
     if (!gh) return
@@ -99,10 +97,11 @@ export function DiffView({
     }
   }
 
-  // 파일이 바뀌면 접힌 상태로 되돌린다. 앞 파일에서 펼쳐둔 게 따라오면 안 된다.
+  // 파일이 바뀌면 처음 상태로 되돌린다. 앞 파일에서 펼쳐둔 게 따라오면 안 된다.
   useEffect(() => {
     setLoaded(null)
     setState('idle')
+    setShowAll(false)
     setExpanded(false)
     if (autoLoad) void load()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -130,26 +129,34 @@ export function DiffView({
   }
 
   const diff = diffLines(loaded.before, loaded.after)
-  const rows = [
-    ...diff.removed.map((line) => ({ sign: '-' as const, line })),
-    ...diff.added.map((line) => ({ sign: '+' as const, line })),
-  ]
-  const shown = expanded ? rows : rows.slice(0, MAX_LINES)
+  const rows = unifiedRows(loaded.before, loaded.after, showAll ? Infinity : CONTEXT)
+  const shown = expanded ? rows : rows.slice(0, MAX_ROWS)
 
   return (
     <div>
-      <div className="mb-2 flex items-baseline justify-between gap-2 text-[10.5px]">
-        <span className="truncate text-[var(--color-muted)]">
-          {t.diffView.counts(diff.removed.length, diff.added.length, diff.startsAtLine)}
+      <div className="mb-2 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-[10.5px]">
+        <span className="font-mono" style={{ color: TONE.added }}>
+          +{diff.added.length}
+        </span>
+        <span className="font-mono" style={{ color: TONE.removed }}>
+          −{diff.removed.length}
+        </span>
+        <span className="font-mono text-[9.5px] text-[var(--color-faint)]">
+          {baseRef.slice(0, 8)} → {headRef.slice(0, 8)}
         </span>
         {sizeAfter !== undefined && (
-          <span className="shrink-0 text-[var(--color-faint)]">{formatBytes(sizeAfter)}</span>
+          <span className="text-[var(--color-faint)]">{formatBytes(sizeAfter)}</span>
         )}
-      </div>
 
-      <p className="mb-2 font-mono text-[9.5px] text-[var(--color-faint)]">
-        {baseRef.slice(0, 8)} → {headRef.slice(0, 8)}
-      </p>
+        <span className="ml-auto flex shrink-0 gap-2">
+          <Toggle on={showAll} onClick={() => setShowAll((v) => !v)}>
+            {showAll ? t.diffView.onlyChanged : t.diffView.wholeFile}
+          </Toggle>
+          <Toggle on={!wrap} onClick={() => setWrap((v) => !v)}>
+            {t.diffView.noWrap}
+          </Toggle>
+        </span>
+      </div>
 
       {loaded.padding > 0 && (
         <p className="mb-2 bg-[var(--color-sand)]/10 p-2 text-[10.5px] leading-relaxed text-[var(--color-sand)]">
@@ -162,41 +169,17 @@ export function DiffView({
         style={{ maxHeight: autoLoad ? undefined : 384 }}
       >
         {shown.map((row, i) => (
-          <div
-            key={i}
-            className="flex gap-2 px-2 py-px"
-            style={{
-              background:
-                row.sign === '+'
-                  ? 'color-mix(in srgb, var(--color-moss) 12%, transparent)'
-                  : 'color-mix(in srgb, var(--color-clay) 12%, transparent)',
-            }}
-          >
-            <span
-              className="shrink-0 select-none"
-              style={{ color: row.sign === '+' ? 'var(--color-moss)' : 'var(--color-clay)' }}
-            >
-              {row.sign}
-            </span>
-            {/* 문자열 그대로 텍스트 노드로만 그린다. 주소는 눌리지 않게 무력화한다. */}
-            <span className="min-w-0 break-all whitespace-pre-wrap">
-              {defang(
-                row.line.length > MAX_LINE
-                  ? `${row.line.slice(0, MAX_LINE)} ${t.diffView.longLine(row.line.length - MAX_LINE)}`
-                  : row.line,
-              )}
-            </span>
-          </div>
+          <Row key={i} row={row} wrap={wrap} skipped={t.diffView.skipped} longLine={t.diffView.longLine} />
         ))}
       </div>
 
-      {rows.length > MAX_LINES && (
+      {rows.length > MAX_ROWS && (
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
           className="mt-1.5 text-[10.5px] text-[var(--color-faint)] hover:text-[var(--color-text)]"
         >
-          {expanded ? t.common.collapse : t.diffView.showAll(rows.length - MAX_LINES)}
+          {expanded ? t.common.collapse : t.diffView.showRest(rows.length - MAX_ROWS)}
         </button>
       )}
 
@@ -204,5 +187,82 @@ export function DiffView({
         {t.detail.textOnly}
       </p>
     </div>
+  )
+}
+
+/** 한 줄. 줄 번호 두 칸(이전/지금)을 앞에 붙인다. */
+function Row({
+  row,
+  wrap,
+  skipped,
+  longLine,
+}: {
+  row: DiffRow
+  wrap: boolean
+  skipped: (n: number) => string
+  longLine: (n: number) => string
+}) {
+  if (row.kind === 'skipped') {
+    return (
+      <div className="border-y border-[var(--color-edge-soft)] bg-black/20 px-2 py-1 text-[10px] text-[var(--color-faint)]">
+        {skipped(row.count)}
+      </div>
+    )
+  }
+
+  const sign = row.kind === 'added' ? '+' : row.kind === 'removed' ? '−' : ' '
+  const tone = TONE[row.kind]
+  const tint =
+    row.kind === 'context' ? undefined : `color-mix(in srgb, ${tone} 12%, transparent)`
+
+  return (
+    <div className="flex gap-2 px-2 py-px" style={{ background: tint }}>
+      {/* 줄 번호. 지워진 줄은 이전 쪽에만, 생긴 줄은 지금 쪽에만 번호가 있다. */}
+      <span className="w-9 shrink-0 select-none text-right text-[var(--color-faint)]">
+        {row.kind === 'added' ? '' : row.before}
+      </span>
+      <span className="w-9 shrink-0 select-none text-right text-[var(--color-faint)]">
+        {row.kind === 'removed' ? '' : row.after}
+      </span>
+      <span className="shrink-0 select-none" style={{ color: tone }}>
+        {sign}
+      </span>
+
+      {/* 문자열 그대로 텍스트 노드로만 그린다. 주소는 눌리지 않게 무력화한다. */}
+      <span
+        className={`min-w-0 ${wrap ? 'break-all whitespace-pre-wrap' : 'whitespace-pre'}`}
+        style={{ color: row.kind === 'context' ? 'var(--color-muted)' : undefined }}
+      >
+        {defang(
+          row.text.length > MAX_LINE
+            ? `${row.text.slice(0, MAX_LINE)} ${longLine(row.text.length - MAX_LINE)}`
+            : row.text,
+        )}
+      </span>
+    </div>
+  )
+}
+
+function Toggle({
+  on,
+  onClick,
+  children,
+}: {
+  on: boolean
+  onClick: () => void
+  children: React.ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="px-1.5 py-0.5 text-[10px] hover:brightness-125"
+      style={{
+        color: on ? 'var(--color-moss)' : 'var(--color-faint)',
+        boxShadow: `inset 0 0 0 1px ${on ? 'var(--color-moss)' : 'var(--color-edge)'}`,
+      }}
+    >
+      {children}
+    </button>
   )
 }

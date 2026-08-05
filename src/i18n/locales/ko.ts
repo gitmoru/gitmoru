@@ -190,7 +190,12 @@ export const ko = {
     counts: (removed: number, added: number, at: number) =>
       `사라진 줄 ${removed}, 새로 생긴 줄 ${added} (${at}번째 줄부터)`,
     longLine: (n: number) => `... 이 줄은 ${n}자 더 있어요`,
-    showAll: (n: number) => `나머지 ${n}줄 더 보기`,
+    showRest: (n: number) => `나머지 ${n}줄 더 그리기`,
+    skipped: (n: number) => `${n}줄 접힘`,
+    keyHint: (at: number, total: number) => `${at} / ${total}  ↑↓ 로 이동`,
+    wholeFile: '파일 전체',
+    onlyChanged: '바뀐 곳만',
+    noWrap: '줄바꿈 끄기',
   },
 
   restore: {

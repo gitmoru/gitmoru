@@ -200,7 +200,12 @@ export const ja: Dict = {
     counts: (removed, added, at) =>
       `消えた行 ${removed}、増えた行 ${added}（${at} 行目から）`,
     longLine: (n) => `... この行はあと ${n} 文字あります`,
-    showAll: (n) => `残り ${n} 行を見る`,
+    showRest: (n) => `残り ${n} 行を描画`,
+    skipped: (n) => `変更なし ${n} 行`,
+    keyHint: (at, total) => `${at} / ${total}  ↑↓ で移動`,
+    wholeFile: 'ファイル全体',
+    onlyChanged: '変更箇所のみ',
+    noWrap: '折り返しなし',
   },
 
   restore: {
