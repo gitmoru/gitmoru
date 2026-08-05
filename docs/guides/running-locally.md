@@ -16,6 +16,9 @@ pnpm app          # 데스크톱 앱 (평소 이걸 쓴다)
 pnpm dev          # 화면만 브라우저에서
 pnpm build        # 타입 검사 + 번들
 pnpm typecheck
+pnpm test          # 순수 로직 시험 (네트워크 안 씀)
+pnpm style         # 글쓰기 규칙
+pnpm check         # 위 전부 + 빌드. CI 가 돌리는 것과 같다
 pnpm icon         # 캐릭터 그림에서 앱 아이콘 굽기
 pnpm mcp          # MCP 서버만
 ```
