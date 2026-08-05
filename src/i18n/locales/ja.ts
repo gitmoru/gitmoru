@@ -343,6 +343,8 @@ export const ja: Dict = {
       dockShort: 'また広くなりました',
       tabChanges: '何が変わったか見ましょう',
       tabSignals: 'ここから見てください',
+      doorsFound: '新しくできた入り口があります',
+      nothingOpen: '新しく開いた入り口はありません',
       tabLog: '私がやったことです',
     },
   },
@@ -423,6 +425,37 @@ export const ja: Dict = {
     workflowNote:
       '次のプッシュからここに書かれたとおりに動きます。セルフホストランナーなら、このファイルはそのサーバーのシェルそのものです。自分が変えたものか確認してください。',
     autoRunTag: '自動実行',
+  },
+
+  access: {
+    title: '入り口の点検',
+    hint: 'ブランチに触れずに入ってくる経路を数えます。期間ではなく、今の状態を見ます。',
+    run: '点検する',
+    running: '確認中...',
+    progress: (done, total) => `リポジトリ確認 ${done}/${total}`,
+    kinds: {
+      deployKey: 'デプロイキー',
+      webhook: 'Webhook',
+      invitation: '保留中の招待',
+    },
+    why: {
+      deployKey: 'アカウントを止めても、この鍵が生きていれば入れます。',
+      webhook: 'コミットのたびにリポジトリの内容がこの宛先へ送られます。',
+      invitation: 'まだ承諾前なので、今なら取り消せます。',
+    },
+    recentTitle: (days) => `直近 ${days} 日以内にできたもの`,
+    nothingRecent: (days) => `直近 ${days} 日以内に新しくできたものはありません。`,
+    existingTitle: 'それ以前からあったもの',
+    none: 'なし',
+    checked: (n) => `リポジトリ ${n} 件を確認しました`,
+    readOnly: '読み取り専用',
+    unknownInvitee: '(名前なし)',
+    gapNotAdmin: (n) => `${n} 件は管理者権限がなく確認できませんでした`,
+    gapFailed: (n) => `${n} 件は取得に失敗しました`,
+    orgHookTitle: '組織の Webhook は確認していません',
+    orgHookNote:
+      '組織全体にかかる Webhook はより広い権限が必要で、こちらから要求しない方針です。含めたい場合は次を実行してから、もう一度押してください。',
+    notScanned: 'まだ調べていません。先に「掘る」でリポジトリを選んでください。',
   },
 
   push: {

@@ -343,6 +343,8 @@ export const en: Dict = {
       dockShort: 'Room to breathe again',
       tabChanges: "Let's see what changed",
       tabSignals: 'Start with these',
+      doorsFound: 'Something new opened up',
+      nothingOpen: 'No new doors opened',
       tabLog: "Here's what I did",
     },
   },
@@ -424,6 +426,37 @@ export const en: Dict = {
     workflowNote:
       'From the next push on, this is what runs. On a self-hosted runner it is effectively a shell on that machine. Check that you were the one who changed it.',
     autoRunTag: 'runs on its own',
+  },
+
+  access: {
+    title: 'Open doors',
+    hint: 'Counts the ways in that do not touch a branch. This is the state right now, not a time window.',
+    run: 'Check doors',
+    running: 'Checking...',
+    progress: (done, total) => `Checked ${done}/${total} repos`,
+    kinds: {
+      deployKey: 'Deploy key',
+      webhook: 'Webhook',
+      invitation: 'Pending invite',
+    },
+    why: {
+      deployKey: 'Even with the account locked, this key still gets in.',
+      webhook: 'Every commit sends repository content to this address.',
+      invitation: 'Not accepted yet, so it can still be revoked.',
+    },
+    recentTitle: (days) => `Created in the last ${days} days`,
+    nothingRecent: (days) => `Nothing new in the last ${days} days.`,
+    existingTitle: 'Already there before that',
+    none: 'none',
+    checked: (n) => `Checked ${n} ${n === 1 ? 'repository' : 'repositories'}`,
+    readOnly: 'read-only',
+    unknownInvitee: '(no name)',
+    gapNotAdmin: (n) => `${n} could not be checked without admin access`,
+    gapFailed: (n) => `${n} failed to load`,
+    orgHookTitle: 'Organization webhooks were not checked',
+    orgHookNote:
+      'Webhooks that apply to the whole organization need a wider scope, and we would rather not ask for one. Run this and check again if you want them included.',
+    notScanned: 'Nothing scanned yet. Pick some repositories with a dig first.',
   },
 
   push: {

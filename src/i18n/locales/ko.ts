@@ -333,6 +333,8 @@ export const ko = {
       dockShort: '다시 넓어졌네요',
       tabChanges: '뭐가 바뀌었나 볼까요',
       tabSignals: '먼저 볼 것부터요',
+      doorsFound: '새로 생긴 문이 있어요',
+      nothingOpen: '새로 열린 문은 없었어요',
       tabLog: '제가 뭘 했는지 여기 있어요',
     },
   },
@@ -413,6 +415,37 @@ export const ko = {
     workflowNote:
       '다음 푸시부터 여기 적힌 대로 돕니다. 자체 호스팅 러너를 쓰면 이 파일이 곧 그 서버의 셸이에요. 내가 바꾼 게 맞는지 먼저 봐주세요.',
     autoRunTag: '자동 실행',
+  },
+
+  access: {
+    title: '문단속',
+    hint: '브랜치를 안 건드리고 들어오는 문을 셉니다. 시간대와 무관하게 지금 상태를 봐요.',
+    run: '문단속 하기',
+    running: '보는 중...',
+    progress: (done: number, total: number) => `저장소 확인 ${done}/${total}`,
+    kinds: {
+      deployKey: '배포 키',
+      webhook: '웹훅',
+      invitation: '대기 중 초대',
+    },
+    why: {
+      deployKey: '계정이 막혀도 이 키가 살아 있으면 계속 들어올 수 있어요.',
+      webhook: '커밋할 때마다 저장소 내용이 이 주소로 나갑니다.',
+      invitation: '아직 수락 전이라 지금 취소할 수 있어요.',
+    },
+    recentTitle: (days: number) => `최근 ${days}일 안에 생긴 것`,
+    nothingRecent: (days: number) => `최근 ${days}일 안에 새로 생긴 건 없었어요.`,
+    existingTitle: '그 밖에 이미 있던 것',
+    none: '없음',
+    checked: (n: number) => `저장소 ${n}곳을 봤어요`,
+    readOnly: '읽기 전용',
+    unknownInvitee: '(이름 없음)',
+    gapNotAdmin: (n: number) => `${n}곳은 관리자 권한이 없어 못 봤어요`,
+    gapFailed: (n: number) => `${n}곳은 조회에 실패했어요`,
+    orgHookTitle: '조직 웹훅은 못 봤어요',
+    orgHookNote:
+      '조직 전체에 걸리는 웹훅은 권한이 더 필요해서 확인하지 않았습니다. 우리 쪽에서 더 큰 권한을 요구하지 않으려고요. 보시려면 아래를 실행한 다음 다시 눌러주세요.',
+    notScanned: '아직 안 봤어요. 먼저 파보기로 저장소를 골라주세요.',
   },
 
   push: {
