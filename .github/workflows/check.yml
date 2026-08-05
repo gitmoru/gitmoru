@@ -1,0 +1,43 @@
+# 올라온 코드가 실제로 도는지 본다.
+#
+# gitmoru 는 CI 정의가 바뀌면 먼저 보라고 알려주는 도구다.
+# 그런 도구가 정작 자기 CI 를 안 두면 앞뒤가 안 맞는다.
+#
+# 여기서는 네트워크를 쓰는 검사를 하지 않는다. 시험은 전부 순수 함수 대상이고
+# GitHub 호출은 가짜 객체로 대신한다. 남의 저장소를 건드릴 일이 없어야 한다.
+name: check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # 타입 - 사전 세 벌이 어긋나면 여기서 걸린다
+      - run: pnpm typecheck
+
+      # 글쓰기 규칙 - 긴 줄표, 가운뎃점 같은 것
+      - run: pnpm style
+
+      - run: pnpm test
+
+      # 도트 동작에 앞발이 몇 개인지까지 본다
+      - run: pnpm sprites
+
+      - run: pnpm build
