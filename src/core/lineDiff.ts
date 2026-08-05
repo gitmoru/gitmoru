@@ -21,9 +21,17 @@ export interface LineDiff {
   startsAtLine: number
 }
 
+/**
+ * 글을 줄로 나눈다.
+ *
+ * 빈 문자열은 **0줄**이다. 그냥 `split` 하면 `['']` 이 나와서, 새로 생긴 파일이
+ * "빈 줄 하나가 사라졌다" 로 보인다. 없던 파일에서 사라질 줄은 없다.
+ */
+const toLines = (text: string) => (text === '' ? [] : text.split('\n'))
+
 export function diffLines(before: string, after: string): LineDiff {
-  const a = before.split('\n')
-  const b = after.split('\n')
+  const a = toLines(before)
+  const b = toLines(after)
 
   let head = 0
   while (head < a.length && head < b.length && a[head] === b[head]) head++
@@ -44,6 +52,59 @@ export function diffLines(before: string, after: string): LineDiff {
     added: b.slice(head, b.length - tail),
     startsAtLine: head + 1,
   }
+}
+
+/**
+ * 화면에 그릴 한 줄.
+ *
+ * `skipped` 는 접어둔 구간이다. 몇 줄을 건너뛰었는지 알려주지 않으면
+ * 사람은 그 사이에 뭐가 있었는지 몰라서 결과를 못 믿는다.
+ */
+export type DiffRow =
+  | { kind: 'context'; before: number; after: number; text: string }
+  | { kind: 'removed'; before: number; text: string }
+  | { kind: 'added'; after: number; text: string }
+  | { kind: 'skipped'; count: number }
+
+/**
+ * 문맥을 붙인 줄 목록.
+ *
+ * 바뀐 줄만 떼어놓으면 그게 어디에 끼워진 건지 알 수가 없다.
+ * `if` 안인지 파일 끝인지에 따라 같은 코드도 뜻이 달라진다.
+ * 그래서 앞뒤 몇 줄을 같이 보여주고, 그 바깥은 몇 줄인지만 적어서 접는다.
+ *
+ * `context` 를 `Infinity` 로 주면 파일 전체가 나온다. 접힌 데 뭐가 있었는지
+ * 의심스러울 때 통째로 펼쳐볼 수 있어야 한다.
+ */
+export function unifiedRows(before: string, after: string, context = 3): DiffRow[] {
+  const a = toLines(before)
+  const b = toLines(after)
+  const diff = diffLines(before, after)
+  const { commonHead: head, commonTail: tail } = diff
+
+  const rows: DiffRow[] = []
+
+  // 앞쪽 문맥
+  const headFrom = Math.max(0, head - context)
+  if (headFrom > 0) rows.push({ kind: 'skipped', count: headFrom })
+  for (let i = headFrom; i < head; i++) {
+    rows.push({ kind: 'context', before: i + 1, after: i + 1, text: a[i]! })
+  }
+
+  // 바뀐 부분. 사라진 줄을 먼저 보여야 "무엇이 무엇으로" 가 순서대로 읽힌다.
+  diff.removed.forEach((text, i) => rows.push({ kind: 'removed', before: head + i + 1, text }))
+  diff.added.forEach((text, i) => rows.push({ kind: 'added', after: head + i + 1, text }))
+
+  // 뒤쪽 문맥
+  const tailShown = Math.min(context, tail)
+  for (let i = 0; i < tailShown; i++) {
+    const ai = a.length - tail + i
+    const bi = b.length - tail + i
+    rows.push({ kind: 'context', before: ai + 1, after: bi + 1, text: a[ai]! })
+  }
+  if (tail > tailShown) rows.push({ kind: 'skipped', count: tail - tailShown })
+
+  return rows
 }
 
 /**
