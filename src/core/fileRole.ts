@@ -37,11 +37,19 @@ export function roleOf(path: string): FileRole | null {
   if (/(^|\/)action\.ya?ml$/.test(path)) return 'workflow'
 
   if (path.includes('.husky/') || path.startsWith('.git/hooks/')) return 'gitHook'
+  // .gitattributes 의 filter 는 받아올 때, 커밋할 때 지정한 명령을 돌린다.
+  // 클론만 해도 실행된다는 뜻이라 자리로는 훅에 가깝다.
+  if (/(^|\/)\.gitattributes$/.test(path)) return 'gitHook'
+
   if (path.startsWith('.vscode/') || path.startsWith('.idea/')) return 'editor'
 
   if (/(^|\/)package\.json$/.test(path)) return 'buildConfig'
   if (/\.config\.(js|ts|cjs|mjs)$/.test(path)) return 'buildConfig'
   if (/(^|\/)(Makefile|Dockerfile|docker-compose\.ya?ml)$/.test(path)) return 'buildConfig'
+  // 패키지를 어디서 받아올지. 여기가 바뀌면 같은 이름으로 다른 것이 설치된다.
+  if (/(^|\/)\.npmrc$/.test(path)) return 'buildConfig'
+  // 서브모듈이 가리키는 주소. 빌드가 남의 저장소를 끌어오게 만들 수 있다.
+  if (/(^|\/)\.gitmodules$/.test(path)) return 'buildConfig'
 
   return null
 }

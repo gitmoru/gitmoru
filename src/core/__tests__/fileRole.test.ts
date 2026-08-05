@@ -50,3 +50,25 @@ describe('countByRole', () => {
     expect(counts).toEqual({ workflow: 2, gitHook: 1, editor: 0, buildConfig: 0 })
   })
 })
+
+describe('설치, 체크아웃 과정에 끼어드는 자리', () => {
+  it('.npmrc 는 빌드 설정으로 본다', () => {
+    // 레지스트리 주소가 바뀌면 같은 이름으로 다른 것이 설치된다.
+    expect(roleOf('.npmrc')).toBe('buildConfig')
+    expect(roleOf('packages/app/.npmrc')).toBe('buildConfig')
+  })
+
+  it('.gitmodules 는 빌드 설정으로 본다', () => {
+    expect(roleOf('.gitmodules')).toBe('buildConfig')
+  })
+
+  it('.gitattributes 는 훅으로 본다', () => {
+    // filter 를 걸면 클론만 해도 지정한 명령이 돈다.
+    expect(roleOf('.gitattributes')).toBe('gitHook')
+  })
+
+  it('비슷한 이름에는 안 걸린다', () => {
+    expect(roleOf('docs/npmrc-guide.md')).toBeNull()
+    expect(roleOf('.npmrc.example')).toBeNull()
+  })
+})
