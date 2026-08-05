@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 
 import type { GitHubClient } from '../../core/github'
-import { diffLines, unifiedRows, type DiffRow } from '../../core/lineDiff'
+import { diffLines, splitRows, unifiedRows, type DiffRow, type SplitRow } from '../../core/lineDiff'
 import { collapseHiddenPadding, defang, formatBytes } from '../../core/safeText'
 import { useTr } from '../../i18n'
+import { useViewport } from '../hooks/useViewport'
 
 /**
  * 공격 직전 파일과 지금 파일을 나란히 보여준다.
@@ -70,6 +71,14 @@ export function DiffView({
   const [expanded, setExpanded] = useState(false)
   /** 긴 줄을 접을지 가로로 흘릴지. 코드는 접으면 들여쓰기가 무너져서 읽기 어렵다. */
   const [wrap, setWrap] = useState(true)
+  /**
+   * 나란히 볼지 위아래로 볼지.
+   *
+   * 나란히가 읽기 쉽지만 칸이 반으로 줄어서, 좁으면 오히려 다 접힌다.
+   * 그래서 넓을 때만 나란히로 시작한다.
+   */
+  const view = useViewport()
+  const [split, setSplit] = useState(view.w >= 1000)
 
   const load = async () => {
     if (!gh) return
@@ -129,7 +138,10 @@ export function DiffView({
   }
 
   const diff = diffLines(loaded.before, loaded.after)
-  const rows = unifiedRows(loaded.before, loaded.after, showAll ? Infinity : CONTEXT)
+  const context = showAll ? Infinity : CONTEXT
+  const rows: Array<DiffRow | SplitRow> = split
+    ? splitRows(loaded.before, loaded.after, context)
+    : unifiedRows(loaded.before, loaded.after, context)
   const shown = expanded ? rows : rows.slice(0, MAX_ROWS)
 
   return (
@@ -152,6 +164,9 @@ export function DiffView({
           <Toggle on={showAll} onClick={() => setShowAll((v) => !v)}>
             {showAll ? t.diffView.onlyChanged : t.diffView.wholeFile}
           </Toggle>
+          <Toggle on={split} onClick={() => setSplit((v) => !v)}>
+            {t.diffView.sideBySide}
+          </Toggle>
           <Toggle on={!wrap} onClick={() => setWrap((v) => !v)}>
             {t.diffView.noWrap}
           </Toggle>
@@ -168,9 +183,13 @@ export function DiffView({
         className="payload-text overflow-auto bg-black/40"
         style={{ maxHeight: autoLoad ? undefined : 384 }}
       >
-        {shown.map((row, i) => (
-          <Row key={i} row={row} wrap={wrap} skipped={t.diffView.skipped} longLine={t.diffView.longLine} />
-        ))}
+        {split
+          ? (shown as SplitRow[]).map((row, i) => (
+              <SideBySide key={i} row={row} wrap={wrap} skipped={t.diffView.skipped} longLine={t.diffView.longLine} />
+            ))
+          : (shown as DiffRow[]).map((row, i) => (
+              <Row key={i} row={row} wrap={wrap} skipped={t.diffView.skipped} longLine={t.diffView.longLine} />
+            ))}
       </div>
 
       {rows.length > MAX_ROWS && (
@@ -233,13 +252,92 @@ function Row({
         className={`min-w-0 ${wrap ? 'break-all whitespace-pre-wrap' : 'whitespace-pre'}`}
         style={{ color: row.kind === 'context' ? 'var(--color-muted)' : undefined }}
       >
-        {defang(
-          row.text.length > MAX_LINE
-            ? `${row.text.slice(0, MAX_LINE)} ${longLine(row.text.length - MAX_LINE)}`
-            : row.text,
-        )}
+        {clipLine(row.text, longLine)}
       </span>
     </div>
+  )
+}
+
+/** 나란히 한 줄. 왼쪽이 이전, 오른쪽이 지금. */
+function SideBySide({
+  row,
+  wrap,
+  skipped,
+  longLine,
+}: {
+  row: SplitRow
+  wrap: boolean
+  skipped: (n: number) => string
+  longLine: (n: number) => string
+}) {
+  if (row.kind === 'skipped') {
+    return (
+      <div className="border-y border-[var(--color-edge-soft)] bg-black/20 px-2 py-1 text-[10px] text-[var(--color-faint)]">
+        {skipped(row.count)}
+      </div>
+    )
+  }
+
+  const leftTone = row.kind === 'context' ? undefined : TONE.removed
+  const rightTone = row.kind === 'context' ? undefined : TONE.added
+
+  return (
+    <div className="flex">
+      <Side
+        cell={'left' in row ? row.left : undefined}
+        tone={leftTone}
+        wrap={wrap}
+        longLine={longLine}
+        dim={row.kind === 'context'}
+      />
+      <div className="w-px shrink-0 bg-[var(--color-edge)]" />
+      <Side
+        cell={'right' in row ? row.right : undefined}
+        tone={rightTone}
+        wrap={wrap}
+        longLine={longLine}
+        dim={row.kind === 'context'}
+      />
+    </div>
+  )
+}
+
+/** 나란히 볼 때의 한쪽. 비어 있으면 자리만 지킨다. */
+function Side({
+  cell,
+  tone,
+  wrap,
+  longLine,
+  dim,
+}: {
+  cell?: { line: number; text: string }
+  tone?: string
+  wrap: boolean
+  longLine: (n: number) => string
+  dim: boolean
+}) {
+  return (
+    <div
+      className="flex min-w-0 flex-1 gap-2 px-2 py-px"
+      style={{ background: cell && tone ? `color-mix(in srgb, ${tone} 12%, transparent)` : undefined }}
+    >
+      <span className="w-9 shrink-0 select-none text-right text-[var(--color-faint)]">
+        {cell?.line ?? ''}
+      </span>
+      <span
+        className={`min-w-0 flex-1 ${wrap ? 'break-all whitespace-pre-wrap' : 'overflow-hidden whitespace-pre'}`}
+        style={{ color: dim ? 'var(--color-muted)' : undefined }}
+      >
+        {cell ? clipLine(cell.text, longLine) : ''}
+      </span>
+    </div>
+  )
+}
+
+/** 문자열 그대로 텍스트로만. 주소는 눌리지 않게 무력화한다. */
+function clipLine(text: string, longLine: (n: number) => string): string {
+  return defang(
+    text.length > MAX_LINE ? `${text.slice(0, MAX_LINE)} ${longLine(text.length - MAX_LINE)}` : text,
   )
 }
 

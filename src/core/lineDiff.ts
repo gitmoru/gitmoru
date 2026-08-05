@@ -107,6 +107,77 @@ export function unifiedRows(before: string, after: string, context = 3): DiffRow
   return rows
 }
 
+/** 나란히 볼 때의 한 줄. 왼쪽이 이전, 오른쪽이 지금이다. */
+export type SplitRow =
+  | {
+      kind: 'context' | 'changed'
+      left: { line: number; text: string }
+      right: { line: number; text: string }
+    }
+  | { kind: 'removed'; left: { line: number; text: string } }
+  | { kind: 'added'; right: { line: number; text: string } }
+  | { kind: 'skipped'; count: number }
+
+/**
+ * 왼쪽 이전, 오른쪽 지금으로 짝지은 줄 목록.
+ *
+ * 위아래로 늘어놓으면 사라진 줄 다섯 개를 다 읽고 나서 새로 생긴 줄 다섯 개를 읽게 된다.
+ * 그러면 무엇이 무엇으로 바뀌었는지를 사람이 머릿속에서 맞춰야 한다.
+ * 나란히 두면 같은 자리끼리 눈으로 바로 비교된다.
+ *
+ * 짝은 순서대로 맞춘다. 우리 비교는 앞뒤 공통 부분을 걷어낸 덩어리 하나라,
+ * 그 안에서 첫 줄끼리 둘째 줄끼리 놓는 게 대개 맞다. 수가 안 맞으면 남는 쪽만 한쪽에 둔다.
+ */
+export function splitRows(before: string, after: string, context = 3): SplitRow[] {
+  const a = toLines(before)
+  const b = toLines(after)
+  const diff = diffLines(before, after)
+  const { commonHead: head, commonTail: tail } = diff
+
+  const rows: SplitRow[] = []
+
+  const headFrom = Math.max(0, head - context)
+  if (headFrom > 0) rows.push({ kind: 'skipped', count: headFrom })
+  for (let i = headFrom; i < head; i++) {
+    rows.push({
+      kind: 'context',
+      left: { line: i + 1, text: a[i]! },
+      right: { line: i + 1, text: a[i]! },
+    })
+  }
+
+  const pairs = Math.max(diff.removed.length, diff.added.length)
+  for (let i = 0; i < pairs; i++) {
+    const gone = diff.removed[i]
+    const born = diff.added[i]
+    if (gone !== undefined && born !== undefined) {
+      rows.push({
+        kind: 'changed',
+        left: { line: head + i + 1, text: gone },
+        right: { line: head + i + 1, text: born },
+      })
+    } else if (gone !== undefined) {
+      rows.push({ kind: 'removed', left: { line: head + i + 1, text: gone } })
+    } else if (born !== undefined) {
+      rows.push({ kind: 'added', right: { line: head + i + 1, text: born } })
+    }
+  }
+
+  const tailShown = Math.min(context, tail)
+  for (let i = 0; i < tailShown; i++) {
+    const ai = a.length - tail + i
+    const bi = b.length - tail + i
+    rows.push({
+      kind: 'context',
+      left: { line: ai + 1, text: a[ai]! },
+      right: { line: bi + 1, text: b[bi]! },
+    })
+  }
+  if (tail > tailShown) rows.push({ kind: 'skipped', count: tail - tailShown })
+
+  return rows
+}
+
 /**
  * 바뀐 부분만 골라 글로 만든다.
  *
