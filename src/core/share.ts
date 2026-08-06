@@ -1,6 +1,7 @@
 import { tr } from '../i18n'
 import { utcToZoned, zoneLabel } from './time'
 import { summarize } from './scan'
+import { summaryOf } from './findingText'
 import type { CaseFile } from './types'
 
 /**
@@ -88,7 +89,7 @@ export function shareText(c: CaseFile): string {
     lines.push(t.needsReview)
     for (const f of first.slice(0, 12)) {
       const where = f.branch ? `${f.repo} / ${f.branch}` : f.repo
-      lines.push(`- ${where}: ${f.summary}`)
+      lines.push(`- ${where}: ${summaryOf(f)}`)
     }
     if (first.length > 12) lines.push(t.andMore(first.length - 12))
   }

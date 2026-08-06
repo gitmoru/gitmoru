@@ -1,4 +1,5 @@
 import { useTr } from '../../i18n'
+import { titleOf } from '../../core/findingText'
 import { motion } from 'motion/react'
 import { useMemo } from 'react'
 import type { ScanProgress } from '../../core/scan'
@@ -254,7 +255,7 @@ function Pile({
           animate={{ y: [0, -3, 0] }}
           transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
         >
-          {signal.title}
+          {titleOf(signal)}
         </motion.button>
       )}
 

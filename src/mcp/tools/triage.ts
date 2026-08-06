@@ -2,6 +2,7 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 
 import { roleOf } from '../../core/fileRole'
+import { summaryOf } from '../../core/findingText'
 import { formatBytes } from '../../core/safeText'
 import { summarize } from '../../core/scan'
 import { findCase, locationOf, reply, type McpContext } from '../context'
@@ -41,7 +42,7 @@ export function registerTriage(server: McpServer, ctx: McpContext) {
 
       const ranked = picked.map((finding, i) => {
         const where = locationOf(finding.repo, finding.branch, finding.path)
-        return `${i + 1}. [${finding.attention}] ${where}\n   ${finding.summary}`
+        return `${i + 1}. [${finding.attention}] ${where}\n   ${summaryOf(finding)}`
       })
 
       /*

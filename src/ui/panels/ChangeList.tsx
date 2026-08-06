@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
 import { useTr } from '../../i18n'
+import { titleOf } from '../../core/findingText'
 import { growth } from '../../core/changes'
 import { roleOf } from '../../core/fileRole'
 import { formatBytes } from '../../core/safeText'
@@ -219,7 +220,7 @@ export function ChangeList({ caseFile, onOpenFile }: ListProps) {
                     <span
                       className="w-3 shrink-0 text-center text-[9.5px]"
                       style={{ color: 'var(--color-apricot)' }}
-                      title={finding ? finding.title : t.changeList.noSignalHint}
+                      title={finding ? titleOf(finding) : t.changeList.noSignalHint}
                     >
                       {finding ? '●' : ''}
                     </span>
@@ -277,7 +278,7 @@ export function SignalList({ caseFile, onOpenFinding }: Props) {
               >
                 {t.changeList.attention[f.attention]}
               </span>
-              <span className="min-w-0 flex-1 truncate text-[11px]">{f.title}</span>
+              <span className="min-w-0 flex-1 truncate text-[11px]">{titleOf(f)}</span>
             </div>
             <p className="mt-0.5 truncate font-mono text-[9.5px] text-[var(--color-faint)]">
               {f.repo}

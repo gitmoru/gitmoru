@@ -1,4 +1,5 @@
 import { useTr } from '../../i18n'
+import { describeFinding } from '../../core/findingText'
 import { reactMole } from '../scene/moleReactions'
 import { useState } from 'react'
 import type { GitHubClient } from '../../core/github'
@@ -35,6 +36,8 @@ interface Props {
 
 export function DetailPanel({ finding, branch, caseFile, gh, onClose, onOpenFile }: Props) {
   const t = useTr()
+  // 문장은 사건에 굳어 있지 않고 지금 언어로 그린다
+  const said = finding ? describeFinding(finding) : null
   /** 신호가 가리키는 파일이 어느 비교에서 나온 것인지. 공격 직전 커밋을 여기서 얻는다. */
   const sampleChange = caseFile?.changes.find(
     (c) => c.repo === finding?.repo && c.branch === finding?.branch,
@@ -93,7 +96,7 @@ export function DetailPanel({ finding, branch, caseFile, gh, onClose, onOpenFile
                   {finding.repo}
                 </span>
               </div>
-              <h2 className="text-[13.5px] font-semibold">{finding.title}</h2>
+              <h2 className="text-[13.5px] font-semibold">{said!.title}</h2>
             </>
           ) : (
             <>
@@ -123,11 +126,11 @@ export function DetailPanel({ finding, branch, caseFile, gh, onClose, onOpenFile
       <div className="flex-1 overflow-y-auto p-4">
         {finding && (
           <>
-            <p className="mb-4 text-[12px] leading-relaxed text-[var(--color-text)]">{finding.summary}</p>
+            <p className="mb-4 text-[12px] leading-relaxed text-[var(--color-text)]">{said!.summary}</p>
 
             <SectionTitle>{t.detail.evidence}</SectionTitle>
             <ul className="mb-4 space-y-2">
-              {finding.evidence.map((ev, i) => (
+              {said!.evidence.map((ev, i) => (
                 <li key={i} className=" bg-black/25 p-2.5">
                   {ev.href ? (
                     <a
