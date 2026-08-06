@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { defaultDetectorConfig } from '../../core/detectors'
 import { runScan, summarize, verdictText } from '../../core/scan'
 import { localZone, zonedToUtc } from '../../core/time'
-import { reply, type McpContext } from '../context'
+import { keepCase, reply, type McpContext } from '../context'
 
 /**
  * 훑기. 모든 작업의 출발점이다.
@@ -60,7 +60,7 @@ export function registerScan(server: McpServer, ctx: McpContext) {
         actor: args.actor,
         detectorConfig: defaultDetectorConfig(),
       })
-      ctx.cases.set(caseFile.id, caseFile)
+      keepCase(ctx, caseFile)
 
       const stats = summarize(caseFile)
       const verdict = verdictText(caseFile)

@@ -1,5 +1,6 @@
 import { GitHubClient } from '../core/github'
 import type { CaseFile } from '../core/types'
+import { listCases, readCase, saveCase } from '../../server/cases.mjs'
 
 /**
  * 도구들이 함께 쓰는 것들.
@@ -9,12 +10,32 @@ import type { CaseFile } from '../core/types'
  */
 export type McpContext = {
   github: GitHubClient
-  /** 이번 세션에서 만든 사건들. 에이전트가 caseId 로 다시 꺼내 쓴다. */
+  /** 이번 세션에서 꺼내 본 사건들. 디스크가 원본이고 이건 캐시다. */
   cases: Map<string, CaseFile>
 }
 
 export function createContext(): McpContext {
   return { github: new GitHubClient(), cases: new Map() }
+}
+
+/**
+ * 사건을 디스크에 남긴다. 앱이 쓰는 폴더와 같은 곳이다.
+ *
+ * 저장에 실패해도 훑기 결과는 그대로 돌려준다. 기록이 안 남는 것보다
+ * 방금 알아낸 걸 못 보게 되는 쪽이 나쁘다.
+ */
+export function keepCase(ctx: McpContext, caseFile: CaseFile) {
+  ctx.cases.set(caseFile.id, caseFile)
+  try {
+    saveCase(caseFile)
+  } catch {
+    // 보관 실패는 조사 자체를 막지 않는다
+  }
+}
+
+/** 앱에서 훑은 것까지 포함한 전체 목록. */
+export function allCases() {
+  return listCases()
 }
 
 /** MCP 가 요구하는 응답 모양. 우리는 글만 돌려준다. */
@@ -29,8 +50,20 @@ export const reply = (body: string) => ({
  * 그건 이 도구가 제일 하면 안 되는 일이다 (SAFETY.md 10번).
  */
 export function findCase(ctx: McpContext, caseId: string) {
-  const found = ctx.cases.get(caseId)
-  if (found) return { ok: true as const, caseFile: found }
+  const cached = ctx.cases.get(caseId)
+  if (cached) return { ok: true as const, caseFile: cached }
+
+  // 이 세션에서 안 만든 것일 수 있다. 앱에서 훑은 사건이 대표적이다.
+  try {
+    const stored = readCase(caseId) as CaseFile | null
+    if (stored) {
+      ctx.cases.set(caseId, stored)
+      return { ok: true as const, caseFile: stored }
+    }
+  } catch {
+    // 못 읽으면 없는 것으로 본다. 아래에서 그렇게 알린다.
+  }
+
   return {
     ok: false as const,
     response: reply(`그런 caseId 가 없어요: ${caseId}\nlist_cases 로 확인해 보세요.`),
