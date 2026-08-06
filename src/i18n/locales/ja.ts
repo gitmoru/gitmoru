@@ -78,6 +78,7 @@ export const ja: Dict = {
       `変更されたファイル ${files} 件 / ブランチ ${branches} 本`,
     signals: (n) => `検出 ${n} 件`,
     aborted: (reason) => `スキャンを中断: ${reason}`,
+    caseSaveFailed: '今回の記録を保存できませんでした。ウィンドウを閉じると消えます。',
     restored: (n) => `${n} 件を巻き戻しました`,
   },
 
@@ -428,6 +429,19 @@ export const ja: Dict = {
     autoRunTag: '自動実行',
   },
 
+  history: {
+    title: '過去の記録',
+    hint: '掘るたびに自動で残ります。GitHub の活動履歴は 90 日ほどしか残らないため、それを過ぎると同じ期間はもう掘れません。ここにあるものが唯一の控えです。',
+    loading: '読み込み中...',
+    empty: 'まだ記録がありません。',
+    open: '開く',
+    opening: '開いています...',
+    remove: '削除',
+    counts: (branches, files, signals) =>
+      `ブランチ ${branches}、変更ファイル ${files}、シグナル ${signals}`,
+    failures: (n) => `確認できず ${n}`,
+    unreadable: (n) => `読み取れなかったファイルが ${n} 件あります。隠さずお知らせします。`,
+  },
   access: {
     title: '入り口の点検',
     hint: 'パスワードを変えても残るものがあります。ブランチには触れないので「掘る」では見つからず、代わりにいつできたかが記録されているので今すぐ確認できます。',

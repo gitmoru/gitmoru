@@ -5,7 +5,7 @@ import { GitHubClient } from '../../core/github'
 import { runScan, type ScanProgress } from '../../core/scan'
 import { localZone } from '../../core/time'
 import type { CaseFile } from '../../core/types'
-import { whoami } from '../../platform/bridge'
+import { saveCaseFile, whoami } from '../../platform/bridge'
 import { tr } from '../../i18n'
 import { bootLines, logLine, type LogLine } from '../chrome/ConsoleLog'
 import type { ScanForm } from '../panels/ScanPanel'
@@ -126,6 +126,16 @@ export function useScanSession() {
       )
 
       setCaseFile(result)
+
+      /*
+        훑자마자 저장한다. 버튼을 따로 두지 않는 이유가 있다.
+
+        사고 한복판에서 "저장 눌렀나?" 를 기억하라고 하는 건 안 되는 요구고,
+        GitHub 활동 기록이 90일까지만 남아서 **놓치면 다시 만들 방법이 없다.**
+      */
+      saveCaseFile(result)
+        .then((saved) => saved || push('warn', tr().console.caseSaveFailed))
+        .catch(() => push('warn', tr().console.caseSaveFailed))
 
       // 눈에 띄는 게 나왔으면 더 크게 알린다. 이걸 놓치면 도구로서 실패다.
       const notable =

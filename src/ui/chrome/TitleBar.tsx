@@ -22,6 +22,7 @@ export function TitleBar({
   asideOpen,
   onConnectAgent,
   onCheckAccess,
+  onOpenHistory,
 }: {
   viewer: { login: string } | null
   caseFile: CaseFile | null
@@ -30,6 +31,7 @@ export function TitleBar({
   asideOpen?: boolean
   onConnectAgent?: () => void
   onCheckAccess?: () => void
+  onOpenHistory?: () => void
 }) {
   const t = useTr()
   const s = caseFile ? summarize(caseFile) : null
@@ -80,6 +82,18 @@ export function TitleBar({
       ) : null}
 
       <div className="ml-auto flex shrink-0 items-center gap-2">
+        {onOpenHistory && (
+          <button
+            type="button"
+            onClick={onOpenHistory}
+            title={t.history.hint}
+            className="no-drag px-2 py-0.5 text-[10.5px] text-[var(--color-muted)] hover:text-[var(--color-text)]"
+            style={{ boxShadow: '0 -2px 0 var(--color-edge), 0 2px 0 var(--color-edge), -2px 0 0 var(--color-edge), 2px 0 0 var(--color-edge)' }}
+          >
+            {t.history.title}
+          </button>
+        )}
+
         {onCheckAccess && (
           <button
             type="button"

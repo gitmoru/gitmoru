@@ -15,6 +15,7 @@ import { useIdleTimer } from './hooks/useIdleTimer'
 import { useScanSession } from './hooks/useScanSession'
 import { useViewport } from './hooks/useViewport'
 import { AccessModal } from './panels/AccessModal'
+import { CaseHistory } from './panels/CaseHistory'
 import { ConnectAgent } from './panels/ConnectAgent'
 import { DetailPanel } from './panels/DetailPanel'
 import { FileModal } from './panels/FileModal'
@@ -83,6 +84,7 @@ export function App() {
   const [restoring, setRestoring] = useState(false)
   const [connecting, setConnecting] = useState(false)
   const [checkingAccess, setCheckingAccess] = useState(false)
+  const [browsingHistory, setBrowsingHistory] = useState(false)
 
   const stats = session.caseFile ? summarize(session.caseFile) : null
   const detailOpen = Boolean(selectedFinding || selectedBranch)
@@ -139,6 +141,7 @@ export function App() {
         asideOpen={asideOpen}
         onConnectAgent={() => setConnecting(true)}
         onCheckAccess={() => setCheckingAccess(true)}
+        onOpenHistory={() => setBrowsingHistory(true)}
       />
 
       {/*
@@ -278,6 +281,20 @@ export function App() {
           gh={session.github}
           onPick={setSelectedFile}
           onClose={() => setSelectedFile(null)}
+        />
+      )}
+
+      {browsingHistory && (
+        <CaseHistory
+          onOpen={(caseFile) => {
+            session.setCaseFile(caseFile)
+            setBrowsingHistory(false)
+            // 지난 사건을 열면 지금 골라둔 것들은 그 사건의 것이 아니다
+            setSelectedFinding(null)
+            setSelectedBranch(null)
+            setSelectedFile(null)
+          }}
+          onClose={() => setBrowsingHistory(false)}
         />
       )}
 

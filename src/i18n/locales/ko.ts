@@ -68,6 +68,7 @@ export const ko = {
       `바뀐 파일 ${files}개 / 브랜치 ${branches}개`,
     signals: (n: number) => `신호 ${n}건`,
     aborted: (reason: string) => `검사 중단: ${reason}`,
+    caseSaveFailed: '이번 기록을 저장하지 못했어요. 창을 닫으면 사라집니다.',
     restored: (n: number) => `${n}개 되돌렸어요`,
   },
 
@@ -418,6 +419,20 @@ export const ko = {
     autoRunTag: '자동 실행',
   },
 
+  history: {
+    title: '지난 기록',
+    hint: '훑을 때마다 자동으로 남습니다. GitHub 활동 기록은 90일까지만 남아서, 그 뒤에는 같은 시간대를 다시 훑을 수 없어요. 여기 남은 게 그때의 유일한 사본입니다.',
+    loading: '불러오는 중...',
+    empty: '아직 남은 기록이 없어요.',
+    open: '열기',
+    opening: '여는 중...',
+    remove: '지우기',
+    counts: (branches: number, files: number, signals: number) =>
+      `브랜치 ${branches}, 바뀐 파일 ${files}, 신호 ${signals}`,
+    failures: (n: number) => `확인 실패 ${n}`,
+    unreadable: (n: number) =>
+      `읽지 못한 파일이 ${n}개 있어요. 목록에서 빼지 않고 알려드립니다.`,
+  },
   access: {
     title: '문단속',
     hint: '계정 비밀번호를 바꿔도 그대로 남는 것들이 있어요. 이건 브랜치를 안 건드려서 파보기에는 안 잡히고, 대신 언제 생겼는지가 남아 있어서 지금 확인할 수 있습니다.',

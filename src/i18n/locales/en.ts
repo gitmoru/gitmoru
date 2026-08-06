@@ -78,6 +78,7 @@ export const en: Dict = {
       `${files} ${plural(files, 'file', 'files')} changed across ${branches} ${plural(branches, 'branch', 'branches')}`,
     signals: (n) => `${n} ${plural(n, 'signal', 'signals')}`,
     aborted: (reason) => `Scan stopped: ${reason}`,
+    caseSaveFailed: 'Could not save this case. It will be gone when you close the window.',
     restored: (n) => `Restored ${n}`,
   },
 
@@ -429,6 +430,19 @@ export const en: Dict = {
     autoRunTag: 'runs on its own',
   },
 
+  history: {
+    title: 'Past cases',
+    hint: 'Every scan is kept automatically. GitHub only keeps activity for about 90 days, so after that the same window cannot be scanned again. What is here is the only copy.',
+    loading: 'Loading...',
+    empty: 'Nothing saved yet.',
+    open: 'Open',
+    opening: 'Opening...',
+    remove: 'Delete',
+    counts: (branches, files, signals) =>
+      `${branches} branches, ${files} changed files, ${signals} signals`,
+    failures: (n) => `${n} unverified`,
+    unreadable: (n) => `${n} file(s) could not be read. Listing them rather than hiding them.`,
+  },
   access: {
     title: 'Open doors',
     hint: 'Some things survive a password reset. They never touch a branch, so a dig will not find them, but each one records when it was created, so we can check right now.',
