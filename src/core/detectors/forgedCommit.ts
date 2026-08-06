@@ -83,8 +83,6 @@ export const forgedCommitDetector: Detector = {
       if (!inWindow) continue
 
       const days = Math.round(gap / (24 * 60 * 60 * 1000))
-      const t = tr().detectors.forgedCommit
-
       findings.push({
         id: `forged-commit:${repo}:${sha.slice(0, 12)}`,
         detectorId: 'forged-commit',
@@ -93,24 +91,15 @@ export const forgedCommitDetector: Detector = {
         repo,
         branch,
         sha,
-        title: t.title,
-        summary: t.summary(
-          commit.authorName,
-          commit.authorDate.slice(0, 10),
-          commit.committerDate.slice(0, 16).replace('T', ' '),
-          days,
-        ),
-        evidence: [
-          { label: `author: ${commit.authorName} / ${commit.authorDate.slice(0, 19).replace('T', ' ')}` },
-          {
-            label: `committer: ${commit.committerName} / ${commit.committerDate.slice(0, 19).replace('T', ' ')}`,
-          },
-          { label: t.gapLabelShort(days), detail: t.gapDetail },
-          {
-            label: t.openCommit,
-            href: `https://github.com/${repo}/commit/${sha}`,
-          },
-        ],
+        facts: {
+          kind: 'forged-commit',
+          authorName: commit.authorName,
+          authorDate: commit.authorDate,
+          committerName: commit.committerName,
+          committerDate: commit.committerDate,
+          gapDays: days,
+          commitHref: `https://github.com/${repo}/commit/${sha}`,
+        },
       })
     }
 

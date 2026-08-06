@@ -90,7 +90,6 @@ export const sizeJumpDetector: Detector = {
         const ratio = isNew ? Infinity : after / Math.max(1, before!)
         if (!isNew && ratio < minRatio) continue
 
-        const t = tr().detectors.sizeJump
         findings.push({
           id: `size-jump:${branchChanges.repo}:${branchChanges.branch}:${f.path}`,
           detectorId: 'size-jump',
@@ -100,22 +99,14 @@ export const sizeJumpDetector: Detector = {
           branch: branchChanges.branch,
           path: f.path,
           sha: f.blobAfter,
-          title: isNew ? t.titleNew : t.titleGrown,
-          summary: isNew
-            ? t.summaryNew(f.path, fmt(after))
-            : t.summaryGrown(f.path, fmt(before!), fmt(after), Math.round(ratio)),
-          evidence: [
-            {
-              label: isNew
-                ? t.labelNew(fmt(after))
-                : t.labelGrown(fmt(before!), fmt(after), Math.round(ratio)),
-            },
-            { label: t.autoRunLabel, detail: explain(f.path) },
-            {
-              label: t.openFile,
-              href: `https://github.com/${branchChanges.repo}/blob/${branchChanges.headSha}/${f.path}`,
-            },
-          ],
+          facts: {
+            kind: 'size-jump',
+            path: f.path,
+            after,
+            // 새로 생긴 파일에는 '몇 배' 가 없다. 없는 걸 Infinity 로 적지 않는다.
+            ...(isNew ? {} : { before: before!, ratio: Math.round(ratio) }),
+            fileHref: `https://github.com/${branchChanges.repo}/blob/${branchChanges.headSha}/${f.path}`,
+          },
           sampleRef: {
             repo: branchChanges.repo,
             path: f.path,
@@ -129,18 +120,4 @@ export const sizeJumpDetector: Detector = {
 
     return findings
   },
-}
-
-function fmt(bytes: number): string {
-  return `${bytes.toLocaleString('ko-KR')}B`
-}
-
-/** 이 파일이 왜 위험한지 사람 말로. 보안에 익숙하지 않아도 판단할 수 있게. */
-function explain(path: string): string {
-  const t = tr().detectors.sizeJump.explain
-  if (path.startsWith('.vscode/')) return t.vscode
-  if (/\.config\.(js|ts|cjs|mjs)$/.test(path)) return t.config
-  if (/package\.json$/.test(path)) return t.packageJson
-  if (path.includes('.husky/')) return t.husky
-  return t.build
 }

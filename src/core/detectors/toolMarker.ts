@@ -79,7 +79,6 @@ export const toolMarkerDetector: Detector = {
         const hits = markers.filter((m) => lines.includes(m))
         if (hits.length === 0) continue
 
-        const t = tr().detectors.toolMarker
         findings.push({
           id: `tool-marker:${branch.repo}:${file}`,
           detectorId: 'tool-marker',
@@ -88,16 +87,12 @@ export const toolMarkerDetector: Detector = {
           repo: branch.repo,
           branch: branch.branch,
           path: file,
-          title: t.title,
-          summary: t.summary(file, hits.length),
-          evidence: [
-            { label: t.foundLabel, detail: hits.join('\n') },
-            { label: t.whyLabel, detail: t.whyDetail },
-            {
-              label: t.openFile,
-              href: `https://github.com/${branch.repo}/blob/${branch.sha}/${file}`,
-            },
-          ],
+          facts: {
+            kind: 'tool-marker',
+            path: file,
+            hits,
+            fileHref: `https://github.com/${branch.repo}/blob/${branch.sha}/${file}`,
+          },
         })
       }
     }

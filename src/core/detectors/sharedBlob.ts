@@ -75,7 +75,6 @@ export const sharedBlobDetector: Detector = {
       const head = places[0]
       if (!head) continue
 
-      const t = tr().detectors.sharedBlob
       findings.push({
         id: `shared-blob:${blobSha.slice(0, 12)}`,
         detectorId: 'shared-blob',
@@ -85,16 +84,13 @@ export const sharedBlobDetector: Detector = {
         branch: head.branch,
         path: head.path,
         sha: blobSha,
-        title: t.title,
-        summary: t.summary(head.path, repos.length),
-        evidence: [
-          { label: t.sameFile(repos.length) },
-          { label: t.whereLabel, detail: places.map((p) => `${p.repo} → ${p.path}`).join('\n') },
-          {
-            label: t.openFile,
-            href: `https://github.com/${head.repo}/blob/${head.ref}/${head.path}`,
-          },
-        ],
+        facts: {
+          kind: 'shared-blob',
+          path: head.path,
+          repoCount: repos.length,
+          places: places.map((p) => ({ repo: p.repo, path: p.path })),
+          fileHref: `https://github.com/${head.repo}/blob/${head.ref}/${head.path}`,
+        },
         sampleRef: {
           repo: head.repo,
           path: head.path,

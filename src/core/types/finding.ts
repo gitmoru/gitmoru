@@ -33,6 +33,57 @@ export interface Evidence {
  * 그래서 이름이 Finding 이어도 화면에는 "신호"로 표시하고,
  * 신호가 없다고 해서 안전하다는 뜻이 되지 않게 문구를 쓴다.
  */
+/**
+ * 신호가 붙은 **사실**. 문장이 아니다.
+ *
+ * 예전에는 탐지기가 훑는 순간에 문장을 완성해서 여기 박아 넣었다.
+ * 그러면 그 사건은 처음 훑은 언어로 굳는다. 언어를 바꿔도 신호 문구만 안 바뀌고,
+ * 사건을 파일로 남기게 되면서 **그게 디스크에 영구히 굳었다.**
+ *
+ * 그래서 재료만 담는다. 문장은 `describeFinding` 이 그릴 때 만든다.
+ * 사건 파일은 증거의 기록이지 화면에 뜬 글의 사본이 아니라는 점에서도
+ * 이쪽이 [ADR 0002](../../../docs/decisions/0002-evidence-not-verdict.md) 와 맞다.
+ *
+ * 링크(`href`)는 여기 남는다. 주소는 언어가 아니라 데이터다.
+ */
+export type FindingFacts =
+  | {
+      kind: 'size-jump'
+      path: string
+      /** 지금 크기 (바이트) */
+      after: number
+      /** 공격 직전 크기. 새로 생긴 파일이면 없다 */
+      before?: number
+      /** 몇 배로 늘었는지. 새로 생긴 파일이면 없다 */
+      ratio?: number
+      fileHref: string
+    }
+  | {
+      kind: 'shared-blob'
+      path: string
+      repoCount: number
+      /** 같은 내용이 나타난 자리들 */
+      places: Array<{ repo: string; path: string }>
+      fileHref: string
+    }
+  | {
+      kind: 'forged-commit'
+      authorName: string
+      authorDate: string
+      committerName: string
+      committerDate: string
+      /** author 와 committer 날짜가 며칠 벌어졌는지 */
+      gapDays: number
+      commitHref: string
+    }
+  | {
+      kind: 'tool-marker'
+      path: string
+      /** 찾은 표식 줄들 */
+      hits: string[]
+      fileHref: string
+    }
+
 export interface Finding {
   id: string
   /** 어느 탐지기가 올렸는지 */
@@ -45,11 +96,15 @@ export interface Finding {
   branch?: string
   path?: string
   sha?: string
-  /** 짧은 제목. 예: "설정 파일 크기가 11배 늘었습니다" */
-  title: string
-  /** 한 문장 설명 */
-  summary: string
-  evidence: Evidence[]
+  /** 무엇을 근거로 올렸는지. 문장은 `describeFinding` 이 만든다. */
+  facts: FindingFacts
+  /**
+   * 사건 파일 v1 에만 있는 굳은 문장.
+   *
+   * 그때 쓰던 언어 그대로다. 재료가 안 남아 있어서 다시 번역할 방법이 없다.
+   * 지우지 않고 그대로 보여준다 - 옛 사건을 못 읽게 만드는 것보다는 낫다.
+   */
+  legacy?: { title: string; summary: string; evidence: Evidence[] }
   /**
    * 페이로드 원문은 여기 담지 않는다. 필요할 때 API 로 다시 가져온다.
    * 대신 어디서 가져올지만 기록한다.
