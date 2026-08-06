@@ -21,6 +21,7 @@
 | [0009](0009-failure-is-its-own-state.md) | 실패는 그 자체로 하나의 상태다 | 안 됨 |
 | [0010](0010-pixel-character-as-the-interface.md) | 도트 캐릭터를 인터페이스로 쓴다 | 됨 |
 | [0011](0011-never-edit-another-tools-config.md) | 남의 설정 파일을 우리가 고치지 않는다 | 안 됨 |
+| [0012](0012-cases-live-on-disk.md) | 사건 기록은 디스크에 남긴다 | 됨 |
 
 ## 새로 쓸 때
 
