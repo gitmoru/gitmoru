@@ -18,7 +18,12 @@ MCP 서버는 읽기 전용이다. 되돌리기(force-push)를 도구로 노출�
 
 ## 그래서 어떻게 되나
 
-- 도구 7개 전부 읽기다: `scan`, `triage`, `list_changes`, `read_file`, `preview_restore`, `share_summary`, `list_cases`
+- 도구 11개 전부 읽기다: `scan`, `triage`, `list_changes`, `diff_file`, `read_file`,
+  `check_access`, `preview_restore`, `share_summary`, `list_cases`, `open_case`, `list_forced_pushes`
+- **읽기는 계속 열어도 된다.** 막는 건 쓰기지 보는 게 아니다.
+  에이전트가 못 보면 사람이 그만큼 손으로 옮겨 적게 되고, 그게 더 나쁘다
+- 다만 **지우기는 열지 않는다.** 사건 기록 삭제는 되돌릴 수 없고,
+  프롬프트 인젝션이 실제로 노릴 만한 동작이다 ([ADR 0012](0012-cases-live-on-disk.md))
 - 파일 본문은 `<untrusted-sample>` 로 감싸고, 데이터이지 지시가 아님을 프롬프트에 못박는다
 - 샘플 크기에 상한을 둔다
 - 되돌리기 방아쇠는 사람이 앱에서 당긴다. 사람이 승인한 케이스 파일에서만 출발한다
