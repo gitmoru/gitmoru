@@ -78,6 +78,31 @@ export interface TimelineEntry {
   kind: 'push' | 'restore' | 'note'
 }
 
+/**
+ * 목록에 뜨는 한 줄.
+ *
+ * 사건 전체를 읽지 않고도 "언제 뭘 훑었는지" 를 고를 수 있어야 한다.
+ * 실패 건수를 여기 넣는 이유는, 목록에서부터 **완전하지 않은 조사**가 보여야 하기 때문이다.
+ */
+export interface CaseSummary {
+  id: string
+  title: string
+  createdAt: string
+  window: TimeWindow
+  scope: { orgs: string[]; repos: string[] }
+  branches: number
+  changedFiles: number
+  findings: number
+  failures: number
+}
+
+/** 보관된 목록. 못 읽은 파일도 같이 돌려준다 (SAFETY.md 11번). */
+export interface CaseListing {
+  cases: CaseSummary[]
+  /** 깨졌거나 우리 모양이 아닌 파일 이름. 조용히 빼지 않는다. */
+  unreadable: string[]
+}
+
 export interface CaseFile {
   version: 1
   id: string

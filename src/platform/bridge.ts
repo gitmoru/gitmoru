@@ -11,6 +11,7 @@
  */
 
 import { tr } from '../i18n'
+import type { CaseFile, CaseListing } from '../core/types'
 
 export interface GhResponse {
   status: number
@@ -43,6 +44,11 @@ interface RadarBridge {
   /** 지난번에 고른 언어. 창이 뜨기 전에 메인이 실어 보낸 값이다. */
   startupLocale: string | null
   setLocale(locale: string): Promise<{ ok: boolean }>
+  /** 사건 기록 보관. 파일 시스템은 메인만 만진다. */
+  caseSave(caseFile: CaseFile): Promise<{ ok: boolean; path?: string; error?: string }>
+  caseList(): Promise<{ ok: boolean; cases?: CaseListing['cases']; unreadable?: string[] }>
+  caseRead(id: string): Promise<{ ok: boolean; caseFile?: CaseFile | null }>
+  caseDelete(id: string): Promise<{ ok: boolean; removed?: boolean }>
   whoami(): Promise<{ ok: boolean; data?: { login: string; name: string }; error?: string }>
   gh(req: {
     path: string
@@ -105,6 +111,61 @@ export async function mcpStatus(): Promise<McpStatus | null> {
 /** 지난번에 고른 언어. 앱이 아니면 null 이고, 그때는 브라우저 저장소를 쓴다. */
 export function savedLocale(): string | null {
   return desktop()?.startupLocale || null
+}
+
+/**
+ * 사건 기록 보관.
+ *
+ * 앱 모드는 IPC 로, 웹 모드는 로컬 서버로 간다. 어느 쪽이든 같은 폴더에 쌓이고,
+ * MCP 서버도 그 폴더를 읽는다. 그래서 앱에서 훑은 걸 에이전트가 다시 안 훑고 본다.
+ *
+ * 저장은 조용히 실패해도 된다. 기록이 안 남는 건 아쉬운 일이지만,
+ * 그것 때문에 지금 눈앞의 조사 결과를 못 보게 되면 그게 더 나쁘다.
+ */
+export async function saveCaseFile(caseFile: CaseFile): Promise<boolean> {
+  const app = desktop()
+  if (app) return (await app.caseSave(caseFile)).ok
+
+  const res = await fetch('/api/cases', {
+    method: 'POST',
+    headers: { 'x-radar-session': sessionKey, 'Content-Type': 'application/json' },
+    body: JSON.stringify(caseFile),
+  })
+  return res.ok
+}
+
+export async function listCaseFiles(): Promise<CaseListing> {
+  const app = desktop()
+  if (app) {
+    const res = await app.caseList()
+    return { cases: res.cases ?? [], unreadable: res.unreadable ?? [] }
+  }
+
+  const res = await fetch('/api/cases', { headers: { 'x-radar-session': sessionKey } })
+  if (!res.ok) return { cases: [], unreadable: [] }
+  return res.json()
+}
+
+export async function readCaseFile(id: string): Promise<CaseFile | null> {
+  const app = desktop()
+  if (app) return (await app.caseRead(id)).caseFile ?? null
+
+  const res = await fetch(`/api/cases?id=${encodeURIComponent(id)}`, {
+    headers: { 'x-radar-session': sessionKey },
+  })
+  if (!res.ok) return null
+  return (await res.json()).caseFile ?? null
+}
+
+export async function deleteCaseFile(id: string): Promise<boolean> {
+  const app = desktop()
+  if (app) return (await app.caseDelete(id)).ok
+
+  const res = await fetch(`/api/cases?id=${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+    headers: { 'x-radar-session': sessionKey },
+  })
+  return res.ok
 }
 
 /** 고른 언어를 남긴다. 앱 밖에서는 아무 일도 하지 않는다. */

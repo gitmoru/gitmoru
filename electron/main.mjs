@@ -18,6 +18,7 @@ import { promisify } from 'node:util'
 
 const run = promisify(execFile)
 import { callGitHub, CSP, loadToken, maskToken, whoami } from '../server/proxy.mjs'
+import { casesDir, deleteCase, listCases, readCase, saveCase } from '../server/cases.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DEV_URL = process.env.RADAR_DEV_URL
@@ -188,6 +189,44 @@ ipcMain.handle('radar:set-locale', async (_e, locale) => {
     if (typeof locale !== 'string' || !/^[a-z]{2}$/.test(locale)) return { ok: false }
     writeFileSync(prefsPath(), JSON.stringify({ ...readPrefs(), locale }, null, 2), 'utf8')
     return { ok: true }
+  } catch (err) {
+    return { ok: false, error: String(err?.message ?? err) }
+  }
+})
+
+/**
+ * 사건 기록 보관.
+ *
+ * 화면은 파일 시스템에 못 닿는다. 여기서만 쓰고, 화면은 부탁만 한다.
+ * 저장 위치는 MCP 서버와 같은 폴더다 (`~/.gitmoru/cases`).
+ */
+ipcMain.handle('radar:case-save', async (_e, caseFile) => {
+  try {
+    return { ok: true, path: saveCase(caseFile) }
+  } catch (err) {
+    return { ok: false, error: String(err?.message ?? err) }
+  }
+})
+
+ipcMain.handle('radar:case-list', async () => {
+  try {
+    return { ok: true, ...listCases() }
+  } catch (err) {
+    return { ok: false, error: String(err?.message ?? err) }
+  }
+})
+
+ipcMain.handle('radar:case-read', async (_e, id) => {
+  try {
+    return { ok: true, caseFile: readCase(id) }
+  } catch (err) {
+    return { ok: false, error: String(err?.message ?? err) }
+  }
+})
+
+ipcMain.handle('radar:case-delete', async (_e, id) => {
+  try {
+    return { ok: true, removed: deleteCase(id) }
   } catch (err) {
     return { ok: false, error: String(err?.message ?? err) }
   }

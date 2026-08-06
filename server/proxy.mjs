@@ -12,6 +12,8 @@
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 
+import { deleteCase, listCases, readCase, saveCase } from './cases.mjs'
+
 const execFileAsync = promisify(execFile)
 
 const GITHUB_HOST = 'api.github.com'
@@ -149,10 +151,36 @@ export async function handleApi(req, res, sessionKey) {
       return await proxyToGitHub(req, res, url)
     }
 
+    // 사건 기록. 앱 모드의 IPC 와 같은 폴더를 본다.
+    if (url.pathname.startsWith('/api/cases')) {
+      return await handleCases(req, res, url)
+    }
+
     return send(res, 404, { error: '알 수 없는 경로입니다.' })
   } catch (err) {
     return send(res, 500, { error: maskToken(err?.message ?? String(err)) })
   }
+}
+
+/**
+ * 사건 기록 읽고 쓰기.
+ *
+ * 브라우저로 볼 때 쓰는 길이다. 앱 모드에서는 IPC 가 같은 함수를 부른다.
+ * 여기서 다루는 건 우리가 만든 요약(JSON)이지 저장소 내용이 아니다 (SAFETY.md 8번).
+ */
+async function handleCases(req, res, url) {
+  const id = url.searchParams.get('id')
+
+  if (req.method === 'POST') {
+    return send(res, 200, { path: saveCase(JSON.parse((await readBody(req)) || '{}')) })
+  }
+  if (req.method === 'DELETE') {
+    return send(res, 200, { removed: deleteCase(id) })
+  }
+  if (id) {
+    return send(res, 200, { caseFile: readCase(id) })
+  }
+  return send(res, 200, listCases())
 }
 
 async function proxyToGitHub(req, res, url) {

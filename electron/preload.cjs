@@ -23,6 +23,15 @@ contextBridge.exposeInMainWorld('radar', {
   startupLocale,
   setLocale: (locale) => ipcRenderer.invoke('radar:set-locale', locale),
 
+  /**
+   * 사건 기록 보관. 훑고 나면 자동으로 저장되고, 다음에 열면 목록에 남아 있다.
+   * 화면은 파일 시스템에 못 닿으니 여기로 부탁만 한다.
+   */
+  caseSave: (caseFile) => ipcRenderer.invoke('radar:case-save', caseFile),
+  caseList: () => ipcRenderer.invoke('radar:case-list'),
+  caseRead: (id) => ipcRenderer.invoke('radar:case-read', id),
+  caseDelete: (id) => ipcRenderer.invoke('radar:case-delete', id),
+
   /** Claude 에 붙이기 - 상태 확인과 등록. */
   mcpStatus: () => ipcRenderer.invoke('radar:mcp-status'),
   mcpRegister: () => ipcRenderer.invoke('radar:mcp-register'),
