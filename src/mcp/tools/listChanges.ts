@@ -2,7 +2,7 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 
 import { formatBytes } from '../../core/safeText'
-import { findCase, locationOf, reply, type McpContext } from '../context'
+import { findCase, locationOf, lines, reply, type McpContext } from '../context'
 import type { FileChange } from '../../core/types'
 
 const DEFAULT_LIMIT = 40
@@ -61,14 +61,12 @@ export function registerListChanges(server: McpServer, ctx: McpContext) {
       }
 
       return reply(
-        [
+        lines([
           `${matched}개 중 ${rows.length}개 표시`,
           '',
           ...rows,
-          matched > rows.length ? `... 외 ${matched - rows.length}개 (limit 을 올리면 더 봅니다)` : '',
-        ]
-          .filter(Boolean)
-          .join('\n'),
+          matched > rows.length ? `... 외 ${matched - rows.length}개 (limit 을 올리면 더 봅니다)` : null,
+        ]),
       )
     },
   )

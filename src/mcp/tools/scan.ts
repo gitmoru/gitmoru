@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { defaultDetectorConfig } from '../../core/detectors'
 import { runScan, summarize, verdictText } from '../../core/scan'
 import { localZone, zonedToUtc } from '../../core/time'
-import { keepCase, reply, type McpContext } from '../context'
+import { keepCase, lines, reply, type McpContext } from '../context'
 
 /**
  * 훑기. 모든 작업의 출발점이다.
@@ -67,7 +67,7 @@ export function registerScan(server: McpServer, ctx: McpContext) {
       const incomplete = stats.unknown > 0 || stats.failures > 0
 
       return reply(
-        [
+        lines([
           `caseId: ${caseFile.id}`,
           '',
           `${verdict.title} - ${verdict.detail}`,
@@ -77,21 +77,19 @@ export function registerScan(server: McpServer, ctx: McpContext) {
           `바뀐 파일 ${stats.changedFiles} (그중 규칙에 걸린 것 ${stats.signalled}, 안 걸린 것 ${stats.unreviewed})`,
           stats.forcedBranches > 0
             ? `강제 푸시 ${stats.forcedBranches}곳, 그 과정에서 커밋 ${stats.droppedCommits}개가 사라졌습니다`
-            : '',
+            : null,
           stats.autoRun.workflow > 0
             ? `CI 정의(.github/workflows) ${stats.autoRun.workflow}개가 바뀌었습니다. 다음 푸시부터 여기 적힌 대로 돕니다`
-            : '',
+            : null,
           stats.rewrittenBranches > 0
             ? `그중 ${stats.rewrittenBranches}곳은 이전 기록과 이어지지 않는 새 기록으로 갈아치워졌습니다 (사라진 커밋 수를 셀 수 없음)`
-            : '',
+            : null,
           '',
           incomplete
             ? '주의: 확인하지 못한 대상이 있습니다. 이 결과를 "이상 없음" 으로 결론내지 마세요.'
-            : '',
+            : null,
           '다음: triage 로 무엇부터 볼지 받아보세요.',
-        ]
-          .filter(Boolean)
-          .join('\n'),
+        ]),
       )
     },
   )

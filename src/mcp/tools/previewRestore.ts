@@ -2,7 +2,7 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 
 import { buildPlan, canRestore, markProtected } from '../../core/restore'
-import { findCase, reply, type McpContext } from '../context'
+import { findCase, lines, reply, type McpContext } from '../context'
 
 /**
  * 되돌리기 미리보기. 실행은 없다.
@@ -36,9 +36,9 @@ export function registerPreviewRestore(server: McpServer, ctx: McpContext) {
       const blocked = plan.entries.filter((entry) => entry.isProtected)
 
       return reply(
-        [
+        lines([
           `브랜치 ${plan.entries.length}개를 공격 직전 커밋으로 되돌리게 됩니다.`,
-          blocked.length ? `그중 ${blocked.length}개는 보호 규칙에 막힙니다.` : '',
+          blocked.length ? `그중 ${blocked.length}개는 보호 규칙에 막힙니다.` : null,
           '',
           ...plan.entries.map((entry) => {
             const mark = entry.isProtected ? '  [보호됨]' : ''
@@ -46,9 +46,7 @@ export function registerPreviewRestore(server: McpServer, ctx: McpContext) {
           }),
           '',
           '실행하려면 gitmoru 앱의 "되돌리기" 를 쓰세요. 이 서버는 아무것도 바꾸지 않습니다.',
-        ]
-          .filter(Boolean)
-          .join('\n'),
+        ]),
       )
     },
   )

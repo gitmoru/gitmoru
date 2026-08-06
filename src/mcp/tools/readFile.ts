@@ -2,7 +2,7 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 
 import { clampForAnalysis, collapseHiddenPadding, wrapUntrusted } from '../../core/safeText'
-import { reply, type McpContext } from '../context'
+import { lines, reply, type McpContext } from '../context'
 
 const DEFAULT_MAX_CHARS = 20_000
 
@@ -57,16 +57,14 @@ export function registerReadFile(server: McpServer, ctx: McpContext) {
       const { text: body, truncated } = clampForAnalysis(display, maxChars ?? DEFAULT_MAX_CHARS)
 
       return reply(
-        [
+        lines([
           `원본 ${source.length.toLocaleString('ko-KR')}자${truncated ? ' (잘라서 보냄)' : ''}`,
           paddingFound > 0
             ? `공백 ${paddingFound.toLocaleString('ko-KR')}자가 들어 있습니다 - 코드를 화면 밖으로 밀어 숨기는 수법일 수 있습니다.`
-            : '',
+            : null,
           '',
           wrapUntrusted(body, { repo, path }),
-        ]
-          .filter(Boolean)
-          .join('\n'),
+        ]),
       )
     },
   )

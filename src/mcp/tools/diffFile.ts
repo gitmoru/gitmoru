@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { diffLines, renderDiff } from '../../core/lineDiff'
 import { clampForAnalysis, collapseHiddenPadding, wrapUntrusted } from '../../core/safeText'
 import { tr } from '../../i18n'
-import { findCase, reply, type McpContext } from '../context'
+import { findCase, lines, reply, type McpContext } from '../context'
 
 const DEFAULT_MAX_CHARS = 12_000
 
@@ -82,17 +82,15 @@ export function registerDiffFile(server: McpServer, ctx: McpContext) {
       const clamped = clampForAnalysis(renderDiff(diff, t.longLine), maxChars ?? DEFAULT_MAX_CHARS)
 
       return reply(
-        [
+        lines([
           t.header(repo, branch, path),
           t.commits(change.baseSha.slice(0, 8), change.headSha.slice(0, 8)),
           t.counts(diff.removed.length, diff.added.length, diff.startsAtLine),
-          paddingFound > 0 ? t.padding(paddingFound.toLocaleString()) : '',
-          clamped.truncated ? t.truncated : '',
+          paddingFound > 0 ? t.padding(paddingFound.toLocaleString()) : null,
+          clamped.truncated ? t.truncated : null,
           '',
           wrapUntrusted(clamped.text, { repo, path }),
-        ]
-          .filter(Boolean)
-          .join('\n'),
+        ]),
       )
     },
   )

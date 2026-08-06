@@ -8,7 +8,7 @@ import {
   ORG_HOOK_SCOPE_CMD,
 } from '../../core/access'
 import { defang } from '../../core/safeText'
-import { reply, type McpContext } from '../context'
+import { lines, reply, type McpContext } from '../context'
 
 /**
  * 문단속. 브랜치를 안 건드리고 들어오는 문을 센다.
@@ -64,7 +64,7 @@ export function registerCheckAccess(server: McpServer, ctx: McpContext) {
       const byWhy = (why: string) => report.gaps.filter((g) => g.why === why).length
 
       return reply(
-        [
+        lines([
           `저장소 ${report.checked}곳을 봤습니다 (최근 ${days}일 기준)`,
           '',
           report.recent.length
@@ -83,8 +83,8 @@ export function registerCheckAccess(server: McpServer, ctx: McpContext) {
           '',
           byWhy('notAdmin') > 0
             ? `${byWhy('notAdmin')}곳은 관리자 권한이 없어 못 봤습니다. 이걸 "없다" 로 읽지 마세요.`
-            : '',
-          byWhy('failed') > 0 ? `${byWhy('failed')}곳은 조회에 실패했습니다.` : '',
+            : null,
+          byWhy('failed') > 0 ? `${byWhy('failed')}곳은 조회에 실패했습니다.` : null,
           '',
           [
             '조직 전체에 걸리는 웹훅(admin:org_hook)은 확인하지 않았습니다.',
@@ -92,9 +92,7 @@ export function registerCheckAccess(server: McpServer, ctx: McpContext) {
             '읽기만 하는 도구가 요구할 권한이 아니라고 보고 빼뒀습니다.',
             `필요하면 사람이 직접 여세요: ${ORG_HOOK_SCOPE_CMD}`,
           ].join(' '),
-        ]
-          .filter(Boolean)
-          .join('\n'),
+        ]),
       )
     },
   )

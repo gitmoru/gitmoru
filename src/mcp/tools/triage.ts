@@ -5,7 +5,7 @@ import { roleOf } from '../../core/fileRole'
 import { summaryOf } from '../../core/findingText'
 import { formatBytes } from '../../core/safeText'
 import { summarize } from '../../core/scan'
-import { findCase, locationOf, reply, type McpContext } from '../context'
+import { findCase, locationOf, lines, reply, type McpContext } from '../context'
 
 /** 신호 없이 바뀐 파일을 몇 개까지 곁들일지 */
 const UNSIGNALLED_SAMPLE = 8
@@ -69,7 +69,7 @@ export function registerTriage(server: McpServer, ctx: McpContext) {
         .slice(0, UNSIGNALLED_SAMPLE)
 
       return reply(
-        [
+        lines([
           `사건: ${caseFile.title} (${caseFile.id})`,
           `신호 ${caseFile.findings.length}건 중 ${picked.length}건 표시`,
           '',
@@ -84,7 +84,7 @@ export function registerTriage(server: McpServer, ctx: McpContext) {
                 ),
                 '',
               ].join('\n')
-            : '',
+            : null,
           `규칙에 안 걸린 변경 ${stats.unreviewed}개 - 규칙이 못 잡는 방식도 있으니 직접 봐야 합니다.`,
           ...unsignalled.map(({ change, file }) => {
             const size = file.sizeAfter !== undefined ? `, ${formatBytes(file.sizeAfter)}` : ''
@@ -92,12 +92,10 @@ export function registerTriage(server: McpServer, ctx: McpContext) {
           }),
           stats.unreviewed > unsignalled.length
             ? `- 외 ${stats.unreviewed - unsignalled.length}개`
-            : '',
+            : null,
           '',
           '다음: diff_file 로 무슨 줄이 새로 생겼는지 보세요. 전체가 필요하면 read_file 입니다.',
-        ]
-          .filter(Boolean)
-          .join('\n'),
+        ]),
       )
     },
   )
