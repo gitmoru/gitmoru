@@ -11,6 +11,8 @@ import { registerDiffFile } from './tools/diffFile'
 import { registerPreviewRestore } from './tools/previewRestore'
 import { registerCaseTools } from './tools/cases'
 import { registerCheckAccess } from './tools/checkAccess'
+import { registerOpenCase } from './tools/openCase'
+import { registerListForcedPushes } from './tools/listForcedPushes'
 
 // @ts-expect-error - 프록시는 순수 ESM JS 다 (npx 실행 시 빌드 없이 돌아야 함)
 import { callGitHub } from '../../server/proxy.mjs'
@@ -68,5 +70,7 @@ registerReadFile(server, ctx)
 registerPreviewRestore(server, ctx)
 registerCheckAccess(server, ctx)
 registerCaseTools(server, ctx)
+registerOpenCase(server, ctx)
+registerListForcedPushes(server, ctx)
 
 await server.connect(new StdioServerTransport())
