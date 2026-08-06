@@ -104,7 +104,7 @@ export interface CaseListing {
 }
 
 export interface CaseFile {
-  version: 1
+  version: 1 | 2
   id: string
   /** 사용자가 붙이는 이름. 나중에 기록을 찾을 때 쓴다. */
   title: string

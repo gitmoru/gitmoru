@@ -110,3 +110,47 @@ describe('목록', () => {
     expect(listCases().cases.some((c) => c.id === 'case-older')).toBe(false)
   })
 })
+
+describe('v1 사건 읽기', () => {
+  it('굳은 문장을 legacy 로 옮기고 v2 로 올린다', () => {
+    // v1 은 탐지기가 완성한 문장을 신호에 박아 넣었다. 재료가 없어 다시 번역할 수 없다.
+    const old = {
+      version: 1,
+      id: 'case-oldone',
+      title: '옛날 사건',
+      createdAt: '2026-01-01T00:00:00',
+      window: { since: 'a', until: 'b', displayTz: 'UTC' },
+      scope: { orgs: [], repos: [] },
+      branches: [],
+      changes: [],
+      failures: [],
+      findings: [
+        {
+          id: 'f1',
+          detectorId: 'size-jump',
+          repo: 'a/b',
+          title: '설정 파일이 커졌습니다',
+          summary: '11배 늘었습니다',
+          evidence: [{ label: '926B -> 10,148B' }],
+        },
+      ],
+    }
+    writeFileSync(join(casesDir(), 'case-oldone.json'), JSON.stringify(old), 'utf8')
+
+    const read = readCase('case-oldone')
+    expect(read?.version).toBe(2)
+
+    const [f] = read!.findings
+    expect(f?.legacy?.summary).toBe('11배 늘었습니다')
+    expect(f?.legacy?.evidence).toHaveLength(1)
+    // 굳은 문장이 위로 새어 나오면 안 된다. 그려주는 쪽이 legacy 를 보고 판단한다.
+    expect('summary' in (f as object)).toBe(false)
+    expect(f?.detectorId).toBe('size-jump')
+  })
+
+  it('v2 는 건드리지 않는다', () => {
+    const read = readCase('case-abc123')
+    expect(read?.version).toBe(2)
+    expect(read?.findings.every((f) => !f.legacy)).toBe(true)
+  })
+})

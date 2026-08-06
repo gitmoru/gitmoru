@@ -265,7 +265,7 @@ export async function runScan(
   onProgress({ phase: 'done', message: tr().progress.done, current: 1, total: 1 })
 
   return {
-    version: 1,
+    version: 2,
     id: `case-${Date.now().toString(36)}`,
     title: req.title,
     createdAt: new Date().toISOString(),

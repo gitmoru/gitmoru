@@ -9,7 +9,7 @@ import type { CaseFile } from '../types'
  */
 export function makeCase(over: Partial<CaseFile> = {}): CaseFile {
   return {
-    version: 1,
+    version: 2,
     id: 'case-abc123',
     title: '테스트 사건',
     createdAt: '2026-01-01T00:00:00',

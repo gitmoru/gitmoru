@@ -100,11 +100,33 @@ export function listCases() {
   return { cases, unreadable }
 }
 
+/**
+ * v1 사건을 지금 모양으로 옮긴다.
+ *
+ * v1 은 탐지기가 훑는 순간에 완성한 문장을 신호에 박아 넣었다.
+ * 그래서 그 사건은 처음 훑은 언어로 굳어 있고, **재료가 안 남아서 다시 번역할 수 없다.**
+ *
+ * 지우지 않고 `legacy` 로 옮겨 그대로 보여준다.
+ * 언어가 안 맞는 건 아쉽지만, 옛 사건을 아예 못 읽게 만드는 것보다는 낫다.
+ */
+function migrate(raw) {
+  if (!raw || raw.version !== 1) return raw
+
+  return {
+    ...raw,
+    version: 2,
+    findings: (raw.findings ?? []).map(({ title, summary, evidence, ...rest }) => ({
+      ...rest,
+      legacy: { title, summary, evidence: evidence ?? [] },
+    })),
+  }
+}
+
 /** 하나를 통째로 읽는다. 없으면 null. */
 export function readCase(id) {
   const target = pathOf(id)
   if (!existsSync(target)) return null
-  return JSON.parse(readFileSync(target, 'utf8'))
+  return migrate(JSON.parse(readFileSync(target, 'utf8')))
 }
 
 /**
