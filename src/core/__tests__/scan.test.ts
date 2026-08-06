@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
 import { summarize, verdictOf } from '../scan'
-import type { BranchChanges, BranchState, CaseFile, ScanFailure, TimelineEntry } from '../types'
+import { makeCase as caseFile } from './fixtures'
+import type { BranchChanges, BranchState, ScanFailure, TimelineEntry } from '../types'
 
 /**
  * "0건" 을 갈라 읽기.
@@ -24,23 +25,6 @@ const branch = (over: Partial<BranchState> = {}): BranchState => ({
   changedFiles: 0,
   forcedPushes: [],
   droppedCommits: 0,
-  ...over,
-})
-
-const caseFile = (over: Partial<CaseFile> = {}): CaseFile => ({
-  version: 1,
-  id: 'c1',
-  title: '테스트',
-  createdAt: '2026-01-01T00:00:00',
-  scope: { orgs: [], repos: [] },
-  window: { since: '2026-01-01T00:00:00', until: '2026-01-02T00:00:00', displayTz: 'UTC' },
-  detectorConfig: {},
-  stats: { reposScanned: 0, branchesScanned: 0, treesFetched: 0, failures: 0 },
-  failures: [],
-  timeline: [],
-  branches: [],
-  changes: [],
-  findings: [],
   ...over,
 })
 
