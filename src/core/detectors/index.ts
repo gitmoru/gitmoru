@@ -1,6 +1,7 @@
 import type { Detector } from '../types'
 import { forgedCommitDetector } from './forgedCommit'
 import { sizeJumpDetector } from './sizeJump'
+import { pinLoosenedDetector } from './pinLoosened'
 import { sharedBlobDetector } from './sharedBlob'
 import { signingDroppedDetector } from './signingDropped'
 import { toolMarkerDetector } from './toolMarker'
@@ -18,6 +19,7 @@ import { toolMarkerDetector } from './toolMarker'
 export const DETECTORS: Detector[] = [
   forgedCommitDetector,
   sizeJumpDetector,
+  pinLoosenedDetector,
   sharedBlobDetector,
   signingDroppedDetector,
   toolMarkerDetector,
@@ -39,6 +41,7 @@ export function defaultDetectorConfig() {
 export {
   forgedCommitDetector,
   sizeJumpDetector,
+  pinLoosenedDetector,
   sharedBlobDetector,
   signingDroppedDetector,
   toolMarkerDetector,
