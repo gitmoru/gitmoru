@@ -83,6 +83,23 @@ and a blank issue opens without anyone reading them.
 
 A hole in **gitmoru itself** is not an issue. It goes to [SECURITY.md](SECURITY.md).
 
+## Nothing goes straight to main
+
+Open an issue, cut a branch, merge through a pull request. Same on a repository with one person on it.
+
+```bash
+git switch -c fix/what-you-are-fixing
+```
+
+Pushing straight to main is faster. What it costs is the record. What changed and why
+ends up in one commit line and nowhere else. This tool holds repository permissions,
+and a restore cannot be taken back. **We decided not to leave a door where that kind of
+code walks in unrecorded.**
+
+Release pull requests get no checks. A pull request opened by a robot does not wake other
+workflows. Nothing ships unchecked anyway, because the publish job has to pass `pnpm check`
+before it reaches npm.
+
 ## The pull request title picks the version
 
 We use conventional commits, and not as a matter of taste.
