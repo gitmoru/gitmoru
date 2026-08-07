@@ -51,6 +51,7 @@ export const en: Dict = {
     forced: (branches, commits) =>
       `${branches} force-pushed, ${commits} ${commits === 1 ? 'commit' : 'commits'} dropped`,
     rewritten: (n) => `${n} with history replaced`,
+    exposed: (n) => `${n} went public`,
     exportHint: 'A record you can reopen later or hand to someone else',
     exportLabel: 'Save record',
     restore: 'Restore',
@@ -361,6 +362,10 @@ export const en: Dict = {
       unknown > 0 ? `${unknown} could not be checked` : `${failures} lookups failed`,
     incompleteDetail:
       'Part of this went unchecked, so the result is not conclusive. Do not read it as "nothing found".',
+    exposedTitle: (repos) =>
+      `${repos} ${plural(repos, 'repository', 'repositories')} went public`,
+    exposedDetail: (files) =>
+      `What was private is now on the internet. There is no way to find out who took a copy, so the keys and tokens that were inside get rotated, not restored.${files > 0 ? ` ${files} changed ${plural(files, 'file', 'files')} to look at as well.` : ''}`,
     noChanges: {
       title: 'No files changed',
       detail: (branches) =>
@@ -388,6 +393,8 @@ export const en: Dict = {
       `History was overwritten on ${branches} ${branches === 1 ? 'branch' : 'branches'}, dropping ${commits} ${commits === 1 ? 'commit' : 'commits'}.`,
     rewritten: (n) =>
       `${n} of them were replaced with an unrelated history, so the number of lost commits cannot be counted.`,
+    exposed: (n) =>
+      `${n} ${plural(n, 'repository', 'repositories')} that had been private went public in this window. There is no way to see who took a copy, so the keys and tokens inside them need to be reissued.`,
     workflow: (n) =>
       `${n} CI ${n === 1 ? 'definition' : 'definitions'} under .github/workflows changed. From the next push on, that is what runs.`,
     byRepo: 'By repository',

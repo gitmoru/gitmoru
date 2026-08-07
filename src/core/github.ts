@@ -5,6 +5,7 @@ import type {
   CompareResult,
   GitHubReader,
   PushEvent,
+  RepoExposure,
   RepoRef,
   TreeEntry,
 } from './types'
@@ -225,35 +226,21 @@ export class GitHubClient implements GitHubReader {
   }
 
   /**
-   * 저장소의 최근 이벤트에서 푸시만 골라낸다.
+   * 저장소의 최근 이벤트에서 시간대 안의 것만 골라낸다.
+   *
+   * 한 번 받아서 두 갈래로 나눈다. 예전에는 푸시만 남기고 나머지를 버렸는데,
+   * **버리던 응답 안에 `PublicEvent` 가 같이 들어 있었다.** 따로 받으러 가면
+   * 저장소마다 왕복이 한 번씩 더 늘고, 그 값은 이미 치른 값이다.
    *
    * 주의 - GitHub 이벤트 API 는 최근 90일, 저장소당 300건 정도만 보관한다.
    * 오래된 사고는 여기서 안 잡힐 수 있고, 그 경우 개발자 로컬의 reflog 가 유일한 복구원이다.
    */
-  async listPushEvents(repo: string, since: string, until: string): Promise<PushEvent[]> {
-    const raw = await this.paginate<{
-      type: string
-      created_at: string
-      actor: { login: string }
-      payload: { ref?: string; before?: string; head?: string }
-    }>(`repos/${repo}/events`, 3)
-
-    return raw
-      .filter(
-        (e) =>
-          e.type === 'PushEvent' &&
-          e.created_at >= since &&
-          e.created_at <= until &&
-          typeof e.payload.ref === 'string',
-      )
-      .map((e) => ({
-        repo,
-        branch: e.payload.ref!.replace(/^refs\/heads\//, ''),
-        actor: e.actor.login,
-        createdAt: e.created_at,
-        before: e.payload.before ?? '',
-        head: e.payload.head ?? '',
-      }))
+  async listRepoEvents(
+    repo: string,
+    since: string,
+    until: string,
+  ): Promise<{ pushes: PushEvent[]; exposures: RepoExposure[] }> {
+    return splitRepoEvents(repo, await this.paginate<RawEvent>(`repos/${repo}/events`, 3), since, until)
   }
 
   // ── GitHubReader 구현 ─────────────────────────────────────
@@ -409,5 +396,52 @@ export class GitHubClient implements GitHubReader {
       if (err instanceof ApiError && (err.status === 404 || err.status === 403)) return false
       throw err
     }
+  }
+}
+
+/** GitHub 이벤트 API 응답 중 우리가 읽는 부분 */
+export interface RawEvent {
+  type: string
+  created_at: string
+  actor: { login: string }
+  payload: { ref?: string; before?: string; head?: string }
+}
+
+/**
+ * 한 번 받은 이벤트를 두 갈래로 가른다.
+ *
+ * 함수를 따로 뺀 이유는 시험을 붙이기 위해서다. 클래스 안에 두면 네트워크 없이는
+ * 못 돌리고, 그러면 **공개 전환을 못 알아보는 버그가 조용히 살아남는다.**
+ * 이 검사가 잡으려는 게 정확히 조용한 실패라서 그건 앞뒤가 안 맞는다.
+ *
+ * 시각 비교는 19자로 잘라서 한다. 우리가 만드는 시간대는 `2026-08-06T00:00:00` 이고
+ * GitHub 이 주는 시각은 `2026-08-06T00:00:00Z` 다. 그냥 문자열로 비교하면
+ * 끝시각과 정확히 같은 순간에 일어난 일이 `Z` 한 글자 때문에 범위 밖으로 밀린다.
+ */
+export function splitRepoEvents(
+  repo: string,
+  raw: RawEvent[],
+  since: string,
+  until: string,
+): { pushes: PushEvent[]; exposures: RepoExposure[] } {
+  const at = (iso: string) => iso.slice(0, 19)
+  const inWindow = raw.filter((e) => at(e.created_at) >= at(since) && at(e.created_at) <= at(until))
+
+  return {
+    pushes: inWindow
+      .filter((e) => e.type === 'PushEvent' && typeof e.payload.ref === 'string')
+      .map((e) => ({
+        repo,
+        branch: e.payload.ref!.replace(/^refs\/heads\//, ''),
+        actor: e.actor.login,
+        createdAt: e.created_at,
+        before: e.payload.before ?? '',
+        head: e.payload.head ?? '',
+      })),
+
+    // payload 가 비어 있는 이벤트다. 뜻이 하나뿐이라 읽어낼 것이 없다.
+    exposures: inWindow
+      .filter((e) => e.type === 'PublicEvent')
+      .map((e) => ({ repo, at: e.created_at, actor: e.actor.login })),
   }
 }

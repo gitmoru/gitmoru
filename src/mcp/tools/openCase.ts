@@ -58,6 +58,22 @@ export function registerOpenCase(server: McpServer, ctx: McpContext) {
             ? `강제 푸시 ${s.forcedBranches}곳, 사라진 커밋 ${s.droppedCommits}개`
             : null,
           s.autoRun.workflow > 0 ? `CI 정의 ${s.autoRun.workflow}개가 바뀌었습니다` : null,
+          /*
+            0 과 "안 봄" 을 갈라 적는다.
+
+            이 검사가 생기기 전에 남긴 사건 파일에는 공개 전환 기록이 아예 없다.
+            그걸 "0개" 로 적으면 읽는 쪽은 확인했다고 믿는다. 여기 오는 건 대개
+            에이전트고, 에이전트는 적힌 대로 결론을 낸다.
+          */
+          s.exposed === null
+            ? '공개 전환 여부: 이 사건을 훑을 때는 확인하지 않았습니다 (검사가 생기기 전 기록). 0건이라는 뜻이 아닙니다.'
+            : null,
+          ...(s.exposed
+            ? [
+                `비공개였던 저장소 ${s.exposed}개가 공개로 바뀌었습니다. 되돌려도 회수되지 않습니다. 키와 토큰을 새로 발급해야 합니다.`,
+                ...(c.exposures ?? []).map((e) => `- ${e.repo} (${at(e.at)}, ${e.actor})`),
+              ]
+            : []),
           '',
           // 확인 못 한 게 있으면 맨 끝이 아니라 여기서 말한다 (SAFETY.md 11번)
           s.unknown > 0 || s.failures > 0

@@ -40,6 +40,26 @@ export interface PushEvent {
 }
 
 /**
+ * 비공개였던 저장소가 공개로 바뀐 일.
+ *
+ * GitHub 이 `PublicEvent` 로 알려준다. 뜻이 하나뿐이라 해석할 게 없다.
+ * **비공개였던 것이 지금 인터넷에 있다.** 새로 공개로 만든 저장소는 여기 안 걸린다.
+ *
+ * 이걸 따로 두는 이유는, 이 일이 푸시 없이도 일어나기 때문이다.
+ * 푸시만 세면 그런 시간대는 "활동 없음" 으로 뜬다. 그 화면이 제일 위험하다.
+ *
+ * 이름으로 잡지 않는다. 지금 도는 웜은 특정 이름을 쓰지만 다음 판은 안 그럴 것이고,
+ * 이름을 보는 순간 못 알아본 것이 0건으로 표시된다 ([ADR 0008](../../../docs/decisions/0008-detectors-never-judge-by-filename.md)).
+ */
+export interface RepoExposure {
+  repo: string
+  /** 공개로 바뀐 시각 (ISO 8601, UTC) */
+  at: string
+  /** 그 일을 한 계정 */
+  actor: string
+}
+
+/**
  * 푸시가 어떤 모양이었는지.
  *
  * GitHub 이벤트에는 강제 푸시 여부가 안 들어 있다. 그래서 직접 확인한다.

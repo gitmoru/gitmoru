@@ -39,6 +39,14 @@
   --color-apricot: #f5b072; /* 읽어봐야 한다 */
   --color-sand: #e8d089; /* 확인 못 했다 */
   --color-clay: #c98b6b;
+  /*
+    되돌릴 수 없다.
+
+    살구색(읽어봐야 한다)과 갈라놓는다. 바뀐 파일은 되돌리면 없던 일이 되지만
+    인터넷에 나간 것은 안 그렇다. 같은 색으로 그리면 같은 급으로 읽힌다.
+    흙 계열에서 제일 뜨거운 자리를 여기 하나에만 쓴다.
+  */
+  --color-ember: #e8735a;
 
   --font-mono: 'JetBrains Mono', 'D2Coding', ui-monospace, monospace;
 }

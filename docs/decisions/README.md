@@ -23,6 +23,7 @@
 | [0011](0011-never-edit-another-tools-config.md) | 남의 설정 파일을 우리가 고치지 않는다 | 안 됨 |
 | [0012](0012-cases-live-on-disk.md) | 사건 기록은 디스크에 남긴다 | 됨 |
 | [0013](0013-mcp-goes-to-npm.md) | MCP 서버는 npm 에 올리고, 앱은 클론으로 둔다 | 됨 |
+| [0014](0014-exposure-is-a-fact-not-a-signal.md) | 저장소가 공개로 바뀐 건 신호가 아니라 사건의 사실이다 | 안 됨 |
 
 ## 새로 쓸 때
 

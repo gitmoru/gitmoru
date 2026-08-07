@@ -49,6 +49,21 @@ export function shareText(c: CaseFile): string {
   if (s.rewrittenBranches > 0) lines.push(t.rewritten(s.rewrittenBranches))
   if (s.autoRun.workflow > 0) lines.push(t.workflow(s.autoRun.workflow))
 
+  /*
+    공개로 바뀐 저장소는 브랜치 숫자보다 위에 둔다.
+
+    이 글을 받는 사람이 제일 먼저 해야 할 일이 달라지기 때문이다.
+    브랜치가 바뀌었으면 되돌리면 되고, 저장소가 공개됐으면 **키를 새로 발급해야 한다.**
+    아래쪽에 한 줄로 섞여 있으면 그 차이가 안 보인다.
+  */
+  if (s.exposed && s.exposed > 0) {
+    lines.push('')
+    lines.push(t.exposed(s.exposed))
+    for (const e of c.exposures ?? []) {
+      lines.push(`- ${e.repo} (${utcToZoned(e.at, c.window.displayTz)}, ${e.actor})`)
+    }
+  }
+
   // 확인 못 한 게 있으면 여기서 바로 말한다. 맨 끝에 두면 안 읽힌다.
   if (s.unknown > 0 || s.failures > 0) {
     lines.push('')

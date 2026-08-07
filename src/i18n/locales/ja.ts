@@ -47,6 +47,7 @@ export const ja: Dict = {
     forced: (branches, commits) =>
       `強制プッシュ ${branches} 本、コミット ${commits} 件が消えました`,
     rewritten: (n) => `履歴がまるごと置き換え ${n} 本`,
+    exposed: (n) => `公開に変わった ${n} 件`,
     exportHint: 'あとで見直したり、他の人に渡すための記録ファイルです',
     exportLabel: '記録を保存',
     restore: '巻き戻す',
@@ -361,6 +362,9 @@ export const ja: Dict = {
       unknown > 0 ? `${unknown} 件を確認できませんでした` : `取得失敗 ${failures} 件`,
     incompleteDetail:
       '確認できなかった対象があるため、結果を断定できません。これを「異常なし」と読まないでください。',
+    exposedTitle: (repos) => `リポジトリ ${repos} 件が公開に変わりました`,
+    exposedDetail: (files) =>
+      `非公開だったものがインターネットに出ました。誰が持ち出したかを確認する手段はないので、中にあった鍵やトークンは戻すのではなく作り直してください。${files > 0 ? ` 変更されたファイル ${files} 件も併せて確認してください。` : ''}`,
     noChanges: {
       title: '変更されたファイルはありません',
       detail: (branches) =>
@@ -388,6 +392,8 @@ export const ja: Dict = {
       `ブランチ ${branches} 本で履歴が上書きされ、コミット ${commits} 件が消えました。`,
     rewritten: (n) =>
       `そのうち ${n} 本は、つながらない別の履歴に置き換えられており、消えたコミット数を数えられません。`,
+    exposed: (n) =>
+      `非公開だったリポジトリ ${n} 件が、この期間に公開へ変わりました。誰が持ち出したかを確認する手段はないため、中にあった鍵やトークンは発行し直してください。`,
     workflow: (n) =>
       `.github/workflows の CI 定義が ${n} 件変わりました。次のプッシュからそのとおりに動きます。`,
     byRepo: 'リポジトリ別',
