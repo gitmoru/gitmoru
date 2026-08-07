@@ -17,7 +17,7 @@ export type Client = {
   /** 경로가 프로젝트마다 달라서 고정할 수 없을 때. 설명은 화면에서 사전을 본다. */
   hasNoFixedPath?: boolean
   /** 붙여넣을 내용 */
-  snippet: (path: string) => string
+  snippet: () => string
   /** 붙인 다음 뭘 껐다 켜야 하는지. 사전의 어느 문장인지만 가리킨다. */
   restart: keyof Dict['connect']['restart']
   /** 우리가 대신 실행해줄 수 있는지 */
@@ -25,7 +25,15 @@ export type Client = {
 }
 
 const json = (body: object) => JSON.stringify(body, null, 2)
-const mcpServers = (p: string) => json({ mcpServers: { gitmoru: { command: 'npx', args: ['tsx', p] } } })
+
+/*
+  npm 에 올라가 있으니 경로가 필요 없다.
+
+  예전에는 클론한 폴더를 사람이 직접 채워 넣어야 했다(`npx tsx <경로>/src/mcp/index.ts`).
+  복사 버튼을 눌러도 그대로는 안 돌아갔고, 그 자리에서 대부분 막혔다.
+*/
+const ARGS = ['-y', 'gitmoru', 'mcp']
+const mcpServers = () => json({ mcpServers: { gitmoru: { command: 'npx', args: ARGS } } })
 
 export const CLIENTS: Client[] = [
   {
@@ -33,7 +41,7 @@ export const CLIENTS: Client[] = [
     name: 'Claude Code',
     kind: 'cli',
     auto: true,
-    snippet: (p) => `claude mcp add gitmoru -- npx tsx ${p}`,
+    snippet: () => `claude mcp add gitmoru -- npx ${ARGS.join(' ')}`,
     restart: 'claudeCode',
   },
   {
@@ -41,8 +49,8 @@ export const CLIENTS: Client[] = [
     name: 'Codex CLI',
     kind: 'file',
     pathKey: 'codex',
-    snippet: (p) =>
-      `[mcp_servers.gitmoru]\ncommand = "npx"\nargs = ["tsx", "${p.replace(/\\/g, '\\\\')}"]`,
+    snippet: () =>
+      `[mcp_servers.gitmoru]\ncommand = "npx"\nargs = [${ARGS.map((a) => `"${a}"`).join(', ')}]`,
     restart: 'codex',
   },
   {
@@ -82,7 +90,7 @@ export const CLIENTS: Client[] = [
     name: 'VS Code (Copilot)',
     kind: 'file',
     hasNoFixedPath: true,
-    snippet: (p) => json({ servers: { gitmoru: { type: 'stdio', command: 'npx', args: ['tsx', p] } } }),
+    snippet: () => json({ servers: { gitmoru: { type: 'stdio', command: 'npx', args: ARGS } } }),
     restart: 'vscode',
   },
 ]

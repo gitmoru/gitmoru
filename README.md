@@ -70,6 +70,16 @@ gitmoru 은 1번과 3번을 합니다. 2번은 안 합니다.
 
 ## 시작하기
 
+바로 켜보려면 한 줄이면 됩니다. [Node 22 이상](https://nodejs.org)과
+[GitHub CLI](https://cli.github.com) 만 있으면 돼요.
+
+```bash
+gh auth login
+npx -y gitmoru
+```
+
+브라우저에 화면이 뜹니다. 되돌리기까지 쓰려면 아래처럼 받아서 켜세요.
+
 미리 있어야 하는 것은 [Node 22 이상](https://nodejs.org), [pnpm](https://pnpm.io), [GitHub CLI](https://cli.github.com) 셋입니다.
 
 ```bash

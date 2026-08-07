@@ -139,7 +139,7 @@ ipcMain.handle('radar:whoami', async () => {
  * 무엇이 등록되는지는 그 명령이 정한다 - 우리가 남의 설정을 몰래 만지지 않는다.
  */
 const APP_DIR = resolve(__dirname, '..')
-const MCP_ARGS = ['tsx', join(APP_DIR, 'src', 'mcp', 'index.ts')]
+const MCP_ARGS = ['-y', 'gitmoru', 'mcp']
 
 function mcpCommand() {
   return `claude mcp add gitmoru -- npx ${MCP_ARGS.join(' ')}`

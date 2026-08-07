@@ -42,10 +42,8 @@ export function ConnectAgent({ onClose }: { onClose: () => void }) {
   useEffect(refresh, [])
 
   const client = CLIENTS.find((c) => c.id === picked)!
-  const snippet = useMemo(
-    () => (status ? client.snippet(status.scriptPath) : ''),
-    [client, status],
-  )
+  // 경로가 필요 없어졌다. npm 에 올라가 있어서 명령이 어디서든 같다.
+  const snippet = useMemo(() => client.snippet(), [client])
   const target = client.pathKey ? status?.paths?.[client.pathKey] : undefined
 
   const copy = async (text: string, tag: string) => {
