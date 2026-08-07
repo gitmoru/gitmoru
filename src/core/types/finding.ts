@@ -77,6 +77,13 @@ export type FindingFacts =
       commitHref: string
     }
   | {
+      kind: 'workflow-risk'
+      path: string
+      /** 이 푸시로 새로 생긴 것들 */
+      risks: Array<'pr-target-checkout' | 'event-in-run' | 'write-all'>
+      fileHref: string
+    }
+  | {
       kind: 'pin-loosened'
       path: string
       /** 어떤 액션이 어느 커밋에서 무엇으로 풀렸는지 */

@@ -572,6 +572,31 @@ export const ko = {
       openFile: '워크플로 열기',
       readFailed: (reason: string) => `워크플로 파일을 못 읽었습니다: ${reason}`,
     },
+    workflowRisk: {
+      name: '워크플로가 새로 연 자리',
+      rationale: '바뀐 워크플로가 남의 코드나 비밀에 문을 열었는지 봐요. 원래 그랬던 건 안 떠요.',
+      title: '워크플로가 이 시간대에 문을 하나 열었어요',
+      summary: (path: string, count: number) =>
+        `${path} 에 전에 없던 자리가 ${count}개 생겼습니다. 다음 실행부터 여기 적힌 대로 돕니다.`,
+      risk: {
+        'pr-target-checkout': {
+          label: '남의 PR 코드가 비밀을 들고 돌아요',
+          detail: 'pull_request_target 은 이 저장소의 권한과 비밀을 들고 돕니다. 거기서 PR 쪽 코드를 체크아웃하면, 남이 쓴 코드가 그 권한으로 실행돼요.',
+        },
+        'event-in-run': {
+          label: 'PR 제목이 명령이 될 수 있어요',
+          detail: 'github.event 값이 셸이 돌기 전에 그 자리에 글자로 박힙니다. 제목이나 브랜치 이름에 명령을 적어 보내면 그대로 실행돼요.',
+        },
+        'write-all': {
+          label: '토큰 권한이 전부 열려 있어요',
+          detail: 'permissions: write-all 이면 그 작업이 저장소의 거의 모든 것을 바꿀 수 있습니다.',
+        },
+      },
+      limitLabel: '이 검사의 한계',
+      limit: 'YAML 로 읽지 않고 줄 단위로 봅니다. 여러 줄로 흩어 쓰거나 앵커를 쓰면 못 잡아요. 안 걸렸다고 없는 건 아닙니다.',
+      openFile: '워크플로 열기',
+      readFailed: (reason: string) => `워크플로 파일을 못 읽었습니다: ${reason}`,
+    },
     sharedBlob: {
       name: '여러 곳에 뿌려진 같은 파일',
       rationale: '그때 새로 생긴 파일 중 내용이 똑같은 게 여러 저장소에 있는지 봐요.',

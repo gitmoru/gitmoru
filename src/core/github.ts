@@ -104,6 +104,10 @@ export class GitHubClient implements GitHubReader {
   private readonly treeCache = new Map<string, TreeEntry[]>()
   private readonly commitCache = new Map<string, CommitMeta>()
 
+  /** 파일 내용. 무거워서 개수를 묶어둔다. */
+  private readonly textCache = new Map<string, string | null>()
+  private static readonly TEXT_CACHE_MAX = 300
+
   /**
    * 한도에서 잘린 목록들.
    *
@@ -112,6 +116,15 @@ export class GitHubClient implements GitHubReader {
    * 여기 쌓아두고 훑기가 끝날 때 `runScan` 이 가져가서 "확인 못 함" 으로 올린다.
    */
   private readonly truncations: Array<{ path: string; got: number }> = []
+
+  /** 가장 오래된 것부터 버리면서 담는다 */
+  private remember(key: string, text: string | null) {
+    if (this.textCache.size >= GitHubClient.TEXT_CACHE_MAX) {
+      const oldest = this.textCache.keys().next().value
+      if (oldest !== undefined) this.textCache.delete(oldest)
+    }
+    this.textCache.set(key, text)
+  }
 
   /** 쌓인 것을 가져가고 비운다. 한 번 훑을 때마다 새로 센다. */
   takeTruncations(): Array<{ path: string; got: number }> {
@@ -386,14 +399,30 @@ export class GitHubClient implements GitHubReader {
    * 문자열로만 다룬다. 절대 eval/실행하지 않고, 디스크에 쓰지 않는다 (SAFETY.md 1, 2번).
    */
   async getTextFile(repo: string, path: string, ref: string): Promise<string | null> {
+    /*
+      탐지기 둘이 같은 워크플로 파일을 본다. 캐시가 없으면 파일 하나를
+      네 번 받아온다 (탐지기 둘 × 전후 둘).
+
+      개수를 묶어둔다. 파일 내용이라 트리나 커밋보다 무겁고, 큰 조직을 훑을 때
+      계속 쌓이면 그게 다른 문제가 된다. 오래된 것부터 버린다.
+    */
+    const key = `${repo}@${ref}:${path}`
+    const hit = this.textCache.get(key)
+    if (hit !== undefined) return hit
+
     try {
       const raw = await this.request<{ content?: string; encoding?: string; size: number }>(
         `repos/${repo}/contents/${path}?ref=${encodeURIComponent(ref)}`,
       )
-      if (!raw.content || raw.encoding !== 'base64') return null
-      return decodeBase64Utf8(raw.content)
+      const text = !raw.content || raw.encoding !== 'base64' ? null : decodeBase64Utf8(raw.content)
+      this.remember(key, text)
+      return text
     } catch (err) {
-      if (err instanceof ApiError && err.status === 404) return null
+      if (err instanceof ApiError && err.status === 404) {
+        // 없다는 것도 답이다. 다시 물으러 가지 않는다.
+        this.remember(key, null)
+        return null
+      }
       throw err
     }
   }

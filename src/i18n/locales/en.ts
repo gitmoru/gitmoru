@@ -584,6 +584,31 @@ export const en: Dict = {
       openFile: 'Open the workflow',
       readFailed: (reason) => `Could not read the workflow file: ${reason}`,
     },
+    workflowRisk: {
+      name: 'Workflow opened something',
+      rationale: 'Looks for a changed workflow that opened a door to someone else\'s code or to the secrets. Silent on doors that were already open.',
+      title: 'A workflow opened a door inside this window',
+      summary: (path, count) =>
+        `${count} ${count === 1 ? 'thing' : 'things'} appeared in ${path} that were not there before. From the next run on, this is what happens.`,
+      risk: {
+        'pr-target-checkout': {
+          label: "Someone else's pull request code runs with the secrets",
+          detail: 'pull_request_target carries this repository\'s permissions and secrets. Checking out the pull request head there means code written by a stranger runs with them.',
+        },
+        'event-in-run': {
+          label: 'A pull request title can carry a command',
+          detail: 'A github.event value is pasted in as text before the shell runs. A title or branch name containing a command is a command.',
+        },
+        'write-all': {
+          label: 'The token is opened all the way',
+          detail: 'permissions: write-all lets that job change almost anything in the repository.',
+        },
+      },
+      limitLabel: 'What this check misses',
+      limit: 'It reads lines, not YAML. Anything spread across lines or hidden behind an anchor goes unseen. Nothing found does not mean nothing is there.',
+      openFile: 'Open the workflow',
+      readFailed: (reason) => `Could not read the workflow file: ${reason}`,
+    },
     sharedBlob: {
       name: 'Same file in many places',
       rationale: 'Checks whether identical new files showed up across several repositories.',
