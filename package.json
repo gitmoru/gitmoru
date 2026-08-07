@@ -10,7 +10,7 @@
     "node": ">=22"
   },
   "bin": {
-    "gitmoru": "./bin/gitmoru.js"
+    "gitmoru": "bin/gitmoru.js"
   },
   "scripts": {
     "app": "node scripts/dev-app.mjs",

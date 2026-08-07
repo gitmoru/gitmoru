@@ -1,0 +1,59 @@
+# 버전을 올리고 npm 에 올린다.
+#
+# 손으로 버전을 고치면 언젠가 잊는다. 잊으면 고친 게 npm 에 안 올라가고,
+# 받는 사람은 옛날 것을 계속 쓰면서 왜 안 고쳐졌는지 모른다.
+#
+# 커밋 메시지를 근거로 삼는다. 우리는 이미 그렇게 쓰고 있어서 새로 할 일이 없다.
+#   fix:   -> 0.1.1
+#   feat:  -> 0.2.0
+#   feat!: -> 1.0.0
+#
+# 자동으로 올리지 않는다. release-please 가 "버전 올림" PR 을 열어두면
+# 사람이 보고 머지한다. 무엇이 나가는지 한 번은 눈으로 본다.
+name: release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+  # npm 에 우리가 누구인지 증명할 때 쓴다. 토큰을 만들지 않는 이유가 이것이다.
+  id-token: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      released: ${{ steps.plan.outputs.release_created }}
+      tag: ${{ steps.plan.outputs.tag_name }}
+    steps:
+      - id: plan
+        uses: googleapis/release-please-action@v4
+        with:
+          release-type: node
+
+  publish:
+    needs: prepare
+    if: needs.prepare.outputs.released == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # 깨진 걸 올리면 남의 환경에서 깨진다. 검사를 통과해야 나간다.
+      - run: pnpm check
+
+      # 토큰이 없다. GitHub 이 OIDC 로 우리를 증명하고 npm 이 그걸 믿는다.
+      # 샐 토큰이 없으면 새어 나갈 일도 없다.
+      - run: npm publish
