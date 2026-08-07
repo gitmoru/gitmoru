@@ -4,14 +4,41 @@
     ".": {
       "release-type": "node",
       "changelog-sections": [
-        { "type": "feat", "section": "새로 생긴 것" },
-        { "type": "fix", "section": "고친 것" },
-        { "type": "refactor", "section": "정리한 것" },
-        { "type": "docs", "section": "문서", "hidden": true },
-        { "type": "test", "section": "테스트", "hidden": true },
-        { "type": "build", "section": "빌드", "hidden": true },
-        { "type": "chore", "section": "잡일", "hidden": true }
-      ]
+        {
+          "type": "feat",
+          "section": "새로 생긴 것"
+        },
+        {
+          "type": "fix",
+          "section": "고친 것"
+        },
+        {
+          "type": "refactor",
+          "section": "정리한 것"
+        },
+        {
+          "type": "docs",
+          "section": "문서",
+          "hidden": true
+        },
+        {
+          "type": "test",
+          "section": "테스트",
+          "hidden": true
+        },
+        {
+          "type": "build",
+          "section": "빌드",
+          "hidden": true
+        },
+        {
+          "type": "chore",
+          "section": "잡일",
+          "hidden": true
+        }
+      ],
+      "bump-minor-pre-major": true,
+      "bump-patch-for-minor-pre-major": true
     }
   }
 }
