@@ -560,6 +560,18 @@ export const ko = {
         `커밋을 ${seen}개까지만 봤어요. GitHub 이 한 번에 250개까지만 줍니다.`,
       openCompare: '바뀐 커밋 보기',
     },
+    pinLoosened: {
+      name: '액션 고정이 풀린 자리',
+      rationale: '워크플로가 쓰는 액션이 커밋 해시에서 태그로 바뀌었는지 봐요. 태그는 주인이 언제든 옮길 수 있어요.',
+      title: '액션이 가리키는 곳이 고정에서 태그로 바뀌었어요',
+      summary: (count: number, path: string) =>
+        `${path} 에서 액션 ${count}개가 커밋 해시 대신 태그를 가리키게 됐습니다. 태그는 그 액션 주인이 언제든 다른 커밋으로 옮길 수 있어요.`,
+      change: (before: string, after: string) => `${before}... 에서 ${after} 로`,
+      whyLabel: '이게 왜 중요한가요',
+      why: '2025년 3월에 널리 쓰이던 액션 하나가 이 자리로 털렸어요. 공격자가 기본 브랜치가 아닌 곳에 커밋을 만들고 기존 태그를 거기로 옮겼습니다. 태그를 쓰던 저장소는 아무것도 안 고쳤는데 다음 실행에서 그 코드를 받았어요.',
+      openFile: '워크플로 열기',
+      readFailed: (reason: string) => `워크플로 파일을 못 읽었습니다: ${reason}`,
+    },
     sharedBlob: {
       name: '여러 곳에 뿌려진 같은 파일',
       rationale: '그때 새로 생긴 파일 중 내용이 똑같은 게 여러 저장소에 있는지 봐요.',

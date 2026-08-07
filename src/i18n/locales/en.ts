@@ -572,6 +572,18 @@ export const en: Dict = {
       partial: (seen) => `Only ${seen} commits were visible. GitHub returns at most 250 at a time.`,
       openCompare: 'See the commits',
     },
+    pinLoosened: {
+      name: 'Action pin loosened',
+      rationale: 'Looks for an action that went from a commit hash to a tag. A tag can be moved by whoever owns it.',
+      title: 'An action stopped pointing at a commit',
+      summary: (count, path) =>
+        `${count} ${count === 1 ? 'action' : 'actions'} in ${path} now point at a tag instead of a commit hash. Tags can be moved to a different commit by whoever owns the action.`,
+      change: (before, after) => `${before}... to ${after}`,
+      whyLabel: 'Why this matters',
+      why: 'In March 2025 a widely used action was compromised this way. The attacker pushed a commit outside the default branch and repointed the existing tags at it. Repositories using a tag changed nothing and picked it up on their next run.',
+      openFile: 'Open the workflow',
+      readFailed: (reason) => `Could not read the workflow file: ${reason}`,
+    },
     sharedBlob: {
       name: 'Same file in many places',
       rationale: 'Checks whether identical new files showed up across several repositories.',

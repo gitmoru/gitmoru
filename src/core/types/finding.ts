@@ -77,6 +77,13 @@ export type FindingFacts =
       commitHref: string
     }
   | {
+      kind: 'pin-loosened'
+      path: string
+      /** 어떤 액션이 어느 커밋에서 무엇으로 풀렸는지 */
+      actions: Array<{ action: string; before: string; after: string }>
+      fileHref: string
+    }
+  | {
       kind: 'signing-dropped'
       /** 푸시 직전 커밋이 서명돼 있었나 */
       baseSigned: boolean

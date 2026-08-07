@@ -86,6 +86,23 @@ export function describeFinding(finding: Finding): FindingText {
       }
     }
 
+    case 'pin-loosened': {
+      const t = tr().detectors.pinLoosened
+      return {
+        title: t.title,
+        summary: t.summary(facts.actions.length, facts.path),
+        evidence: [
+          ...facts.actions.map((a) => ({
+            label: a.action,
+            // 해시는 앞 12자만. 40자를 다 적으면 무엇이 무엇으로 바뀌었는지가 안 읽힌다.
+            detail: t.change(a.before.slice(0, 12), a.after),
+          })),
+          { label: t.whyLabel, detail: t.why },
+          { label: t.openFile, href: facts.fileHref },
+        ],
+      }
+    }
+
     case 'signing-dropped': {
       const t = tr().detectors.signingDropped
       const bad = facts.badSignature > 0
