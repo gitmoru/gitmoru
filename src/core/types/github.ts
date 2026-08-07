@@ -37,6 +37,13 @@ export interface PushEvent {
   head: string
   /** 이 푸시가 기록을 덮어썼는지. 확인하기 전에는 비어 있다. */
   push?: PushShape
+  /**
+   * 이 푸시로 들어온 커밋들의 서명 상태.
+   *
+   * 비교할 때 같이 딸려온다. 확인 못 했으면 비어 있고, 비어 있는 것은
+   * "서명이 다 돼 있었다" 가 아니라 "모른다" 다.
+   */
+  signing?: CompareSigning
 }
 
 /**
@@ -120,4 +127,34 @@ export interface CompareResult {
   status: 'ahead' | 'behind' | 'identical' | 'diverged'
   aheadBy: number
   behindBy: number
+  /**
+   * 이 비교로 드러난 커밋들의 서명 상태.
+   *
+   * 비교 응답에 원래 들어 있던 것이다. 예전에는 위 세 개만 읽고 버렸다.
+   */
+  signing?: CompareSigning
+}
+
+/**
+ * 서명이 어떤 모양이었는지.
+ *
+ * 서명이 없다는 것 자체는 아무 뜻도 아니다. 키 없는 컴퓨터에서 올리는 일은 흔하다.
+ * 뜻이 생기는 건 **하던 것을 안 하게 됐을 때**다. 그래서 기준점을 같이 담는다.
+ */
+export interface CompareSigning {
+  /** 푸시 직전 커밋이 서명돼 있었나. 응답에 없었으면 비어 있다. */
+  baseSigned?: boolean
+  /** 이 푸시로 드러난 커밋 수. 우리가 실제로 본 만큼이다. */
+  seen: number
+  /** 그중 서명이 아예 없는 것 */
+  unsigned: number
+  /**
+   * 서명은 붙어 있는데 검증이 안 되는 것.
+   *
+   * `unsigned` 와 한 칸에 담으면 안 된다. 서명이 없는 건 평범하고,
+   * **붙어 있는데 안 맞는 건 평범하지 않다.**
+   */
+  badSignature: number
+  /** GitHub 이 세어준 전체 커밋 수. 250개를 넘으면 우리가 본 것보다 크다. */
+  total: number
 }

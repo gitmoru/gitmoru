@@ -69,6 +69,10 @@ async function shapeOf(
 
   try {
     const result = await gh.compare(event.repo, event.before, event.head)
+
+    // 같은 응답에 들어 있던 것이다. 여기서 안 챙기면 다시 받으러 가야 한다.
+    event.signing = result.signing
+
     return {
       // 사라진 커밋이 하나라도 있으면 기록을 덮어쓴 것이다.
       kind: result.behindBy > 0 ? 'forced' : 'fast-forward',

@@ -77,6 +77,18 @@ export type FindingFacts =
       commitHref: string
     }
   | {
+      kind: 'signing-dropped'
+      /** 푸시 직전 커밋이 서명돼 있었나 */
+      baseSigned: boolean
+      /** 이 푸시로 우리가 실제로 본 커밋 수 */
+      seen: number
+      unsigned: number
+      badSignature: number
+      /** 250개를 넘어서 다 못 본 경우. 본 것이 전부인 척하지 않는다. */
+      partial: boolean
+      compareHref: string
+    }
+  | {
       kind: 'tool-marker'
       path: string
       /** 찾은 표식 줄들 */

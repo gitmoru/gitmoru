@@ -3,6 +3,7 @@ import type {
   BranchRef,
   CommitMeta,
   CompareResult,
+  CompareSigning,
   GitHubReader,
   PushEvent,
   RepoExposure,
@@ -410,12 +411,14 @@ export class GitHubClient implements GitHubReader {
    * base 커밋이 이미 정리됐으면 404 가 온다. 그때는 모른다고 답해야 한다.
    */
   async compare(repo: string, base: string, head: string): Promise<CompareResult> {
-    const raw = await this.request<{
-      status: CompareResult['status']
-      ahead_by: number
-      behind_by: number
-    }>(`repos/${repo}/compare/${base}...${head}`)
-    return { status: raw.status, aheadBy: raw.ahead_by, behindBy: raw.behind_by }
+    const raw = await this.request<RawCompare>(`repos/${repo}/compare/${base}...${head}`)
+    return {
+      status: raw.status,
+      aheadBy: raw.ahead_by,
+      behindBy: raw.behind_by,
+      // 이미 받아온 응답 안에 있다. 안 읽으면 그냥 버려진다.
+      signing: readSigning(raw),
+    }
   }
 
   // ── 쓰기 ──────────────────────────────────────────────────
@@ -520,4 +523,49 @@ export function windowCovered(events: RawEvent[], truncated: boolean, since: str
 
   // `Z` 한 글자 때문에 갈리지 않게 19자로 맞춰서 본다
   return oldest.slice(0, 19) <= since.slice(0, 19)
+}
+
+/** 비교 응답 중 우리가 읽는 부분 */
+export interface RawCompare {
+  status: CompareResult['status']
+  ahead_by: number
+  behind_by: number
+  total_commits?: number
+  base_commit?: { commit?: { verification?: { verified?: boolean; reason?: string } } }
+  commits?: Array<{ commit?: { verification?: { verified?: boolean; reason?: string } } }>
+}
+
+/**
+ * 비교 응답에서 서명 상태를 읽는다.
+ *
+ * 서명이 없는 것과 붙어 있는데 안 맞는 것을 갈라 센다. GitHub 이 `reason` 으로 알려주는데,
+ * `unsigned` 만 "없음" 이고 나머지 실패는 전부 "붙어 있는데 안 맞음" 이다.
+ * 한 칸에 담으면 흔한 쪽이 드문 쪽을 덮는다.
+ *
+ * `base_commit` 은 푸시 직전 커밋이라 기준점이 된다. 이게 없으면 서명이 몇 개 없든
+ * 말할 수 있는 게 없어서 `baseSigned` 를 비워둔다. 0 이 아니라 비운다.
+ */
+export function readSigning(raw: RawCompare): CompareSigning | undefined {
+  const commits = raw.commits
+  if (!Array.isArray(commits)) return undefined
+
+  let unsigned = 0
+  let badSignature = 0
+
+  for (const c of commits) {
+    const v = c.commit?.verification
+    if (!v || v.verified) continue
+    if (v.reason === 'unsigned') unsigned++
+    else badSignature++
+  }
+
+  const baseVerified = raw.base_commit?.commit?.verification?.verified
+
+  return {
+    baseSigned: typeof baseVerified === 'boolean' ? baseVerified : undefined,
+    seen: commits.length,
+    unsigned,
+    badSignature,
+    total: raw.total_commits ?? commits.length,
+  }
 }
