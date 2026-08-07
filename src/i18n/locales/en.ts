@@ -423,6 +423,7 @@ export const en: Dict = {
     changes: (repo, branch) => `Collecting changes in ${repo} / ${branch}`,
     detector: (name) => `Running ${name}`,
     detectorFailed: (reason) => `Detector failed: ${reason}`,
+    truncated: (got) => `The list stopped at ${got}. There is more behind it that went unseen.`,
     done: 'Collected',
   },
 

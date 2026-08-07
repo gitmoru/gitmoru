@@ -421,6 +421,7 @@ export const ja: Dict = {
     changes: (repo, branch) => `${repo} / ${branch} の変更を収集`,
     detector: (name) => `${name} を実行中`,
     detectorFailed: (reason) => `検出処理に失敗: ${reason}`,
+    truncated: (got) => `一覧が ${got} 件で打ち切られました。この先はまだあり、見ていません。`,
     done: '収集完了',
   },
 

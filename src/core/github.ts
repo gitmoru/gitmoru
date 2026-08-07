@@ -103,6 +103,20 @@ export class GitHubClient implements GitHubReader {
   private readonly treeCache = new Map<string, TreeEntry[]>()
   private readonly commitCache = new Map<string, CommitMeta>()
 
+  /**
+   * 한도에서 잘린 목록들.
+   *
+   * 조회는 성공했는데 다 못 봤다. 이건 성공도 실패도 아니라서 예외로 던지지 않는다
+   * ([ADR 0009](../../docs/decisions/0009-failure-is-its-own-state.md)).
+   * 여기 쌓아두고 훑기가 끝날 때 `runScan` 이 가져가서 "확인 못 함" 으로 올린다.
+   */
+  private readonly truncations: Array<{ path: string; got: number }> = []
+
+  /** 쌓인 것을 가져가고 비운다. 한 번 훑을 때마다 새로 센다. */
+  takeTruncations(): Array<{ path: string; got: number }> {
+    return this.truncations.splice(0)
+  }
+
   constructor(private readonly opts: GitHubClientOptions = {}) {
     this.sem = new Semaphore(opts.concurrency ?? 6)
   }
@@ -124,17 +138,42 @@ export class GitHubClient implements GitHubReader {
     })
   }
 
-  /** 페이지를 끝까지 따라간다. maxPages 로 폭주를 막는다. */
-  private async paginate<T>(path: string, maxPages = 10): Promise<T[]> {
-    const out: T[] = []
+  /**
+   * 페이지를 따라가되, 한도에서 끊겼는지도 같이 돌려준다.
+   *
+   * 마지막으로 받은 페이지가 꽉 차 있었다면 뒤에 더 있다는 뜻이다.
+   * 정확히 한도만큼 있고 더 없는 경우도 여기 걸리는데, 그건 그대로 둔다.
+   * **우리가 아는 건 "여기서 끊었다" 지 "여기까지가 전부다" 가 아니다.**
+   */
+  private async fetchPages<T>(
+    path: string,
+    maxPages: number,
+  ): Promise<{ items: T[]; truncated: boolean }> {
+    const items: T[] = []
     const joiner = path.includes('?') ? '&' : '?'
+    let lastWasFull = false
+
     for (let page = 1; page <= maxPages; page++) {
       const chunk = await this.request<T[]>(`${path}${joiner}per_page=100&page=${page}`)
       if (!Array.isArray(chunk)) break
-      out.push(...chunk)
-      if (chunk.length < 100) break
+      items.push(...chunk)
+      lastWasFull = chunk.length === 100
+      if (!lastWasFull) break
     }
-    return out
+
+    return { items, truncated: lastWasFull }
+  }
+
+  /**
+   * 페이지를 끝까지 따라간다. maxPages 로 폭주를 막는다.
+   *
+   * 한도에 걸리면 적어둔다. 예전에는 끝까지 읽었을 때와 똑같은 배열이 나와서,
+   * 저장소 1,200개짜리 조직이 1,000개로 훑히고도 화면이 다 봤다고 말했다.
+   */
+  private async paginate<T>(path: string, maxPages = 10): Promise<T[]> {
+    const { items, truncated } = await this.fetchPages<T>(path, maxPages)
+    if (truncated) this.truncations.push({ path, got: items.length })
+    return items
   }
 
   // ── 스캔 대상 수집 ────────────────────────────────────────
@@ -240,7 +279,23 @@ export class GitHubClient implements GitHubReader {
     since: string,
     until: string,
   ): Promise<{ pushes: PushEvent[]; exposures: RepoExposure[] }> {
-    return splitRepoEvents(repo, await this.paginate<RawEvent>(`repos/${repo}/events`, 3), since, until)
+    const path = `repos/${repo}/events`
+    const { items, truncated } = await this.fetchPages<RawEvent>(path, 3)
+
+    /*
+      여기서는 `paginate` 를 안 쓴다. 페이지가 꽉 찼다고 다 못 본 게 아니기 때문이다.
+
+      GitHub 이 저장소당 300건까지만 주기 때문에, 활발한 저장소는 언제 훑어도 세 페이지가
+      꽉 찬다. 그걸 그대로 "확인 못 함" 으로 올리면 매번 뜬다.
+      **매번 뜨는 경고는 곧 아무도 안 읽는 경고다.**
+
+      실제로 물어야 할 것은 시간대를 덮었느냐다. `windowCovered` 가 그걸 판단한다.
+    */
+    if (!windowCovered(items, truncated, since)) {
+      this.truncations.push({ path, got: items.length })
+    }
+
+    return splitRepoEvents(repo, items, since, until)
   }
 
   // ── GitHubReader 구현 ─────────────────────────────────────
@@ -444,4 +499,25 @@ export function splitRepoEvents(
       .filter((e) => e.type === 'PublicEvent')
       .map((e) => ({ repo, at: e.created_at, actor: e.actor.login })),
   }
+}
+
+/**
+ * 받아온 이벤트가 시간대를 덮었는지.
+ *
+ * 이벤트는 최신순으로 온다. 그래서 **마지막으로 받은 것이 시작 시각보다 오래됐으면**
+ * 그 사이는 전부 훑은 것이다. 페이지가 몇 장 꽉 찼든 상관없다.
+ *
+ * 반대로 마지막으로 받은 것이 아직 시작 시각보다 최신이면, 그 아래에 우리가 못 본
+ * 시간대가 남아 있다. 사고 난 푸시가 거기 있을 수 있다.
+ *
+ * 잘리지 않았으면 물어볼 것도 없다. 저장소가 가진 걸 다 받은 것이다.
+ */
+export function windowCovered(events: RawEvent[], truncated: boolean, since: string): boolean {
+  if (!truncated) return true
+
+  const oldest = events.at(-1)?.created_at
+  if (!oldest) return true
+
+  // `Z` 한 글자 때문에 갈리지 않게 19자로 맞춰서 본다
+  return oldest.slice(0, 19) <= since.slice(0, 19)
 }
