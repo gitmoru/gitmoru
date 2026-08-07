@@ -1,8 +1,9 @@
+import { tr } from '../../i18n'
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 
 import { summaryOf } from '../../core/findingText'
-import { summarize, verdictOf } from '../../core/scan'
+import { summarize, usageText, verdictOf } from '../../core/scan'
 import { utcToZoned, zoneLabel } from '../../core/time'
 import { findCase, lines, reply, type McpContext } from '../context'
 
@@ -40,6 +41,7 @@ export function registerOpenCase(server: McpServer, ctx: McpContext) {
       const tz = c.window.displayTz
       const at = (iso: string) => utcToZoned(iso, tz)
 
+      const cost = usageText(c)
       const first = c.findings.filter((f) => f.attention === 'first')
 
       return reply(
@@ -58,6 +60,8 @@ export function registerOpenCase(server: McpServer, ctx: McpContext) {
             ? `강제 푸시 ${s.forcedBranches}곳, 사라진 커밋 ${s.droppedCommits}개`
             : null,
           s.autoRun.workflow > 0 ? `CI 정의 ${s.autoRun.workflow}개가 바뀌었습니다` : null,
+          cost ? cost.line : null,
+          cost?.lowBudget ? tr().usage.low : null,
           /*
             0 과 "안 봄" 을 갈라 적는다.
 

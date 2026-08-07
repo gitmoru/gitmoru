@@ -378,6 +378,13 @@ export const en: Dict = {
         : 'Every one matched a rule. Go through them one by one.',
   },
 
+  usage: {
+    calls: (n) => `${n} GitHub ${n === 1 ? 'request' : 'requests'}`,
+    saved: (n) => `${n} saved by the cache`,
+    remaining: (n) => `${n} left this hour`,
+    low: 'Not much of the hourly budget is left. Scanning again now may run out partway and fill the screen with "could not check". It refills every hour.',
+  },
+
   share: {
     scopeNone: 'not specified',
     scope: (what) => `Scope: ${what}`,

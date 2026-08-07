@@ -7,7 +7,7 @@
 
 import type { BranchChanges } from './changes'
 import type { Finding } from './finding'
-import type { PushShape, RepoExposure } from './github'
+import type { ApiUsage, PushShape, RepoExposure } from './github'
 import type { RestoreRecord } from './restore'
 
 /**
@@ -59,7 +59,15 @@ export interface BranchState {
 export interface ScanStats {
   reposScanned: number
   branchesScanned: number
-  treesFetched: number
+  /**
+   * 이번 훑기에 든 비용.
+   *
+   * 예전에는 `treesFetched: changes.length * 2` 가 있었다. 재본 게 아니라 계산한 값이고,
+   * 캐시를 안 세서 실제보다 컸고, 아무도 안 읽었다. 세 가지가 다 문제였다.
+   *
+   * 훑기가 왜 오래 걸렸는지는 나중에 물어보게 된다. 그때 답할 수 있어야 한다.
+   */
+  usage?: ApiUsage
   /** 검사 실패 건수. 0 이 아니면 화면에서 "확인 불가" 를 반드시 노출한다. */
   failures: number
 }

@@ -73,6 +73,10 @@ function fakeGitHub(opts: FakeOptions = {}) {
 
     takeTruncations: () => opts.truncations ?? [],
 
+    // 비용 계량기. 파이프라인이 새로 부르기 시작한 것이라 여기도 같이 는다.
+    resetUsage: () => {},
+    usage: () => ({ calls: 0, saved: 0 }),
+
     compare: async () => ({
       status: 'diverged' as const,
       aheadBy: 1,

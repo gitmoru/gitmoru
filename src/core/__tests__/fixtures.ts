@@ -16,7 +16,7 @@ export function makeCase(over: Partial<CaseFile> = {}): CaseFile {
     scope: { orgs: [], repos: [] },
     window: { since: '2026-01-01T00:00:00', until: '2026-01-02T00:00:00', displayTz: 'UTC' },
     detectorConfig: {},
-    stats: { reposScanned: 0, branchesScanned: 0, treesFetched: 0, failures: 0 },
+    stats: { reposScanned: 0, branchesScanned: 0, failures: 0 },
     failures: [],
     timeline: [],
     branches: [],

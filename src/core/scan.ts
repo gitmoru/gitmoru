@@ -60,6 +60,7 @@ export async function runScan(
 
   // 지난 훑기에서 남은 게 있으면 이번 것으로 세지 않는다
   gh.takeTruncations()
+  gh.resetUsage()
 
   // ── 1. 대상 저장소 ──────────────────────────────────────
   onProgress({ phase: 'repos', message: tr().progress.repoList, current: 0, total: 1 })
@@ -319,7 +320,7 @@ export async function runScan(
     stats: {
       reposScanned: repos.length,
       branchesScanned: branchStates.length,
-      treesFetched: changes.length * 2,
+      usage: gh.usage(),
       failures: failures.length,
     },
     failures,
@@ -445,3 +446,36 @@ export function verdictText(c: CaseFile): { title: string; detail: string } {
 }
 
 export { detectorById }
+
+/**
+ * 남은 한도가 이 아래면 미리 말한다.
+ *
+ * 시간당 5,000회다. 저장소 14개 브랜치 134개짜리 훑기가 얼마를 쓰는지 재보고 정한 값이 아니라,
+ * **한 번 더 훑을 여유가 있는지**를 기준으로 잡았다. 사고가 나면 사람들은 한 번만 훑지 않는다.
+ */
+const LOW_BUDGET = 500
+
+/**
+ * 이번 훑기가 든 비용을 사람 말로.
+ *
+ * 한도에 걸리면 화면에는 "확인 못 함" 이 무더기로 뜬다. 그게 권한 문제인지
+ * 한도 문제인지 구별이 안 되면, 사람은 없는 문제를 쫓게 된다.
+ */
+export function usageText(c: CaseFile): { line: string; lowBudget: boolean } | null {
+  const u = c.stats.usage
+  if (!u) return null
+
+  const t = tr().usage
+  const low = u.remaining !== undefined && u.remaining < LOW_BUDGET
+
+  return {
+    line: [
+      t.calls(u.calls),
+      u.saved > 0 ? t.saved(u.saved) : null,
+      u.remaining !== undefined ? t.remaining(u.remaining) : null,
+    ]
+      .filter(Boolean)
+      .join(', '),
+    lowBudget: low,
+  }
+}
