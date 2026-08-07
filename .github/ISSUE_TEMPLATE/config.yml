@@ -1,0 +1,19 @@
+# 빈 이슈를 막는다.
+#
+# 양식마다 맨 위에 "실제 저장소 이름과 토큰을 빼고 쓰세요" 를 적어뒀는데,
+# 빈 이슈로 열면 그 문장을 아무도 안 본다. 여기 오는 사람은 방금 털린 사람이고,
+# 급하면 로그를 통째로 붙여넣는다. 그 안에 토큰이 들어 있다.
+blank_issues_enabled: false
+
+contact_links:
+  - name: A security hole in gitmoru itself
+    url: https://github.com/gitmoru/gitmoru/security/advisories/new
+    about: Report it privately. Do not open a public issue for this.
+
+  - name: How to write a report we can act on
+    url: https://github.com/gitmoru/gitmoru/blob/main/CONTRIBUTING.md
+    about: What we need, what to leave out. Also in English and 日本語.
+
+  - name: What this tool refuses to do
+    url: https://github.com/gitmoru/gitmoru/blob/main/SAFETY.md
+    about: Read this before asking for a feature. Some of the obvious ones are closed on purpose.

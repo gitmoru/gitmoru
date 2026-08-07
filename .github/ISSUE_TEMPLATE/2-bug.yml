@@ -1,0 +1,68 @@
+name: Something broke
+description: A crash, a blank screen, a number that does not add up.
+title: 'bug: '
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Write the body in whatever language you think in.** 한국어, English, 日本語 all reach us.
+
+        Before you paste a log, read it. Logs from this tool carry **your GitHub token**
+        and the real names of your repositories. Take those out first.
+
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where did it break?
+      options:
+        - The app window (pnpm app)
+        - The browser screen (npx gitmoru)
+        - The MCP server (npx gitmoru mcp)
+        - Restoring a branch
+        - Somewhere else
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: What did you do?
+      description: Enough that we can do the same thing. Rough is fine.
+      placeholder: |
+        1. Put in someorg, 00:00 to 07:00
+        2. Hit 파보기
+        3. Opened the third repository in the list
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect, and what happened instead?
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: '`npx gitmoru --version`, or the commit you are on.'
+    validations:
+      required: true
+
+  - type: input
+    id: env
+    attributes:
+      label: Machine
+      description: Operating system and `node -v`.
+      placeholder: macOS 15.5, node v22.19.0
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: What the terminal said
+      description: Token and repository names taken out. This is put into a code block for you.
+      render: shell

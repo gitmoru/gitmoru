@@ -1,0 +1,43 @@
+name: A signal worth catching, or a tool the agent is missing
+description: Something you saw in a real incident that gitmoru walked past.
+title: 'idea: '
+labels: ['idea']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Write the body in whatever language you think in.** 한국어, English, 日本語 all reach us.
+
+        Every rule in here came from an attack that already happened to someone.
+        So the useful part of this issue is not the idea, it is the story under it.
+
+  - type: textarea
+    id: story
+    attributes:
+      label: What happened that made you want this?
+      description: >
+        A real incident is worth more than a hypothetical one. Leave out the organization
+        and repository names. If it is hypothetical, say so, we will still read it.
+    validations:
+      required: true
+
+  - type: textarea
+    id: want
+    attributes:
+      label: What should gitmoru do?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: verdict
+    attributes:
+      label: Does this end in a verdict?
+      description: >
+        gitmoru puts a highlighter on what to read first. It does not say infected,
+        and it does not say safe. Ideas that need a verdict are not automatically out,
+        but they need a reason (SAFETY.md rule 1).
+      options:
+        - 'No, it changes what gets read first'
+        - 'Yes, and here is why that is worth it'
+    validations:
+      required: true

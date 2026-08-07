@@ -1,0 +1,53 @@
+name: It showed nothing, but something was there
+description: gitmoru came back empty or quiet, and the repository turned out to be compromised anyway.
+title: 'missed: '
+labels: ['missed signal']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This is the report we want most. A tool that misses quietly is worse than no tool,
+        because the empty screen is what people believe. That already happened to us once.
+
+        **Write the body in whatever language you think in.** 한국어, English, 日本語 all reach us.
+
+        Two things to leave out:
+
+        - Real organization and repository names. `someorg/somerepo` is enough.
+        - Payloads that still run. Describe the shape, or paste it with the URLs and keys taken out.
+
+  - type: dropdown
+    id: showed
+    attributes:
+      label: What did gitmoru show you?
+      options:
+        - Nothing at all, 0 findings
+        - Findings, but not this one
+        - It marked the branch unverified and moved on
+        - Something else
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: What was actually in there?
+      description: >
+        The shape is enough. A postinstall hook, a file reading ~/.npmrc,
+        a workflow triggered on pull_request_target, a commit authored by someone who never pushed.
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: Why do you think it slipped past?
+      description: A guess is useful even when it turns out wrong. Leave it blank if you have none.
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: '`npx gitmoru --version`, or the commit you are on.'
+    validations:
+      required: true
