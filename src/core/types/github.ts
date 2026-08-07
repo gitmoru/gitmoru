@@ -123,6 +123,23 @@ export interface GitHubReader {
   compare(repo: string, base: string, head: string): Promise<CompareResult>
 }
 
+/**
+ * 훑는 데 얼마나 들었는지.
+ *
+ * 도구가 자기 비용을 말하지 않으면 왜 느린지 아무도 못 센다. 밖에서 재는 것도 안 된다.
+ * 답은 우리가 이미 받아놓고 안 읽던 헤더 안에 있었다.
+ */
+export interface ApiUsage {
+  /** 실제로 GitHub 까지 나간 요청 수 */
+  calls: number
+  /** 캐시가 막아준 요청 수. 안 나간 것도 세야 캐시가 값을 하는지 보인다. */
+  saved: number
+  /** 마지막 응답이 알려준 남은 요청 수. 못 읽었으면 비어 있다. */
+  remaining?: number
+  /** 그 한도가 다시 차는 시각 (ISO 8601) */
+  resetAt?: string
+}
+
 export interface CompareResult {
   status: 'ahead' | 'behind' | 'identical' | 'diverged'
   aheadBy: number

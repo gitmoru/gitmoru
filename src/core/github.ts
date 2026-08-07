@@ -1,5 +1,6 @@
 import { ghCall } from '../platform/bridge'
 import type {
+  ApiUsage,
   BranchRef,
   CommitMeta,
   CompareResult,
@@ -104,6 +105,29 @@ export class GitHubClient implements GitHubReader {
   private readonly treeCache = new Map<string, TreeEntry[]>()
   private readonly commitCache = new Map<string, CommitMeta>()
 
+  /**
+   * 이번 훑기에 든 비용.
+   *
+   * `request` 한 군데만 지나가면 되도록 여기서 센다. 부르는 쪽이 안 세도 된다.
+   */
+  private readonly meter = { calls: 0, saved: 0 } as {
+    calls: number
+    saved: number
+    remaining?: number
+    resetAt?: string
+  }
+
+  /** 훑기 시작할 때 0 으로. 지난 훑기 것을 이번 것으로 세지 않는다. */
+  resetUsage() {
+    this.meter.calls = 0
+    this.meter.saved = 0
+  }
+
+  /** 지금까지 든 비용. 남은 한도는 마지막 응답이 알려준 값이다. */
+  usage(): ApiUsage {
+    return { ...this.meter }
+  }
+
   /** 파일 내용. 무거워서 개수를 묶어둔다. */
   private readonly textCache = new Map<string, string | null>()
   private static readonly TEXT_CACHE_MAX = 300
@@ -139,7 +163,19 @@ export class GitHubClient implements GitHubReader {
 
   private async request<T>(path: string): Promise<T> {
     return this.sem.run(async () => {
+      this.meter.calls++
       const res = await ghCall(path)
+
+      /*
+        남은 한도는 응답마다 딸려온다. 프록시가 헤더를 여기까지 실어오는데
+        받는 사람이 없어서 그냥 버려지고 있었다.
+
+        시간당 5,000회고, 사고가 나면 사람들은 한 번만 훑지 않는다. 한도에 걸리면
+        지금은 "확인 못 함" 이 무더기로 뜨는데, 그게 권한 문제인지 한도 문제인지
+        화면만 봐서는 구별이 안 된다.
+      */
+      if (res.rateRemaining) this.meter.remaining = Number(res.rateRemaining)
+      if (res.rateReset) this.meter.resetAt = new Date(Number(res.rateReset) * 1000).toISOString()
 
       if (res.rateRemaining && res.rateReset && this.opts.onRateLimit) {
         this.opts.onRateLimit(Number(res.rateRemaining), new Date(Number(res.rateReset) * 1000))
@@ -339,7 +375,10 @@ export class GitHubClient implements GitHubReader {
   async getTree(repo: string, sha: string): Promise<TreeEntry[]> {
     const key = `${repo}@${sha}`
     const hit = this.treeCache.get(key)
-    if (hit) return hit
+    if (hit) {
+      this.meter.saved++
+      return hit
+    }
 
     const raw = await this.request<{
       truncated: boolean
@@ -366,7 +405,10 @@ export class GitHubClient implements GitHubReader {
   async getCommit(repo: string, sha: string): Promise<CommitMeta> {
     const key = `${repo}@${sha}`
     const hit = this.commitCache.get(key)
-    if (hit) return hit
+    if (hit) {
+      this.meter.saved++
+      return hit
+    }
 
     const raw = await this.request<{
       sha: string
@@ -408,7 +450,10 @@ export class GitHubClient implements GitHubReader {
     */
     const key = `${repo}@${ref}:${path}`
     const hit = this.textCache.get(key)
-    if (hit !== undefined) return hit
+    if (hit !== undefined) {
+      this.meter.saved++
+      return hit
+    }
 
     try {
       const raw = await this.request<{ content?: string; encoding?: string; size: number }>(

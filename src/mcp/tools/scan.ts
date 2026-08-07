@@ -1,8 +1,9 @@
+import { tr } from '../../i18n'
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 
 import { defaultDetectorConfig } from '../../core/detectors'
-import { runScan, summarize, verdictText } from '../../core/scan'
+import { runScan, summarize, usageText, verdictText } from '../../core/scan'
 import { localZone, zonedToUtc } from '../../core/time'
 import { keepCase, lines, reply, type McpContext } from '../context'
 
@@ -65,6 +66,7 @@ export function registerScan(server: McpServer, ctx: McpContext) {
       const stats = summarize(caseFile)
       const verdict = verdictText(caseFile)
       const incomplete = stats.unknown > 0 || stats.failures > 0
+      const cost = usageText(caseFile)
 
       return reply(
         lines([
@@ -93,6 +95,8 @@ export function registerScan(server: McpServer, ctx: McpContext) {
               ]
             : []),
           '',
+          // 왜 오래 걸렸는지, 다시 훑을 여유가 있는지. 나중에 반드시 물어보게 된다.
+          ...(cost ? [cost.line, cost.lowBudget ? tr().usage.low : null] : []),
           incomplete
             ? '주의: 확인하지 못한 대상이 있습니다. 이 결과를 "이상 없음" 으로 결론내지 마세요.'
             : null,

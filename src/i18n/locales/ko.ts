@@ -366,6 +366,13 @@ export const ko = {
         : '전부 규칙에 걸렸어요. 하나씩 확인해주세요.',
   },
 
+  usage: {
+    calls: (n: number) => `GitHub 요청 ${n}회`,
+    saved: (n: number) => `캐시로 ${n}회 아낌`,
+    remaining: (n: number) => `이번 시간 남은 횟수 ${n}`,
+    low: '남은 요청 횟수가 얼마 안 됩니다. 지금 다시 훑으면 중간에 막혀서 "확인 못 함" 이 무더기로 뜰 수 있어요. 한 시간마다 다시 찹니다.',
+  },
+
   share: {
     scopeNone: '지정 안 함',
     scope: (what: string) => `검사 범위: ${what}`,
