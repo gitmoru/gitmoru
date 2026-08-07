@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/gitmoru/gitmoru/compare/v0.4.0...v0.5.0) (2026-08-07)
+
+
+### Features
+
+* report an action pin that was loosened from a commit to a tag ([#15](https://github.com/gitmoru/gitmoru/issues/15)) ([5f86950](https://github.com/gitmoru/gitmoru/commit/5f86950ad0788cace3675d3fbc2d745409761f94))
+
 ## [0.4.0](https://github.com/gitmoru/gitmoru/compare/v0.3.0...v0.4.0) (2026-08-07)
 
 
