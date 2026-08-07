@@ -84,6 +84,14 @@ export function registerScan(server: McpServer, ctx: McpContext) {
           stats.rewrittenBranches > 0
             ? `그중 ${stats.rewrittenBranches}곳은 이전 기록과 이어지지 않는 새 기록으로 갈아치워졌습니다 (사라진 커밋 수를 셀 수 없음)`
             : null,
+          // 파일 숫자 밑에 묻으면 안 된다. 여기부터 할 일이 달라진다.
+          ...(stats.exposed
+            ? [
+                '',
+                `비공개였던 저장소 ${stats.exposed}개가 이 시간대에 공개로 바뀌었습니다. 되돌린다고 회수되지 않습니다. 그 안에 있던 키와 토큰은 새로 발급해야 합니다.`,
+                ...(caseFile.exposures ?? []).map((e) => `- ${e.repo} (${e.at}, ${e.actor})`),
+              ]
+            : []),
           '',
           incomplete
             ? '주의: 확인하지 못한 대상이 있습니다. 이 결과를 "이상 없음" 으로 결론내지 마세요.'

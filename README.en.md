@@ -95,7 +95,7 @@ The token is borrowed from `gh`. Nothing here ever writes one down.
 ## How it works
 
 ```
-collect push events inside the window
+collect activity inside the window (pushes, and repositories made public)
         ↓
 compare the pre-attack commit (payload.before) against the current tree
         ↓
@@ -107,6 +107,9 @@ a human or an AI reads and decides
         ↓
 a human presses restore, in the app
 ```
+
+If a private repository went public in that window, it says so too, even when nothing was pushed.
+That one is not undone by restoring, so what you do next is a different job.
 
 Restore targets come from what GitHub remembers. Activity is kept for about 90 days,
 so anything older cannot be rewound. The app says so.

@@ -2,7 +2,13 @@ import { describe, expect, it } from 'vitest'
 
 import { summarize, verdictOf } from '../scan'
 import { makeCase as caseFile } from './fixtures'
-import type { BranchChanges, BranchState, ScanFailure, TimelineEntry } from '../types'
+import type {
+  BranchChanges,
+  BranchState,
+  RepoExposure,
+  ScanFailure,
+  TimelineEntry,
+} from '../types'
 
 /**
  * "0건" 을 갈라 읽기.
@@ -34,6 +40,16 @@ const push = (): TimelineEntry => ({
   branch: 'main',
   actor: 'x',
   kind: 'push',
+})
+
+const exposure = (): RepoExposure => ({ repo: 'a/b', at: '2026-01-01T02:00:00', actor: 'x' })
+
+const madePublic = (): TimelineEntry => ({
+  at: '2026-01-01T02:00:00',
+  repo: 'a/b',
+  branch: '',
+  actor: 'x',
+  kind: 'made-public',
 })
 
 const failure = (reason: string): ScanFailure => ({
@@ -105,6 +121,51 @@ describe('verdictOf', () => {
     // 제일 나쁜 오독이다. 다 실패한 훑기가 "아무도 안 건드렸어요" 로 보인다.
     const c = caseFile({ failures: [failure('401')] })
     expect(verdictOf(c)).toBe('incomplete')
+  })
+
+  /*
+    저장소가 공개로 바뀐 경우.
+
+    이 갈림길이 이 검사를 만든 이유다. 공격자가 비공개 저장소를 공개로 돌리고
+    푸시를 하나도 안 하면, 예전 코드에서는 타임라인이 비어서 '활동 없음' 이 나갔다.
+    화면에는 "그 시간대엔 아무도 안 건드렸어요" 가 뜬다. 그 사이 저장소는 인터넷에 있다.
+  */
+  it('푸시가 하나도 없어도 공개로 바뀌었으면 활동 없음이 아니다', () => {
+    const c = caseFile({ exposures: [exposure()], timeline: [madePublic()] })
+    expect(verdictOf(c)).toBe('exposed')
+  })
+
+  it('바뀐 파일보다 공개 전환이 먼저다', () => {
+    // 파일은 되돌리면 없던 일이 되고, 밖으로 나간 것은 안 그렇다.
+    const c = caseFile({
+      exposures: [exposure()],
+      timeline: [push(), madePublic()],
+      branches: [branch({ status: 'changed', changedFiles: 1 })],
+      changes: [changed(['src/a.ts'])],
+    })
+    expect(verdictOf(c)).toBe('exposed')
+  })
+
+  it('확인 못 한 게 있으면 공개 전환보다 그게 먼저다', () => {
+    // 여기서 exposed 로 접으면 "공개된 건 이 하나" 로 읽힌다. 더 있을 수 있다.
+    const c = caseFile({ exposures: [exposure()], failures: [failure('403')] })
+    expect(verdictOf(c)).toBe('incomplete')
+  })
+})
+
+describe('summarize 의 공개 전환 수', () => {
+  it('안 본 사건과 봤는데 없던 사건을 갈라 센다', () => {
+    // 둘 다 0 으로 그리면, 안 본 것이 확인한 것처럼 보인다 (SAFETY.md 11번).
+    expect(summarize(caseFile()).exposed).toBe(null)
+    expect(summarize(caseFile({ exposures: [] })).exposed).toBe(0)
+    expect(summarize(caseFile({ exposures: [exposure()] })).exposed).toBe(1)
+  })
+
+  it('옛 사건 파일은 0건이 아니라 안 봄으로 남는다', () => {
+    // 이 검사가 생기기 전에 저장된 사건이다. 되짚어 채울 방법이 없다.
+    const old = caseFile({ version: 1 })
+    expect(summarize(old).exposed).toBe(null)
+    expect(verdictOf(old)).not.toBe('exposed')
   })
 })
 

@@ -62,6 +62,18 @@ export function StatusBar({ caseFile, onExport, onRestore, error }: Props) {
         </span>
       )}
 
+      {/*
+        여기만 다른 색을 쓴다.
+
+        나머지는 되돌리면 없던 일이 되는 것들이라 같은 색이어도 된다.
+        인터넷에 한 번 나간 것은 안 그렇다. 눈이 먼저 가야 하는 줄이다.
+      */}
+      {!!s.exposed && s.exposed > 0 && (
+        <span className="shrink-0 font-medium text-[var(--color-ember)]">
+          {t.statusBar.exposed(s.exposed)}
+        </span>
+      )}
+
       {s.autoRun.workflow > 0 && (
         <span className="shrink-0 text-[var(--color-apricot)]">
           {t.role.workflowChanged(s.autoRun.workflow)}

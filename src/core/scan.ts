@@ -12,6 +12,7 @@ import type {
   DetectorContext,
   Finding,
   PushEvent,
+  RepoExposure,
   RepoRef,
   ScanFailure,
   TimeWindow,
@@ -78,8 +79,20 @@ export async function runScan(
     }
   }
 
-  // ── 2. 시간대 안의 푸시 기록 ────────────────────────────
+  // ── 2. 시간대 안의 기록 ─────────────────────────────────
   const events: PushEvent[] = []
+
+  /*
+    비공개에서 공개로 바뀐 저장소.
+
+    푸시와 같은 응답에서 나온다. 따로 받으러 가지 않는다.
+
+    브랜치 필터를 여기에 적용하지 않는다. 저장소 단위로 일어난 일이라
+    "main 만 볼게요" 가 이걸 가릴 이유가 없다. 훑는 범위를 좁힌 것이지
+    저장소가 공개됐다는 사실을 안 보겠다고 한 게 아니다.
+  */
+  const exposures: RepoExposure[] = []
+
   for (const [i, repo] of repos.entries()) {
     onProgress({
       phase: 'events',
@@ -88,15 +101,16 @@ export async function runScan(
       total: repos.length,
     })
     try {
-      const found = await gh.listPushEvents(repo.fullName, req.window.since, req.window.until)
+      const found = await gh.listRepoEvents(repo.fullName, req.window.since, req.window.until)
       events.push(
-        ...found.filter((e) => {
+        ...found.pushes.filter((e) => {
           if (req.actor && e.actor !== req.actor) return false
           // 브랜치를 콕 집었으면 그것만 본다
           if (req.branches?.length && !req.branches.includes(`${e.repo}@${e.branch}`)) return false
           return true
         }),
       )
+      exposures.push(...found.exposures.filter((e) => !req.actor || e.actor === req.actor))
     } catch (err) {
       fail(repo.fullName, tr().progress.eventsFailed(String(err)))
     }
@@ -252,15 +266,23 @@ export async function runScan(
   }
 
   // ── 7. 타임라인 ────────────────────────────────────────
-  const timeline: TimelineEntry[] = events
-    .map((e) => ({
+  const timeline: TimelineEntry[] = [
+    ...events.map((e) => ({
       at: e.createdAt,
       repo: e.repo,
       branch: e.branch,
       actor: e.actor,
       kind: 'push' as const,
-    }))
-    .sort((a, b) => a.at.localeCompare(b.at))
+    })),
+    // 브랜치가 없다. 저장소 하나가 통째로 밖으로 나간 일이다.
+    ...exposures.map((e) => ({
+      at: e.at,
+      repo: e.repo,
+      branch: '',
+      actor: e.actor,
+      kind: 'made-public' as const,
+    })),
+  ].sort((a, b) => a.at.localeCompare(b.at))
 
   onProgress({ phase: 'done', message: tr().progress.done, current: 1, total: 1 })
 
@@ -286,6 +308,7 @@ export async function runScan(
     branches: branchStates,
     changes,
     findings,
+    exposures,
   }
 }
 
@@ -331,6 +354,13 @@ export function summarize(c: CaseFile) {
       .length,
     /** 그렇게 사라진 커밋 수의 합. 되돌리기로도 못 살리는 작업의 양이다. */
     droppedCommits: c.branches.reduce((n, b) => n + b.droppedCommits, 0),
+    /**
+     * 비공개에서 공개로 바뀐 저장소 수.
+     *
+     * **`null` 은 0 이 아니다.** 이 검사가 없던 때 남긴 사건 파일이라 안 봤다는 뜻이다.
+     * 화면에서 둘을 같은 0 으로 그리면, 안 본 것이 확인한 것처럼 보인다.
+     */
+    exposed: c.exposures ? c.exposures.length : null,
     complete: c.failures.length === 0,
   }
 }
@@ -347,11 +377,21 @@ export function summarize(c: CaseFile) {
  *
  * 어느 쪽인지 말해주지 않으면 도구가 사람을 오해하게 만든다.
  */
-export type Verdict = 'no-activity' | 'no-changes' | 'incomplete' | 'has-changes'
+export type Verdict = 'no-activity' | 'no-changes' | 'incomplete' | 'exposed' | 'has-changes'
 
 export function verdictOf(c: CaseFile): Verdict {
   const s = summarize(c)
   if (s.unknown > 0 || s.failures > 0) return 'incomplete'
+  /*
+    공개 전환을 파일 변경보다 먼저 본다.
+
+    파일은 되돌릴 수 있다. 인터넷에 한 번 나간 것은 안 된다. 누가 언제 받아갔는지
+    알 방법도 없어서, 이건 되돌리기가 아니라 비밀을 전부 갈아끼우는 일이 된다.
+
+    그리고 이 일은 **푸시 하나 없이도 일어난다.** 그때 이 줄이 없으면
+    바로 아래에서 '활동 없음' 이 나가고, 화면은 아무 일도 없었다고 말한다.
+  */
+  if (s.exposed && s.exposed > 0) return 'exposed'
   if (c.timeline.length === 0) return 'no-activity'
   if (s.changedFiles > 0) return 'has-changes'
   return 'no-changes'
@@ -369,6 +409,11 @@ export function verdictText(c: CaseFile): { title: string; detail: string } {
       return {
         title: t.incompleteTitle(s.unknown, s.failures),
         detail: t.incompleteDetail,
+      }
+    case 'exposed':
+      return {
+        title: t.exposedTitle(s.exposed ?? 0),
+        detail: t.exposedDetail(s.changedFiles),
       }
     case 'no-changes':
       return { title: t.noChanges.title, detail: t.noChanges.detail(s.total) }

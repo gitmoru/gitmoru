@@ -73,6 +73,21 @@ export function registerTriage(server: McpServer, ctx: McpContext) {
           `사건: ${caseFile.title} (${caseFile.id})`,
           `신호 ${caseFile.findings.length}건 중 ${picked.length}건 표시`,
           '',
+          /*
+            공개로 바뀐 저장소를 신호보다 위에 둔다.
+
+            이 도구가 답하는 질문이 "무엇부터 볼까" 다. 파일을 아무리 잘 읽어도
+            저장소가 이미 인터넷에 있으면 먼저 할 일은 diff 가 아니라 키 교체다.
+            아래 목록에 섞어두면 순서가 뒤집힌다.
+          */
+          ...(stats.exposed
+            ? [
+                `먼저: 비공개였던 저장소 ${stats.exposed}개가 이 시간대에 공개로 바뀌었습니다.`,
+                ...(caseFile.exposures ?? []).map((e) => `- ${e.repo} (${e.at}, ${e.actor})`),
+                '되돌려도 회수되지 않습니다. 그 안에 있던 키와 토큰부터 새로 발급하세요.',
+                '',
+              ]
+            : []),
           ranked.length ? ranked.join('\n') : '(규칙에 걸린 것 없음)',
           '',
           autoRun.length

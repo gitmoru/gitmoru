@@ -41,6 +41,7 @@ export const ko = {
     forced: (branches: number, commits: number) =>
       `강제 푸시 ${branches}곳, 커밋 ${commits}개 사라짐`,
     rewritten: (n: number) => `기록 통째로 갈아치움 ${n}곳`,
+    exposed: (n: number) => `공개로 바뀜 ${n}곳`,
     exportHint: '나중에 다시 보거나 남한테 넘길 기록 파일',
     exportLabel: '기록 파일 받기',
     restore: '되돌리기',
@@ -350,6 +351,9 @@ export const ko = {
     incompleteTitle: (unknown: number, failures: number) =>
       unknown > 0 ? `${unknown}곳을 못 팠어요` : `조회 실패 ${failures}건`,
     incompleteDetail: '확인 못 한 곳이 있어서 결과를 단정할 수 없어요. 이걸 "이상 없음"으로 보면 안 돼요.',
+    exposedTitle: (repos: number) => `저장소 ${repos}개가 공개로 바뀌었어요`,
+    exposedDetail: (files: number) =>
+      `비공개였던 게 인터넷에 나갔어요. 누가 받아갔는지는 확인할 방법이 없어서, 그 안에 있던 키와 토큰은 되돌리는 게 아니라 새로 발급받아야 해요.${files > 0 ? ` 바뀐 파일 ${files}개도 같이 봐주세요.` : ''}`,
     noChanges: {
       title: '바뀐 파일은 없었어요',
       detail: (branches: number) =>
@@ -378,6 +382,8 @@ export const ko = {
       `기록을 덮어쓴 푸시가 브랜치 ${branches}개에 있었고, 커밋 ${commits}개가 사라졌습니다.`,
     rewritten: (n: number) =>
       `그중 ${n}개는 이전 기록과 이어지지 않는 새 기록으로 갈아치워졌습니다. 사라진 커밋 수를 셀 수 없습니다.`,
+    exposed: (n: number) =>
+      `비공개였던 저장소 ${n}개가 이 시간대에 공개로 바뀌었습니다. 누가 받아갔는지 확인할 방법이 없으니, 그 안에 있던 키와 토큰은 새로 발급해야 합니다.`,
     workflow: (n: number) =>
       `CI 정의(.github/workflows) ${n}개가 바뀌었습니다. 다음 푸시부터 여기 적힌 대로 돕니다.`,
     byRepo: '저장소별',

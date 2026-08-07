@@ -7,7 +7,7 @@
 
 import type { BranchChanges } from './changes'
 import type { Finding } from './finding'
-import type { PushShape } from './github'
+import type { PushShape, RepoExposure } from './github'
 import type { RestoreRecord } from './restore'
 
 /**
@@ -73,9 +73,10 @@ export interface ScanFailure {
 export interface TimelineEntry {
   at: string
   repo: string
+  /** 저장소 단위로 일어난 일이면 비어 있다 (공개 전환처럼) */
   branch: string
   actor: string
-  kind: 'push' | 'restore' | 'note'
+  kind: 'push' | 'restore' | 'note' | 'made-public'
 }
 
 /**
@@ -128,5 +129,14 @@ export interface CaseFile {
   changes: BranchChanges[]
   /** 탐지 신호. 없다고 해서 안전하다는 뜻이 아니다. */
   findings: Finding[]
+  /**
+   * 시간대 안에 비공개에서 공개로 바뀐 저장소.
+   *
+   * **`undefined` 와 `[]` 는 다른 뜻이다.** 빈 배열은 "봤는데 없었다" 이고,
+   * 없는 것은 "이 사건을 훑을 때는 안 봤다" 다. 이 검사가 생기기 전에 남긴
+   * 사건 파일이 그렇다. 둘을 같이 0 으로 그리면 안 본 것이 확인한 것처럼 보인다
+   * (SAFETY.md 11번).
+   */
+  exposures?: RepoExposure[]
   restore?: RestoreRecord
 }
