@@ -58,6 +58,9 @@ export async function runScan(
   const fail = (target: string, reason: string) =>
     failures.push({ target, reason, at: new Date().toISOString() })
 
+  // 지난 훑기에서 남은 게 있으면 이번 것으로 세지 않는다
+  gh.takeTruncations()
+
   // ── 1. 대상 저장소 ──────────────────────────────────────
   onProgress({ phase: 'repos', message: tr().progress.repoList, current: 0, total: 1 })
 
@@ -204,6 +207,19 @@ export async function runScan(
       // 신호 하나가 죽어도 변경 목록은 이미 확보돼 있다. 다만 조용히 넘어가지 않는다.
       fail(`detector:${detector.id}`, tr().progress.detectorFailed(String(err)))
     }
+  }
+
+  /*
+    한도에서 잘린 목록을 여기서 걷는다.
+
+    조회는 성공했으니 예외가 안 났고, 배열은 멀쩡히 채워져서 돌아왔다. 그래서
+    아무도 안 물어보면 그대로 "다 봤다" 가 된다. 저장소 1,200개짜리 조직을
+    1,000개만 훑고도 화면이 당당했던 게 이 자리다.
+
+    브랜치 상태를 정하기 전에 넣어야 판정이 `incomplete` 로 내려간다.
+  */
+  for (const cut of gh.takeTruncations()) {
+    fail(cut.path, tr().progress.truncated(cut.got))
   }
 
   // 신호를 해당 파일에 붙인다. 신호가 없는 변경도 목록에서 빠지지 않는다.

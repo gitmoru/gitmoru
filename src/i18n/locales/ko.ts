@@ -411,6 +411,7 @@ export const ko = {
     changes: (repo: string, branch: string) => `${repo} / ${branch} 변경 내역 수집`,
     detector: (name: string) => `${name} 보는 중`,
     detectorFailed: (reason: string) => `탐지기 실행 실패: ${reason}`,
+    truncated: (got: number) => `목록이 ${got}개에서 끊겼어요. 뒤에 더 있는데 못 봤습니다.`,
     done: '수집 완료',
   },
 
