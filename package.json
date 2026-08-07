@@ -1,6 +1,6 @@
 {
   "name": "gitmoru",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "license": "MIT",
   "type": "module",
   "description": "두더지 모루가 저장소를 파보고 무엇이 바뀌었는지 알려주는 개인용 도구",
