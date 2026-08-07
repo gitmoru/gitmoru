@@ -15,6 +15,8 @@ name: release
 on:
   push:
     branches: [main]
+  # 손으로 한 번 돌려보고 싶을 때. 판단은 똑같이 커밋 메시지가 한다.
+  workflow_dispatch:
 
 permissions:
   contents: write
