@@ -216,7 +216,10 @@ export async function runScan(
     아무도 안 물어보면 그대로 "다 봤다" 가 된다. 저장소 1,200개짜리 조직을
     1,000개만 훑고도 화면이 당당했던 게 이 자리다.
 
-    브랜치 상태를 정하기 전에 넣어야 판정이 `incomplete` 로 내려간다.
+    자리는 사건을 만들기 전이기만 하면 된다. 판정은 마지막에 `failures` 개수를
+    세서 나오고, 잘림이 남기는 대상(`orgs/x/repos`)은 브랜치 키(`저장소/브랜치`)와
+    겹칠 일이 없어서 브랜치 상태에는 영향을 주지 않는다.
+    한때 여기 "브랜치 상태를 정하기 전이어야 한다" 고 적어뒀는데 사실이 아니었다.
   */
   for (const cut of gh.takeTruncations()) {
     fail(cut.path, tr().progress.truncated(cut.got))
