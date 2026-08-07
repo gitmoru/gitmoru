@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/gitmoru/gitmoru/compare/v0.5.0...v0.6.0) (2026-08-07)
+
+
+### Features
+
+* read what a changed workflow actually says ([#20](https://github.com/gitmoru/gitmoru/issues/20)) ([01cc7be](https://github.com/gitmoru/gitmoru/commit/01cc7be75b05fab826cb204239a888f569c6bb9b))
+
 ## [0.5.0](https://github.com/gitmoru/gitmoru/compare/v0.4.0...v0.5.0) (2026-08-07)
 
 
