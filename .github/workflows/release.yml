@@ -17,6 +17,13 @@ on:
     branches: [main]
   # 손으로 한 번 돌려보고 싶을 때. 판단은 똑같이 커밋 메시지가 한다.
   workflow_dispatch:
+    inputs:
+      publish:
+        # 태그는 끊겼는데 올리는 데서만 실패했을 때 쓰는 문이다.
+        # 그 상황에서 release_created 는 다시 켜지지 않아서, 없으면 손이 묶인다.
+        description: package.json 에 적힌 버전을 지금 npm 에 올린다
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -45,7 +52,7 @@ jobs:
 
   publish:
     needs: prepare
-    if: needs.prepare.outputs.released == 'true'
+    if: needs.prepare.outputs.released == 'true' || inputs.publish
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -57,6 +64,11 @@ jobs:
           node-version: 22
           registry-url: https://registry.npmjs.org
           cache: pnpm
+
+      # node 22 에 딸려오는 npm 은 10.9 다. OIDC 로 우리가 누구인지 증명하려면
+      # 11.5.1 이상이 필요하고, 그 아래에서는 인증 없이 올리려다 막힌다.
+      # 그때 npm 이 돌려주는 건 401 이 아니라 404 다. 패키지가 없는 것처럼 보인다.
+      - run: npm install -g npm@latest
 
       - run: pnpm install --frozen-lockfile
 
