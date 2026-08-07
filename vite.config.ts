@@ -30,9 +30,20 @@ function radarServer(): Plugin {
         if (!handled) next()
       })
     },
-    transformIndexHtml(html) {
-      // 토큰이 아니라 '세션 키'만 심는다. GitHub 토큰은 절대 페이지로 내려가지 않는다.
-      return html.replace('__RADAR_SESSION__', SESSION_KEY)
+    /**
+     * 개발 서버에서만 키를 심는다.
+     *
+     * `apply: 'serve'` 가 없으면 빌드된 `dist/index.html` 에도 **이 빌드 때 만든 키가
+     * 박제된다.** 그러면 `pnpm serve` 로 띄운 서버는 자기 키를 기다리는데 페이지는
+     * 박제된 키를 보내서 모든 요청이 403 이 된다. 자리표시자는 서버가 띄울 때 채워야 한다.
+     */
+    transformIndexHtml: {
+      order: 'pre' as const,
+      handler(html: string, ctx: { server?: unknown }) {
+        if (!ctx.server) return html
+        // 토큰이 아니라 '세션 키'만 심는다. GitHub 토큰은 절대 페이지로 내려가지 않는다.
+        return html.replace('__RADAR_SESSION__', SESSION_KEY)
+      },
     },
   }
 }
