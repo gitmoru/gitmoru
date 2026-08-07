@@ -8,11 +8,11 @@
  */
 
 import { readFileSync } from 'node:fs'
-import { readdirSync, statSync } from 'node:fs'
+import { readdirSync, statSync, existsSync } from 'node:fs'
 import { join, extname, sep } from 'node:path'
 
 const SKIP = new Set(['node_modules', 'dist', '.git', '.sprite-preview', 'release', 'build'])
-const EXT = new Set(['.ts', '.tsx', '.mjs', '.cjs', '.js', '.md'])
+const EXT = new Set(['.ts', '.tsx', '.mjs', '.cjs', '.js', '.md', '.yml', '.yaml'])
 
 /**
  * AI 가 쓴 티가 나는 문자들.
@@ -27,7 +27,23 @@ const BANNED = [
 ]
 
 /** 이 규칙을 설명하는 자리에서는 그 문자가 나올 수밖에 없다 */
-const ALLOW_FILES = new Set(['AGENTS.md', 'CONTRIBUTING.md', 'scripts/check-style.mjs'])
+const ALLOW_FILES = new Set([
+  'AGENTS.md',
+  'CONTRIBUTING.md',
+  'CONTRIBUTING.en.md',
+  'CONTRIBUTING.ja.md',
+  'scripts/check-style.mjs',
+])
+
+/**
+ * 세 벌로 두는 문서들.
+ *
+ * 하나만 고치고 나머지를 잊는 건 시간 문제다. 실제로 README 가 한 번 그렇게 어긋났고,
+ * 영어로 읽은 사람만 옛날 이야기를 보고 있었다. 내용까지는 못 보지만
+ * 큰 제목 개수가 다르면 한쪽에 뭔가 붙었거나 빠진 것이다.
+ */
+const TRIOS = ['README', 'CONTRIBUTING']
+const LANGS = ['', '.en', '.ja']
 
 function walk(dir, out = []) {
   for (const name of readdirSync(dir)) {
@@ -52,6 +68,24 @@ for (const path of walk('.')) {
       }
     }
   })
+}
+
+for (const base of TRIOS) {
+  const counted = []
+  for (const lang of LANGS) {
+    const file = `${base}${lang}.md`
+    if (!existsSync(file)) {
+      problems.push(`${file}  세 벌 중 하나가 없어요`)
+      continue
+    }
+    const heads = readFileSync(file, 'utf8').split('\n').filter((l) => l.startsWith('## ')).length
+    counted.push({ file, heads })
+  }
+  const odd = counted.filter((c) => c.heads !== counted[0]?.heads)
+  if (counted.length === LANGS.length && odd.length) {
+    const shown = counted.map((c) => `${c.file} ${c.heads}개`).join(', ')
+    problems.push(`${base}  세 벌의 큰 제목 개수가 달라요 (${shown})`)
+  }
 }
 
 if (problems.length) {
