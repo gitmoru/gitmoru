@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { GitHubClient } from '../github'
+import { ApiError, GitHubClient } from '../github'
 
 /**
  * 목록이 한도에서 끊겼을 때 그 사실이 남는지.
@@ -81,5 +81,57 @@ describe('목록이 잘렸을 때', () => {
     const { client, asked } = clientReturning([100, 100, 100, 100, 100])
     await paginate(client, 'orgs/x/repos', 3)
     expect(asked).toHaveLength(3)
+  })
+})
+
+/**
+ * 파일 내용 캐시.
+ *
+ * 탐지기 둘이 같은 워크플로 파일을 같은 두 시점에서 읽는다. 캐시가 없으면
+ * 파일 하나를 네 번 받아온다. 이 시험이 그 네 번을 두 번으로 묶어둔다.
+ */
+describe('파일 내용을 두 번 받으러 가지 않는다', () => {
+  function clientCounting() {
+    const client = new GitHubClient()
+    let calls = 0
+    // @ts-expect-error 저수준만 갈아끼운다
+    client.request = async () => {
+      calls++
+      return { content: Buffer.from('hello').toString('base64'), encoding: 'base64', size: 5 }
+    }
+    return { client, calls: () => calls }
+  }
+
+  it('같은 파일을 같은 시점에서 다시 물으면 안 받아온다', async () => {
+    const { client, calls } = clientCounting()
+
+    await client.getTextFile('a/b', '.github/workflows/ci.yml', 'head')
+    await client.getTextFile('a/b', '.github/workflows/ci.yml', 'head')
+
+    expect(calls()).toBe(1)
+  })
+
+  it('시점이 다르면 따로 받아온다', async () => {
+    // 전후를 비교하는 게 이 도구가 하는 일이다. 여기서 묶으면 비교가 무의미해진다.
+    const { client, calls } = clientCounting()
+
+    await client.getTextFile('a/b', 'x.yml', 'base')
+    await client.getTextFile('a/b', 'x.yml', 'head')
+
+    expect(calls()).toBe(2)
+  })
+
+  it('없는 파일이라는 것도 기억한다', async () => {
+    const client = new GitHubClient()
+    let calls = 0
+    // @ts-expect-error 저수준만 갈아끼운다
+    client.request = async () => {
+      calls++
+      throw new ApiError('404', 404, 'x')
+    }
+
+    expect(await client.getTextFile('a/b', 'gone.yml', 'head')).toBe(null)
+    expect(await client.getTextFile('a/b', 'gone.yml', 'head')).toBe(null)
+    expect(calls).toBe(1)
   })
 })

@@ -86,6 +86,20 @@ export function describeFinding(finding: Finding): FindingText {
       }
     }
 
+    case 'workflow-risk': {
+      const t2 = tr().detectors.workflowRisk
+      return {
+        title: t2.title,
+        summary: t2.summary(facts.path, facts.risks.length),
+        evidence: [
+          ...facts.risks.map((r) => ({ label: t2.risk[r].label, detail: t2.risk[r].detail })),
+          // 줄 단위로 읽는다는 걸 화면에서도 말한다. 못 잡는 게 있다.
+          { label: t2.limitLabel, detail: t2.limit },
+          { label: t2.openFile, href: facts.fileHref },
+        ],
+      }
+    }
+
     case 'pin-loosened': {
       const t = tr().detectors.pinLoosened
       return {

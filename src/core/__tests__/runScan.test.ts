@@ -213,7 +213,15 @@ describe('runScan 이 이어붙이는 자리', () => {
     // 나중에 같은 조건으로 다시 훑을 수 있어야 한다.
     const c = await scan()
     expect(Object.keys(c.detectorConfig).sort()).toEqual(
-      ['forged-commit', 'pin-loosened', 'shared-blob', 'signing-dropped', 'size-jump', 'tool-marker'],
+      [
+        'forged-commit',
+        'pin-loosened',
+        'shared-blob',
+        'signing-dropped',
+        'size-jump',
+        'tool-marker',
+        'workflow-risk',
+      ],
     )
   })
 })

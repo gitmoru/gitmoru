@@ -5,6 +5,7 @@ import { pinLoosenedDetector } from './pinLoosened'
 import { sharedBlobDetector } from './sharedBlob'
 import { signingDroppedDetector } from './signingDropped'
 import { toolMarkerDetector } from './toolMarker'
+import { workflowRiskDetector } from './workflowRisk'
 
 /**
  * 탐지기 레지스트리.
@@ -23,6 +24,7 @@ export const DETECTORS: Detector[] = [
   sharedBlobDetector,
   signingDroppedDetector,
   toolMarkerDetector,
+  workflowRiskDetector,
 ]
 
 export const detectorById = new Map(DETECTORS.map((d) => [d.id, d]))
@@ -45,4 +47,5 @@ export {
   sharedBlobDetector,
   signingDroppedDetector,
   toolMarkerDetector,
+  workflowRiskDetector,
 }
