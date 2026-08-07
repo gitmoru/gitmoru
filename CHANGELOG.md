@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.4.0](https://github.com/gitmoru/gitmoru/compare/v0.3.0...v0.4.0) (2026-08-07)
+
+
+### Features
+
+* report when a branch stopped signing inside the window ([#13](https://github.com/gitmoru/gitmoru/issues/13)) ([62108a8](https://github.com/gitmoru/gitmoru/commit/62108a89818cfa8584dbddf62384209c38cda4b3))
+
+
+### Bug Fixes
+
+* say so when a list stops at the page cap ([#10](https://github.com/gitmoru/gitmoru/issues/10)) ([055444c](https://github.com/gitmoru/gitmoru/commit/055444c6b3d9b64a0295a0c5f0cfe2b38de0eaa6))
+
 ## [0.3.0](https://github.com/gitmoru/gitmoru/compare/v0.2.0...v0.3.0) (2026-08-07)
 
 
