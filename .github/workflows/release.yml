@@ -31,9 +31,13 @@ jobs:
       released: ${{ steps.plan.outputs.release_created }}
       tag: ${{ steps.plan.outputs.tag_name }}
     steps:
-      # 설정 파일을 따로 두지 않는다. 한 번 뒀는데 이 자리의 release-type 때문에
-      # 읽히지도 않으면서 다른 규칙이 적힌 채로 남아 있었다. 안 읽히는 설정은
-      # 틀린 설정보다 나쁘다. 기본 동작이 CONTRIBUTING 에 적어둔 표와 같다.
+      # release-please-config.json 은 두지 않는다. 한 번 뒀는데 아래 release-type 이
+      # 그걸 덮어써서, 읽히지도 않으면서 다른 규칙이 적힌 채로 남아 있었다.
+      # 기본 동작이 CONTRIBUTING 에 적어둔 표와 같아서 적을 것이 없다.
+      #
+      # **.release-please-manifest.json 은 지우면 안 된다.** 그건 설정이 아니라
+      # 지금 버전이 몇인지 적어둔 파일이다. 한 번 같이 지웠다가 릴리스 PR 이
+      # 고칠 대상을 잃고 충돌났다.
       - id: plan
         uses: googleapis/release-please-action@v4
         with:
