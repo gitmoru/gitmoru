@@ -36,6 +36,7 @@ const SEQUENCES: Record<string, string[][]> = {
   wake: S.SEQ_WAKE,
   wave: S.SEQ_WAVE,
   nod: S.SEQ_NOD,
+  shake: S.SEQ_SHAKE,
   carry: S.SEQ_CARRY,
   mound: S.SEQ_MOUND,
   blink: [S.FRAME_BLINK],

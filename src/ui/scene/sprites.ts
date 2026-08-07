@@ -254,6 +254,26 @@ const NOD_DOWN = patch(BASE, {
 })
 export const SEQ_NOD = [BASE, NOD_DOWN, BASE]
 
+// ── 도리도리 ──────────────────────────────────────────────
+// 4프레임. 머리만 좌우로 한 칸씩 돌린다.
+//
+// 끄덕임의 반대쪽이다. 끄덕임은 "맞다", 이건 **"아니다"** 를 뜻한다.
+// 이 도구가 "안전합니다" 라고 말하지 않는다는 걸 몸으로 하는 자리에 쓴다.
+//
+// 앞발 두 줄은 건드리지 않는다. 같이 밀면 몸 전체가 옆으로 미끄러지는 것처럼 보이고,
+// 앞발이 원래 자리에서 떨어져 나가 개수가 어긋나 보인다.
+
+/** 머리 줄(뚜껑부터 턱까지)만 옆으로 한 칸. 앞발 줄은 그대로 둔다. */
+function turnHead(rows: string[], dx: -1 | 1): string[] {
+  const HEAD_ROWS = 10
+  return rows.map((row, i) => {
+    if (i >= HEAD_ROWS) return row
+    return dx < 0 ? row.slice(1) + '.' : '.' + row.slice(0, -1)
+  })
+}
+
+export const SEQ_SHAKE = [BASE, turnHead(BASE, -1), BASE, turnHead(BASE, 1)]
+
 // ── 건네기 ────────────────────────────────────────────────
 // 3프레임. 양 앞발을 몸 옆으로 들었다 내린다.
 //
