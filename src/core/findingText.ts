@@ -86,6 +86,25 @@ export function describeFinding(finding: Finding): FindingText {
       }
     }
 
+    case 'signing-dropped': {
+      const t = tr().detectors.signingDropped
+      const bad = facts.badSignature > 0
+      return {
+        title: bad ? t.titleBad : t.titleDropped,
+        summary: bad
+          ? t.summaryBad(facts.badSignature, facts.seen)
+          : t.summaryDropped(facts.unsigned, facts.seen),
+        evidence: [
+          bad ? { label: t.badLabel(facts.badSignature) } : { label: t.unsignedLabel(facts.unsigned) },
+          // 기준점을 같이 적는다. 이게 없으면 위 숫자는 아무 뜻도 아니다.
+          { label: facts.baseSigned ? t.baseSigned : t.baseUnknown },
+          // 다 못 봤으면 그렇게 적는다. 본 것이 전부인 척하지 않는다.
+          ...(facts.partial ? [{ label: t.partial(facts.seen) }] : []),
+          { label: t.openCompare, href: facts.compareHref },
+        ],
+      }
+    }
+
     case 'forged-commit': {
       const t = tr().detectors.forgedCommit
       const at = (iso: string, len: number) => iso.slice(0, len).replace('T', ' ')

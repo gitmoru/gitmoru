@@ -554,6 +554,22 @@ export const ja: Dict = {
       gapDetail: '既存コミットの作成者情報をそのまま流用した跡かもしれません。',
       openCommit: 'コミットを開く',
     },
+    signingDropped: {
+      name: '署名が途切れたブランチ',
+      rationale: '署名していたブランチがこの期間に署名しなくなっていないかを見ます。もともと署名しない場所では出ません。',
+      titleDropped: '署名していたブランチなのに、今回のコミットに署名がありません',
+      titleBad: '署名は付いていますが、検証できません',
+      summaryDropped: (unsigned, seen) =>
+        `プッシュ直前のコミットには署名がありました。この期間に入った ${seen} 件のうち ${unsigned} 件に署名がありません。鍵のない環境から上げた可能性もあります。`,
+      summaryBad: (bad, seen) =>
+        `${seen} 件のうち ${bad} 件に署名が付いていますが検証できません。署名しないこととは別の話です。`,
+      unsignedLabel: (n) => `署名なし ${n} 件`,
+      badLabel: (n) => `検証できない署名 ${n} 件`,
+      baseSigned: 'プッシュ直前のコミットには署名がありました',
+      baseUnknown: 'プッシュ直前のコミットの署名は確認できませんでした',
+      partial: (seen) => `コミットは ${seen} 件までしか見えていません。GitHub は一度に 250 件までです。`,
+      openCompare: 'コミットを見る',
+    },
     sharedBlob: {
       name: '複数箇所にばらまかれた同一ファイル',
       rationale: 'その時間帯に新しく増えたファイルのうち、中身が同一のものが複数のリポジトリにないか見ます。',

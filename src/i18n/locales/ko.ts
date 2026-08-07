@@ -543,6 +543,23 @@ export const ko = {
       gapDetail: '기존 커밋의 작성자 정보를 그대로 베껴 쓴 흔적일 수 있습니다.',
       openCommit: '커밋 열기',
     },
+    signingDropped: {
+      name: '서명이 끊긴 브랜치',
+      rationale: '서명하던 브랜치가 그 시간대에 안 하게 됐는지 봐요. 원래 안 하던 곳에서는 안 떠요.',
+      titleDropped: '서명하던 브랜치인데 이번 커밋엔 서명이 없어요',
+      titleBad: '서명이 붙어 있는데 맞지 않아요',
+      summaryDropped: (unsigned: number, seen: number) =>
+        `푸시 직전 커밋은 서명돼 있었는데, 이 시간대에 올라온 커밋 ${seen}개 중 ${unsigned}개에 서명이 없습니다. 키를 못 쓰는 컴퓨터에서 올렸을 수도 있어요.`,
+      summaryBad: (bad: number, seen: number) =>
+        `커밋 ${seen}개 중 ${bad}개에 서명이 붙어 있는데 검증되지 않습니다. 서명을 안 하는 것과는 다른 일이에요.`,
+      unsignedLabel: (n: number) => `서명 없는 커밋 ${n}개`,
+      badLabel: (n: number) => `검증 안 되는 서명 ${n}개`,
+      baseSigned: '푸시 직전 커밋은 서명돼 있었어요',
+      baseUnknown: '푸시 직전 커밋의 서명 여부는 확인하지 못했어요',
+      partial: (seen: number) =>
+        `커밋을 ${seen}개까지만 봤어요. GitHub 이 한 번에 250개까지만 줍니다.`,
+      openCompare: '바뀐 커밋 보기',
+    },
     sharedBlob: {
       name: '여러 곳에 뿌려진 같은 파일',
       rationale: '그때 새로 생긴 파일 중 내용이 똑같은 게 여러 저장소에 있는지 봐요.',

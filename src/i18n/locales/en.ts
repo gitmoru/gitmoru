@@ -556,6 +556,22 @@ export const en: Dict = {
       gapDetail: 'This can be the mark of author details copied from an existing commit.',
       openCommit: 'Open commit',
     },
+    signingDropped: {
+      name: 'Signing stopped',
+      rationale: 'Looks for a branch that used to sign and stopped inside the window. Silent where signing was never the habit.',
+      titleDropped: 'This branch signs, and these commits do not',
+      titleBad: 'A signature is attached and does not verify',
+      summaryDropped: (unsigned, seen) =>
+        `The commit before this push was signed. ${unsigned} of the ${seen} that arrived in this window are not. It could be a machine without the key on it.`,
+      summaryBad: (bad, seen) =>
+        `${bad} of ${seen} commits carry a signature that does not verify. That is a different thing from not signing at all.`,
+      unsignedLabel: (n) => `${n} unsigned`,
+      badLabel: (n) => `${n} with a signature that fails`,
+      baseSigned: 'The commit before the push was signed',
+      baseUnknown: 'Could not tell whether the commit before the push was signed',
+      partial: (seen) => `Only ${seen} commits were visible. GitHub returns at most 250 at a time.`,
+      openCompare: 'See the commits',
+    },
     sharedBlob: {
       name: 'Same file in many places',
       rationale: 'Checks whether identical new files showed up across several repositories.',

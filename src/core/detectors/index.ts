@@ -2,6 +2,7 @@ import type { Detector } from '../types'
 import { forgedCommitDetector } from './forgedCommit'
 import { sizeJumpDetector } from './sizeJump'
 import { sharedBlobDetector } from './sharedBlob'
+import { signingDroppedDetector } from './signingDropped'
 import { toolMarkerDetector } from './toolMarker'
 
 /**
@@ -18,6 +19,7 @@ export const DETECTORS: Detector[] = [
   forgedCommitDetector,
   sizeJumpDetector,
   sharedBlobDetector,
+  signingDroppedDetector,
   toolMarkerDetector,
 ]
 
@@ -38,5 +40,6 @@ export {
   forgedCommitDetector,
   sizeJumpDetector,
   sharedBlobDetector,
+  signingDroppedDetector,
   toolMarkerDetector,
 }
