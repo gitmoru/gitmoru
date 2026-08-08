@@ -485,7 +485,7 @@ export const en: Dict = {
     adminScope: (can, total) =>
       can === total
         ? `All ${total} selected ${total === 1 ? 'repository' : 'repositories'} can be checked.`
-        : `${can} of the ${total} selected can be checked. The rest need repository admin, so nothing showing up there is not the same as nothing being there.`,
+        : `${can} of the ${total} selected can be checked. The rest require repository admin access, so no result does not mean there is nothing there.`,
     noneAdmin:
       'You are not an admin on any of the selected repositories. Everything here needs repository admin to read. Asking someone who is will be faster.',
     running: 'Checking...',
