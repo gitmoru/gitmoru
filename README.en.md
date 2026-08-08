@@ -81,7 +81,7 @@ pnpm app
 ```
 
 Enter an org or repositories and a time window, then hit `Dig`.
-It defaults to midnight through 7am today. That is when this usually happens.
+It defaults to midnight through 7am today, because the tool was built for finding out in the morning what happened overnight. If you know when, set that instead.
 
 There is no installer, and that is on purpose. This tool asks for access to your
 repositories. An unsigned binary asking for exactly that is indistinguishable from
