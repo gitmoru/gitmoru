@@ -1,5 +1,5 @@
 import { ApiError } from './github'
-import type { GitHubReader, PushEvent, PushShape } from './types'
+import type { CommitFacts, CompareSigning, GitHubReader, PushShape } from './types'
 import { tr } from '../i18n'
 
 /**
@@ -42,10 +42,23 @@ function shortReason(err: unknown): string {
   return message ? `${err.status} ${message}` : `${err.status}`
 }
 
+/** 비교에 필요한 좌표만. 푸시 이벤트일 수도, 브랜치 전체일 수도 있다. */
+type Span = { repo: string; branch: string; before: string; head: string }
+
+/** 비교 응답에 같이 딸려오는 것들. 탐지기가 이걸로 API 를 안 부른다. */
+type Carry = { signing?: CompareSigning; commits?: CommitFacts[] }
+
+/** 브랜치 하나를 맞대본 결과 */
+export interface BranchShape extends Carry {
+  shape: PushShape
+}
+
 async function shapeOf(
   gh: GitHubReader,
-  event: PushEvent,
+  event: Span,
   onFailure: (target: string, reason: string) => void,
+  /** 비교 응답에 딸려온 것을 담아 갈 곳 */
+  carry: Carry = {},
 ): Promise<PushShape> {
   if (!event.before || !event.head) {
     return { kind: 'unknown', droppedCommits: 0, addedCommits: 0, reason: tr().push.noBefore }
@@ -71,8 +84,8 @@ async function shapeOf(
     const result = await gh.compare(event.repo, event.before, event.head)
 
     // 같은 응답에 들어 있던 것이다. 여기서 안 챙기면 다시 받으러 가야 한다.
-    event.signing = result.signing
-    event.commits = result.commits
+    carry.signing = result.signing
+    carry.commits = result.commits
 
     return {
       // 사라진 커밋이 하나라도 있으면 기록을 덮어쓴 것이다.
@@ -102,35 +115,56 @@ async function shapeOf(
   }
 }
 
+/** 브랜치 하나에 대해 물어볼 것 */
+export interface BranchTarget {
+  repo: string
+  branch: string
+  /** 시간대 안 첫 푸시 직전 커밋. 되돌아갈 자리다. */
+  before: string
+  /** 지금 브랜치가 가리키는 커밋 */
+  head: string
+  /** 시간대 안에 이 브랜치로 들어온 푸시 횟수. 이벤트만 세면 되고 API 는 안 쓴다. */
+  pushes: number
+}
+
 /**
- * 모든 푸시의 모양을 채운다. 이벤트 객체를 그 자리에서 고친다.
+ * 브랜치마다 **한 번씩** 물어본다.
  *
- * 이벤트 하나당 비교 한 번이라 호출 수가 이벤트 수만큼 늘어난다.
- * 시간대 안의 푸시만 보기 때문에 상한이 있고, 그래도 몇 개씩 나눠서 부른다.
+ * 예전에는 푸시 하나당 한 번이었다. 실제 조직을 재보니 요청 890회 중 550회가 여기였고,
+ * 그렇게 얻은 숫자도 틀렸다. 브랜치가 네 번 덮어써지면 **이미 사라진 커밋을 네 번 셌다.**
+ * 한 번은 13,724개가 사라졌다고 화면에 떴는데, 그건 아무도 잃지 않은 수다.
+ *
+ * 첫 푸시 직전과 지금을 맞대면 사람이 실제로 궁금해하는 값이 나온다.
+ * **무엇이 없어졌고, 되돌리면 무엇이 돌아오는가.** 중간에 덮어써진 상태는 따로 잃은 것이 아니다.
+ *
+ * 대신 푸시 하나하나의 모양은 못 남긴다. 몇 번 밀었는지는 이벤트에 이미 있어서 그대로 둔다.
  */
-export async function fillPushShapes(
+export async function shapeBranches(
   gh: GitHubReader,
-  events: PushEvent[],
+  targets: BranchTarget[],
   onFailure: (target: string, reason: string) => void,
   onProgress?: (done: number, total: number) => void,
-): Promise<void> {
+): Promise<Map<string, BranchShape>> {
+  const out = new Map<string, BranchShape>()
   let done = 0
-  for (let i = 0; i < events.length; i += BATCH) {
-    const slice = events.slice(i, i + BATCH)
+
+  for (let i = 0; i < targets.length; i += BATCH) {
+    const slice = targets.slice(i, i + BATCH)
     await Promise.all(
-      slice.map(async (event) => {
-        event.push = await shapeOf(gh, event, onFailure)
+      slice.map(async (target) => {
+        const carry: Carry = {}
+        const shape = await shapeOf(
+          gh,
+          { repo: target.repo, branch: target.branch, before: target.before, head: target.head },
+          onFailure,
+          carry,
+        )
+        out.set(`${target.repo}/${target.branch}`, { shape, ...carry })
         done++
       }),
     )
-    onProgress?.(done, events.length)
+    onProgress?.(done, targets.length)
   }
-}
 
-/** 브랜치 하나에서 일어난 강제 푸시만 골라 모은다. */
-export function forcedOn(events: PushEvent[], repo: string, branch: string): PushShape[] {
-  return events
-    .filter((e) => e.repo === repo && e.branch === branch)
-    .map((e) => e.push)
-    .filter((shape): shape is PushShape => Boolean(shape) && shape!.kind !== 'fast-forward')
+  return out
 }

@@ -39,7 +39,7 @@ export const ko = {
       `바뀐 파일 ${changed}개, 그중 ${unreviewed}개는 봐주세요`,
     failures: (n: number) => `못 판 곳 ${n}개`,
     forced: (branches: number, commits: number) =>
-      `강제 푸시 ${branches}곳, 커밋 ${commits}개 사라짐`,
+      `덮어써진 채 ${branches}곳, 커밋 ${commits}개 없어짐`,
     rewritten: (n: number) => `기록 통째로 갈아치움 ${n}곳`,
     exposed: (n: number) => `공개로 바뀜 ${n}곳`,
     exportHint: '나중에 다시 보거나 남한테 넘길 기록 파일',
@@ -386,7 +386,7 @@ export const ko = {
     incomplete: (unknown: number, failures: number) =>
       `※ ${unknown > 0 ? `브랜치 ${unknown}개를 확인하지 못했습니다` : `조회 실패가 ${failures}건 있습니다`}. 이 결과를 "이상 없음"으로 판단하면 안 됩니다.`,
     forced: (branches: number, commits: number) =>
-      `기록을 덮어쓴 푸시가 브랜치 ${branches}개에 있었고, 커밋 ${commits}개가 사라졌습니다.`,
+      `브랜치 ${branches}개가 지금도 덮어써진 채이고, 그 사이 커밋 ${commits}개가 없어졌습니다.`,
     rewritten: (n: number) =>
       `그중 ${n}개는 이전 기록과 이어지지 않는 새 기록으로 갈아치워졌습니다. 사라진 커밋 수를 셀 수 없습니다.`,
     exposed: (n: number) =>
@@ -489,7 +489,7 @@ export const ko = {
     checking: (done: number, total: number) => `푸시 모양 확인 ${done}/${total}`,
     forced: '강제 푸시',
     dropped: (n: number) => `커밋 ${n}개 사라짐`,
-    forcedCount: (n: number) => `강제 푸시 ${n}번`,
+    forcedCount: (n: number) => `이 시간대에 푸시 ${n}번`,
     rewritten: '기록을 통째로 갈아치움',
     rewrittenNote:
       '푸시 전 기록과 이어지지 않는 새 기록으로 덮어썼습니다. 두 커밋에 공통 조상이 아예 없어서, 사라진 커밋 수는 셀 수조차 없어요. 저장소를 일괄로 덮어쓰는 공격 도구가 이런 모양을 만들지만, 유출된 키를 지우려고 기록 전체를 다시 쓸 때도 똑같이 나옵니다. 누가 언제 했는지 확인해 주세요.',

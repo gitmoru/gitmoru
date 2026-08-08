@@ -45,7 +45,7 @@ export const ja: Dict = {
       `変更されたファイル ${changed} 件、うち ${unreviewed} 件は検出にかかっていません`,
     failures: (n) => `未確認 ${n} 件`,
     forced: (branches, commits) =>
-      `強制プッシュ ${branches} 本、コミット ${commits} 件が消えました`,
+      `上書きされたまま ${branches} 本、コミット ${commits} 件が消失`,
     rewritten: (n) => `履歴がまるごと置き換え ${n} 本`,
     exposed: (n) => `公開に変わった ${n} 件`,
     exportHint: 'あとで見直したり、他の人に渡すための記録ファイルです',
@@ -396,7 +396,7 @@ export const ja: Dict = {
     incomplete: (unknown, failures) =>
       `※ ${unknown > 0 ? `ブランチ ${unknown} 本を確認できませんでした` : `取得失敗が ${failures} 件あります`}。この結果を「異常なし」と判断しないでください。`,
     forced: (branches, commits) =>
-      `ブランチ ${branches} 本で履歴が上書きされ、コミット ${commits} 件が消えました。`,
+      `ブランチ ${branches} 本が今も上書きされたままで、その間にコミット ${commits} 件が失われました。`,
     rewritten: (n) =>
       `そのうち ${n} 本は、つながらない別の履歴に置き換えられており、消えたコミット数を数えられません。`,
     exposed: (n) =>
@@ -498,7 +498,7 @@ export const ja: Dict = {
     checking: (done, total) => `プッシュの形を確認中 ${done}/${total}`,
     forced: '強制プッシュ',
     dropped: (n) => `コミット ${n} 件が消えました`,
-    forcedCount: (n) => `強制プッシュ ${n} 回`,
+    forcedCount: (n) => `この期間にプッシュ ${n} 回`,
     rewritten: '履歴がまるごと置き換えられました',
     rewrittenNote:
       'プッシュ前の履歴とつながらない新しい履歴で上書きされています。2 つのコミットに共通の祖先がまったくないため、消えたコミット数を数えることすらできません。リポジトリを一括で書き換える攻撃ツールがこの形を残しますが、漏れた鍵を消すために履歴全体を書き直した場合も同じです。誰がいつ行ったか確認してください。',

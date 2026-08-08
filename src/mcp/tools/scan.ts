@@ -78,7 +78,7 @@ export function registerScan(server: McpServer, ctx: McpContext) {
           `변경됨 ${stats.changed}, 원복됨 ${stats.reverted}, 변경없음 ${stats.untouched}, 확인실패 ${stats.unknown}`,
           `바뀐 파일 ${stats.changedFiles} (그중 규칙에 걸린 것 ${stats.signalled}, 안 걸린 것 ${stats.unreviewed})`,
           stats.forcedBranches > 0
-            ? `강제 푸시 ${stats.forcedBranches}곳, 그 과정에서 커밋 ${stats.droppedCommits}개가 사라졌습니다`
+            ? `브랜치 ${stats.forcedBranches}개가 지금도 덮어써진 채이고, 그 사이 커밋 ${stats.droppedCommits}개가 없어졌습니다`
             : null,
           stats.autoRun.workflow > 0
             ? `CI 정의(.github/workflows) ${stats.autoRun.workflow}개가 바뀌었습니다. 다음 푸시부터 여기 적힌 대로 돕니다`
