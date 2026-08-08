@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.1](https://github.com/gitmoru/gitmoru/compare/v0.9.0...v0.9.1) (2026-08-08)
+
+
+### Bug Fixes
+
+* rewrite the english and japanese that read like translated korean ([#41](https://github.com/gitmoru/gitmoru/issues/41)) ([785955e](https://github.com/gitmoru/gitmoru/commit/785955e7296ba42a6086acfa29204bd94dfe3e1a))
+
 ## [0.9.0](https://github.com/gitmoru/gitmoru/compare/v0.8.0...v0.9.0) (2026-08-08)
 
 
