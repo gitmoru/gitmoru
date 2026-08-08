@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.7.0](https://github.com/gitmoru/gitmoru/compare/v0.6.0...v0.7.0) (2026-08-08)
+
+
+### Features
+
+* record what a scan cost and say when the budget runs low ([#23](https://github.com/gitmoru/gitmoru/issues/23)) ([9a27968](https://github.com/gitmoru/gitmoru/commit/9a279689315f9595d2012b92b1b9b725fb7243c1))
+
+
+### Bug Fixes
+
+* count commits lost once instead of once per overwrite ([#28](https://github.com/gitmoru/gitmoru/issues/28)) ([762ed70](https://github.com/gitmoru/gitmoru/commit/762ed70b4e6376a2c4c25d0fb1642dd4d8ef730d))
+
+
+### Performance Improvements
+
+* read commit dates from the compare we already made ([#26](https://github.com/gitmoru/gitmoru/issues/26)) ([f7c27ff](https://github.com/gitmoru/gitmoru/commit/f7c27ffe080544802d0f78fef63f3dc2488846cf))
+
 ## [0.6.0](https://github.com/gitmoru/gitmoru/compare/v0.5.0...v0.6.0) (2026-08-07)
 
 
