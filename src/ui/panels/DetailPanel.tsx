@@ -236,20 +236,18 @@ export function DetailPanel({ finding, branch, caseFile, gh, onClose, onOpenFile
             )}
             <Row label={t.detail.changedFiles} value={t.detail.changedFilesValue(branch.changedFiles)} />
 
-            {branch.forcedPushes.length > 0 && (
+            {branch.overwrite && branch.overwrite.kind !== 'fast-forward' && (
               <div className="bg-[var(--color-apricot)]/10 p-2.5">
                 <p className="text-[11px] text-[var(--color-apricot)]">
-                  {branch.forcedPushes.some((p) => p.kind === 'unrelated')
+                  {branch.overwrite.kind === 'unrelated'
                     ? t.push.rewritten
-                    : t.push.forcedCount(
-                        branch.forcedPushes.filter((p) => p.kind === 'forced').length,
-                      )}
+                    : t.push.forcedCount(branch.pushCount)}
                   {branch.droppedCommits > 0 && `, ${t.push.dropped(branch.droppedCommits)}`}
                 </p>
                 <p className="mt-1 text-[10.5px] leading-relaxed text-[var(--color-muted)]">
-                  {branch.forcedPushes.some((p) => p.kind === 'unrelated')
+                  {branch.overwrite.kind === 'unrelated'
                     ? t.push.rewrittenNote
-                    : branch.forcedPushes.some((p) => p.kind === 'unknown')
+                    : branch.overwrite.kind === 'unknown'
                       ? t.push.unknownShape
                       : t.push.note}
                 </p>

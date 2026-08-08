@@ -1,5 +1,5 @@
 import { countByRole } from './fileRole'
-import { fillPushShapes, forcedOn } from './pushShape'
+import { shapeBranches, type BranchTarget } from './pushShape'
 import { tr } from '../i18n'
 import { collectChanges } from './changes'
 import { DETECTORS, detectorById } from './detectors'
@@ -146,7 +146,20 @@ export async function runScan(
 
   // ── 3.5. 푸시가 기록을 덮어썼는지 ───────────────────────
   // 이벤트에는 그 정보가 없어서 전후 커밋을 맞대본다. 판정이 아니라 사실 수집이다.
-  await fillPushShapes(gh, events, fail, (done, total) =>
+  const spans: BranchTarget[] = []
+  for (const ev of earliest.values()) {
+    const current = branches.find((b) => b.repo === ev.repo && b.branch === ev.branch)
+    if (!current || !ev.before) continue
+    spans.push({
+      repo: ev.repo,
+      branch: ev.branch,
+      before: ev.before,
+      head: current.sha,
+      pushes: events.filter((e) => e.repo === ev.repo && e.branch === ev.branch).length,
+    })
+  }
+
+  const shapes = await shapeBranches(gh, spans, fail, (done, total) =>
     onProgress({
       phase: 'branches',
       message: tr().push.checking(done, total),
@@ -154,6 +167,21 @@ export async function runScan(
       total,
     }),
   )
+
+  /*
+    비교에 딸려온 것을 그 브랜치의 첫 푸시에 붙인다.
+
+    탐지기는 푸시 이벤트를 훑기 때문에 여기 놓아야 찾는다. 브랜치마다 한 번만 비교하니
+    붙는 자리도 하나다. **되돌아온 브랜치는 비교가 identical 이라 아무것도 안 붙는다.**
+    그 브랜치는 변경 목록도 비어 있어서 나머지 화면과 말이 맞는다.
+  */
+  for (const ev of earliest.values()) {
+    const got = shapes.get(`${ev.repo}/${ev.branch}`)
+    if (!got) continue
+    ev.push = got.shape
+    ev.signing = got.signing
+    ev.commits = got.commits
+  }
 
   // ── 4. 무엇이 바뀌었는지 (1차 산출물) ───────────────────
   // 탐지 규칙과 무관하게 무조건 수집한다. 규칙이 못 알아본 공격도 여기에는 남는다.
@@ -243,7 +271,8 @@ export async function runScan(
     const current = branches.find((b) => b.repo === ev.repo && b.branch === ev.branch)
     const diff = changes.find((c) => c.repo === ev.repo && c.branch === ev.branch)
     const related = findings.filter((f) => f.repo === ev.repo && f.branch === ev.branch)
-    const forced = forcedOn(events, ev.repo, ev.branch)
+    const overwrite = shapes.get(`${ev.repo}/${ev.branch}`)?.shape
+    const pushCount = events.filter((e) => e.repo === ev.repo && e.branch === ev.branch).length
 
     let status: BranchState['status']
     let unknownReason: string | undefined
@@ -280,8 +309,9 @@ export async function runScan(
       findingIds: related.map((f) => f.id),
       changedFiles: diff?.files.length ?? 0,
       unknownReason,
-      forcedPushes: forced,
-      droppedCommits: forced.reduce((n, p) => n + p.droppedCommits, 0),
+      overwrite,
+      pushCount,
+      droppedCommits: overwrite?.droppedCommits ?? 0,
     })
   }
 
@@ -367,11 +397,10 @@ export function summarize(c: CaseFile) {
     autoRun: countByRole(c.changes.flatMap((x) => x.files.map((f) => f.path))),
     /** 기록을 덮어쓴 푸시가 일어난 브랜치 수 */
     forcedBranches: c.branches.filter((b) =>
-      b.forcedPushes.some((p) => p.kind === 'forced' || p.kind === 'unrelated'),
+      b.overwrite?.kind === 'forced' || b.overwrite?.kind === 'unrelated',
     ).length,
     /** 이전 기록과 아예 이어지지 않게 갈아치워진 브랜치 수. 사라진 양을 셀 수조차 없다. */
-    rewrittenBranches: c.branches.filter((b) => b.forcedPushes.some((p) => p.kind === 'unrelated'))
-      .length,
+    rewrittenBranches: c.branches.filter((b) => b.overwrite?.kind === 'unrelated').length,
     /** 그렇게 사라진 커밋 수의 합. 되돌리기로도 못 살리는 작업의 양이다. */
     droppedCommits: c.branches.reduce((n, b) => n + b.droppedCommits, 0),
     /**

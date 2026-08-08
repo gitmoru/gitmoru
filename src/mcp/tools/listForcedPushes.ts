@@ -49,7 +49,7 @@ export function registerListForcedPushes(server: McpServer, ctx: McpContext) {
       const branches = [...c.branches].sort((a, b) => b.droppedCommits - a.droppedCommits)
 
       for (const b of branches) {
-        for (const push of b.forcedPushes) {
+        for (const push of b.overwrite ? [b.overwrite] : []) {
           const where = `${b.repo}@${b.branch}`
 
           if (push.kind === 'forced') {

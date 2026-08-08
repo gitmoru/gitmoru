@@ -29,7 +29,7 @@ const branch = (over: Partial<BranchState> = {}): BranchState => ({
   isProtected: false,
   findingIds: [],
   changedFiles: 0,
-  forcedPushes: [],
+  pushCount: 0,
   droppedCommits: 0,
   ...over,
 })
@@ -188,9 +188,9 @@ describe('summarize', () => {
   it('기록을 갈아치운 브랜치와 사라진 커밋을 센다', () => {
     const c = caseFile({
       branches: [
-        branch({ forcedPushes: [{ kind: 'forced' } as never], droppedCommits: 6 }),
-        branch({ forcedPushes: [{ kind: 'unrelated' } as never], droppedCommits: 0 }),
-        branch({ forcedPushes: [{ kind: 'fast-forward' } as never] }),
+        branch({ overwrite: { kind: 'forced' } as never, droppedCommits: 6 }),
+        branch({ overwrite: { kind: 'unrelated' } as never, droppedCommits: 0 }),
+        branch({ overwrite: { kind: 'fast-forward' } as never }),
       ],
     })
     const s = summarize(c)
@@ -200,7 +200,7 @@ describe('summarize', () => {
   })
 
   it('확인하지 못한 푸시를 강제 푸시로 세지 않는다', () => {
-    const c = caseFile({ branches: [branch({ forcedPushes: [{ kind: 'unknown' } as never] })] })
+    const c = caseFile({ branches: [branch({ overwrite: { kind: 'unknown' } as never })] })
     expect(summarize(c).forcedBranches).toBe(0)
   })
 })

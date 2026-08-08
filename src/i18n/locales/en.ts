@@ -49,7 +49,7 @@ export const en: Dict = {
       `${changed} ${plural(changed, 'file', 'files')} changed, ${unreviewed} without a signal`,
     failures: (n) => `${n} couldn't be checked`,
     forced: (branches, commits) =>
-      `${branches} force-pushed, ${commits} ${commits === 1 ? 'commit' : 'commits'} dropped`,
+      `${branches} still overwritten, ${commits} ${commits === 1 ? 'commit' : 'commits'} gone`,
     rewritten: (n) => `${n} with history replaced`,
     exposed: (n) => `${n} went public`,
     exportHint: 'A record you can reopen later or hand to someone else',
@@ -397,7 +397,7 @@ export const en: Dict = {
     incomplete: (unknown, failures) =>
       `Note: ${unknown > 0 ? `${unknown} ${plural(unknown, 'branch', 'branches')} could not be checked` : `${failures} lookups failed`}. This result should not be read as "nothing found".`,
     forced: (branches, commits) =>
-      `History was overwritten on ${branches} ${branches === 1 ? 'branch' : 'branches'}, dropping ${commits} ${commits === 1 ? 'commit' : 'commits'}.`,
+      `${branches} ${branches === 1 ? 'branch is' : 'branches are'} still overwritten, and ${commits} ${commits === 1 ? 'commit' : 'commits'} went with it.`,
     rewritten: (n) =>
       `${n} of them were replaced with an unrelated history, so the number of lost commits cannot be counted.`,
     exposed: (n) =>
@@ -500,7 +500,7 @@ export const en: Dict = {
     checking: (done, total) => `Checking pushes ${done}/${total}`,
     forced: 'Force push',
     dropped: (n) => `${n} ${n === 1 ? 'commit' : 'commits'} dropped`,
-    forcedCount: (n) => `${n} force ${n === 1 ? 'push' : 'pushes'}`,
+    forcedCount: (n) => `${n} ${n === 1 ? 'push' : 'pushes'} in this window`,
     rewritten: 'History replaced outright',
     rewrittenNote:
       'This was overwritten with a history that does not connect to what was there before. The two commits share no ancestor at all, so the number of lost commits cannot even be counted. Bulk-overwrite tooling leaves this shape, but so does rewriting all history to scrub a leaked key. Check who did it and when.',

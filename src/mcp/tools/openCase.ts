@@ -57,7 +57,7 @@ export function registerOpenCase(server: McpServer, ctx: McpContext) {
           `변경됨 ${s.changed}, 원복됨 ${s.reverted}, 변경없음 ${s.untouched}, 확인실패 ${s.unknown}`,
           `바뀐 파일 ${s.changedFiles} (규칙에 걸린 것 ${s.signalled}, 안 걸린 것 ${s.unreviewed})`,
           s.forcedBranches > 0
-            ? `강제 푸시 ${s.forcedBranches}곳, 사라진 커밋 ${s.droppedCommits}개`
+            ? `덮어써진 채 ${s.forcedBranches}곳, 없어진 커밋 ${s.droppedCommits}개`
             : null,
           s.autoRun.workflow > 0 ? `CI 정의 ${s.autoRun.workflow}개가 바뀌었습니다` : null,
           cost ? cost.line : null,
