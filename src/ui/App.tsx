@@ -41,7 +41,15 @@ const SCENE_MIN = 260
 /** 창이 짧을 때 아래 칸을 눌러둘 높이 */
 const DOCK_WHEN_SHORT = 200
 
-/** 오늘 새벽 0시~7시. 사고는 대개 이 시간대다. 시각은 이 컴퓨터의 시간대로 읽는다. */
+/**
+ * 오늘 새벽 0시~7시.
+ *
+ * 공격이 이 시간대에 몰린다는 근거는 우리한테 없다. 한 번 겪은 걸로 '대개' 라고 쓸 수 없다.
+ * 이 값을 고른 이유는 이 도구가 **밤사이 일어난 일을 아침에 알아보는 자리**를 위해
+ * 만들어졌기 때문이다. 도구에 대한 말이지 공격자에 대한 말이 아니다.
+ *
+ * 시각은 이 컴퓨터의 시간대로 읽는다.
+ */
 function defaultRange(): { since: string; until: string } {
   const now = new Date()
   const pad = (n: number) => String(n).padStart(2, '0')

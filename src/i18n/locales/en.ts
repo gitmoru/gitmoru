@@ -159,6 +159,17 @@ export const en: Dict = {
 
   changeList: {
     empty: 'Nothing scanned yet',
+    firstRun: [
+      ['Pick what to dig', 'An org name is enough. Naming repositories makes it much faster.'],
+      [
+        'Set the window',
+        'It defaults to midnight through 7am today. If you know when it happened, use that instead.',
+      ],
+      [
+        'Hit Dig and results land here',
+        'Every changed file stays, whether a rule matched it or not. That list is the output.',
+      ],
+    ] as Array<[string, string]>,
     noSignals:
       "No signals came up. Still worth skimming the changed files. My rules don't catch everything.",
     fileCount: (n) => `${n} ${plural(n, 'file', 'files')}`,

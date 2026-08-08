@@ -49,9 +49,8 @@ export function ChangeList({ caseFile, onOpenFile }: ListProps) {
       else next.add(key)
       return next
     })
-  if (!caseFile) {
-    return <p className="px-3 py-3 text-[11px] text-[var(--color-muted)]">{t.changeList.empty}</p>
-  }
+  // 아직 안 팠을 때. 화면에서 제일 큰 빈 자리라 여기에 처음 오는 사람 안내를 놓는다.
+  if (!caseFile) return <FirstRun />
 
   // 아무것도 안 나왔을 때야말로 말이 정확해야 한다.
   // "0건" 만 띄우면 사람은 그걸 "안전하다" 로 읽는다.
@@ -239,6 +238,36 @@ export function ChangeList({ caseFile, onOpenFile }: ListProps) {
         </section>
         )
       })}
+    </div>
+  )
+}
+
+/**
+ * 처음 켰을 때 이 자리에 뜨는 안내.
+ *
+ * 오버레이 투어를 안 만든 이유가 있다. 이 도구를 여는 사람은 사고 난 사람이라
+ * "다음 → 다음" 을 읽을 상태가 아니고, 막히는 자리도 버튼 위치가 아니다.
+ *
+ * 그리고 투어는 한 번 닫으면 끝인데, 다음 사고는 반년 뒤다. 그때 이 사람은 또 처음이다.
+ * 여기 두면 조건이 **"아직 결과가 없다"** 하나여서, 파보면 사라지고 반년 뒤에 또 나온다.
+ * 봤다는 표시를 저장할 필요도, 그걸 지우는 코드도 없다.
+ */
+function FirstRun() {
+  const t = useTr()
+  return (
+    <div className="px-3 py-3">
+      <p className="text-[11px] text-[var(--color-muted)]">{t.changeList.empty}</p>
+      <ol className="mt-3 space-y-2.5">
+        {t.changeList.firstRun.map(([what, why], i) => (
+          <li key={what} className="flex gap-2.5">
+            <span className="shrink-0 font-mono text-[10px] text-[var(--color-faint)]">{i + 1}</span>
+            <div className="min-w-0">
+              <p className="text-[11.5px] text-[var(--color-text)]">{what}</p>
+              <p className="mt-0.5 text-[10.5px] leading-relaxed text-[var(--color-muted)]">{why}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
     </div>
   )
 }
