@@ -23,6 +23,9 @@ import { reactMole } from '../scene/moleReactions'
  */
 
 const TONE: Record<AccessKind, string> = {
+  // 러너만 다른 색이다. 여기서 유일하게 저장소 밖으로 나간다.
+  runner: 'var(--color-ember)',
+  secret: 'var(--color-sand)',
   deployKey: 'var(--color-sand)',
   webhook: 'var(--color-apricot)',
   invitation: 'var(--color-moss)',
@@ -122,7 +125,7 @@ export function AccessModal({
               {t.access.looksFor}
             </p>
             <ul className="mb-4 space-y-1.5">
-              {(['deployKey', 'webhook', 'invitation'] as const).map((kind) => (
+              {(['deployKey', 'webhook', 'invitation', 'runner', 'secret'] as const).map((kind) => (
                 <li key={kind} className="bg-black/25 p-2.5">
                   <p className="text-[11px]" style={{ color: TONE[kind] }}>
                     {t.access.kinds[kind]}
@@ -191,7 +194,7 @@ export function AccessModal({
                         {item.repo}
                       </span>
                       <span className="shrink-0 font-mono text-[9.5px] text-[var(--color-faint)]">
-                        {item.createdAt.slice(0, 10)}
+                        {(item.changedAt ?? item.createdAt ?? '').slice(0, 10)}
                       </span>
                     </div>
 
@@ -219,9 +222,39 @@ export function AccessModal({
               </ul>
             )}
 
+            {/*
+              언제 생겼는지 모르는 것.
+
+              러너가 여기 온다. '최근' 에 넣으면 오래된 것을 이번 사고로 만들고,
+              '이미 있던 것' 에 넣으면 방금 심은 것을 원래 있던 걸로 만든다.
+            */}
+            {report.undated.length > 0 && (
+              <>
+                <SectionTitle>{t.access.undatedTitle}</SectionTitle>
+                <ul className="mb-2 space-y-1.5">
+                  {report.undated.map((item, i) => (
+                    <li key={`${item.repo}-${item.label}-${i}`} className="bg-black/25 p-2.5">
+                      <div className="flex items-baseline gap-2">
+                        <span className="shrink-0 text-[10px]" style={{ color: TONE[item.kind] }}>
+                          {t.access.kinds[item.kind]}
+                        </span>
+                        <span className="truncate font-mono text-[11px]">{item.repo}</span>
+                      </div>
+                      <p className="mt-1 font-mono text-[10.5px] text-[var(--color-muted)]">
+                        {item.label}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+                <p className="mb-4 text-[10.5px] leading-relaxed text-[var(--color-sand)]">
+                  {t.access.undatedNote}
+                </p>
+              </>
+            )}
+
             <SectionTitle>{t.access.existingTitle}</SectionTitle>
             <p className="mb-4 text-[11px] text-[var(--color-muted)]">
-              {(['deployKey', 'webhook', 'invitation'] as const)
+              {(['deployKey', 'webhook', 'invitation', 'runner', 'secret'] as const)
                 .map((kind) => `${t.access.kinds[kind]} ${report.existing[kind]}`)
                 .join(', ')}
             </p>
