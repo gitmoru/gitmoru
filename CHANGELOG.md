@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.8.0](https://github.com/gitmoru/gitmoru/compare/v0.7.0...v0.8.0) (2026-08-08)
+
+
+### Features
+
+* check self-hosted runners and when secrets last changed ([#35](https://github.com/gitmoru/gitmoru/issues/35)) ([39b7cc6](https://github.com/gitmoru/gitmoru/commit/39b7cc610c64ed8b4d187e8553cc5ccedce69b9a))
+* report forks and collaborators added, which need no permissions ([#33](https://github.com/gitmoru/gitmoru/issues/33)) ([a7287d4](https://github.com/gitmoru/gitmoru/commit/a7287d49e53f720546ab823c94147f6d9fb60650))
+* say which repositories can be checked before the check runs ([#30](https://github.com/gitmoru/gitmoru/issues/30)) ([44b173b](https://github.com/gitmoru/gitmoru/commit/44b173b033073421546f4f2f35c1679630e8e7ea))
+
 ## [0.7.0](https://github.com/gitmoru/gitmoru/compare/v0.6.0...v0.7.0) (2026-08-08)
 
 
