@@ -1,5 +1,5 @@
 import { tr } from '../../i18n'
-import type { Detector, Finding } from '../types'
+import type { CommitFacts, Detector, Finding } from '../types'
 
 /**
  * 커밋 메타데이터 위조 탐지.
@@ -42,34 +42,63 @@ export const forgedCommitDetector: Detector = {
     const minGapMs = Number(ctx.options.minGapHours ?? 24) * 60 * 60 * 1000
     const findings: Finding[] = []
 
-    // 공격 시간대에 푸시된 head 커밋만 검사한다. 저장소 전체를 훑지 않는다.
+    /*
+      비교가 이미 알려준 커밋을 먼저 쓴다.
+
+      예전에는 head 커밋마다 따로 받으러 갔다. 실제 조직을 재보니 그게 전체 요청의 44%
+      (996회 중 437회) 였고, 그동안 같은 값이 비교 응답 안에 들어 있었다.
+
+      덤으로 보는 범위가 넓어진다. 예전에는 푸시의 맨 끝 커밋만 봤는데,
+      비교는 그 푸시가 들고 온 커밋을 전부 준다.
+    */
+    const seen = new Set<string>()
+    const known: Array<{ repo: string; branch: string; commit: CommitFacts }> = []
+
+    // 비교가 안 된 푸시만 따로 받아온다. 이어지지 않는 기록이 그렇다.
     const heads = new Map<string, { repo: string; branch: string; sha: string }>()
+
     for (const ev of ctx.events) {
+      if (ev.commits) {
+        for (const commit of ev.commits) {
+          const key = `${ev.repo}@${commit.sha}`
+          if (seen.has(key)) continue
+          seen.add(key)
+          known.push({ repo: ev.repo, branch: ev.branch, commit })
+        }
+        continue
+      }
+
+      /*
+        비교가 실패한 푸시다. 여기서 손을 놓으면 **기록이 통째로 갈아치워진 브랜치에서만**
+        이 탐지기가 조용해진다. 하필 제일 수상한 자리다.
+      */
       if (!ev.head) continue
       const key = `${ev.repo}@${ev.head}`
-      if (!heads.has(key)) heads.set(key, { repo: ev.repo, branch: ev.branch, sha: ev.head })
+      if (seen.has(key) || heads.has(key)) continue
+      heads.set(key, { repo: ev.repo, branch: ev.branch, sha: ev.head })
     }
 
-    const all = [...heads.values()]
+    const missing = [...heads.values()]
     let done = 0
 
-    for (const { repo, branch, sha } of all) {
+    for (const { repo, branch, sha } of missing) {
       done++
       // 몇 개 남았는지 알려준다. 조용하면 멈춘 줄 안다.
       if (done % 10 === 0)
-        ctx.reportProgress?.(tr().detectors.forgedCommit.progress(done, all.length))
+        ctx.reportProgress?.(tr().detectors.forgedCommit.progress(done, missing.length))
 
-      let commit
       try {
-        commit = await ctx.gh.getCommit(repo, sha)
+        known.push({ repo, branch, commit: await ctx.gh.getCommit(repo, sha) })
       } catch (err) {
         ctx.reportFailure(
           `${repo}@${sha.slice(0, 8)}`,
           tr().detectors.forgedCommit.commitFailed(String(err)),
         )
-        continue
       }
+    }
 
+    for (const { repo, branch, commit } of known) {
+      const sha = commit.sha
       const authored = Date.parse(commit.authorDate)
       const committed = Date.parse(commit.committerDate)
       if (!Number.isFinite(authored) || !Number.isFinite(committed)) continue
