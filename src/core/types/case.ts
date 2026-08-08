@@ -7,7 +7,7 @@
 
 import type { BranchChanges } from './changes'
 import type { Finding } from './finding'
-import type { ApiUsage, PushShape, RepoExposure } from './github'
+import type { ApiUsage, CollaboratorAdded, PushShape, RepoExposure } from './github'
 import type { RestoreRecord } from './restore'
 
 /**
@@ -92,7 +92,7 @@ export interface TimelineEntry {
   /** 저장소 단위로 일어난 일이면 비어 있다 (공개 전환처럼) */
   branch: string
   actor: string
-  kind: 'push' | 'restore' | 'note' | 'made-public'
+  kind: 'push' | 'restore' | 'note' | 'made-public' | 'forked' | 'member-added'
 }
 
 /**
@@ -154,5 +154,11 @@ export interface CaseFile {
    * (SAFETY.md 11번).
    */
   exposures?: RepoExposure[]
+  /**
+   * 시간대 안에 저장소에 추가된 사람.
+   *
+   * `exposures` 와 같은 규칙이다. `undefined` 는 안 봤다는 뜻이고 `[]` 는 없었다는 뜻이다.
+   */
+  collaborators?: CollaboratorAdded[]
   restore?: RestoreRecord
 }

@@ -83,7 +83,9 @@ export function registerTriage(server: McpServer, ctx: McpContext) {
           ...(stats.exposed
             ? [
                 `먼저: 비공개였던 저장소 ${stats.exposed}개가 이 시간대에 공개로 바뀌었습니다.`,
-                ...(caseFile.exposures ?? []).map((e) => `- ${e.repo} (${e.at}, ${e.actor})`),
+                ...(caseFile.exposures ?? []).map(
+                  (e) => `- ${e.repo}${e.how === 'forked' ? ` -> 포크 ${e.via ?? ''}` : ' (공개 전환)'} (${e.at}, ${e.actor})`,
+                ),
                 '되돌려도 회수되지 않습니다. 그 안에 있던 키와 토큰부터 새로 발급하세요.',
                 '',
               ]

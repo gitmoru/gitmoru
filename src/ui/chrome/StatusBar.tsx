@@ -74,6 +74,12 @@ export function StatusBar({ caseFile, onExport, onRestore, error }: Props) {
         </span>
       )}
 
+      {!!s.added && s.added > 0 && (
+        <span className="shrink-0 font-medium text-[var(--color-ember)]">
+          {t.statusBar.added(s.added)}
+        </span>
+      )}
+
       {s.autoRun.workflow > 0 && (
         <span className="shrink-0 text-[var(--color-apricot)]">
           {t.role.workflowChanged(s.autoRun.workflow)}

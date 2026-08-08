@@ -91,12 +91,23 @@ export function registerScan(server: McpServer, ctx: McpContext) {
             ? [
                 '',
                 `비공개였던 저장소 ${stats.exposed}개가 이 시간대에 공개로 바뀌었습니다. 되돌린다고 회수되지 않습니다. 그 안에 있던 키와 토큰은 새로 발급해야 합니다.`,
-                ...(caseFile.exposures ?? []).map((e) => `- ${e.repo} (${e.at}, ${e.actor})`),
+                ...(caseFile.exposures ?? []).map(
+                  (e) => `- ${e.repo}${e.how === 'forked' ? ` -> 포크 ${e.via ?? ''}` : ' (공개 전환)'} (${e.at}, ${e.actor})`,
+                ),
               ]
             : []),
           '',
           // 왜 오래 걸렸는지, 다시 훑을 여유가 있는지. 나중에 반드시 물어보게 된다.
           ...(cost ? [cost.line, cost.lowBudget ? tr().usage.low : null] : []),
+          ...(stats.added
+            ? [
+                `이 시간대에 저장소에 추가된 사람이 ${stats.added}명 있습니다. 계정을 잠가도 안 닫히고, 브랜치를 되돌려도 남습니다.`,
+                ...(caseFile.collaborators ?? []).map(
+                  (e) => `- ${e.repo}: ${e.member} (${e.at}, ${e.actor})`,
+                ),
+                '',
+              ]
+            : []),
           incomplete
             ? '주의: 확인하지 못한 대상이 있습니다. 이 결과를 "이상 없음" 으로 결론내지 마세요.'
             : null,

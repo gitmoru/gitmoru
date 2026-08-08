@@ -60,7 +60,22 @@ export function shareText(c: CaseFile): string {
     lines.push('')
     lines.push(t.exposed(s.exposed))
     for (const e of c.exposures ?? []) {
-      lines.push(`- ${e.repo} (${utcToZoned(e.at, c.window.displayTz)}, ${e.actor})`)
+      const how = e.how === 'forked' && e.via ? ` -> ${e.via}` : ''
+      lines.push(`- ${e.repo}${how} (${utcToZoned(e.at, c.window.displayTz)}, ${e.actor})`)
+    }
+  }
+
+  /*
+    추가된 사람은 나간 것 바로 다음에 둔다.
+
+    앞은 이미 나가버린 것이고 이건 **아직 열려 있는 것**이라, 받는 사람이 지금 닫을 수 있다.
+    브랜치 숫자에 섞이면 그 차이가 안 보인다.
+  */
+  if (s.added && s.added > 0) {
+    lines.push('')
+    lines.push(t.added(s.added))
+    for (const e of c.collaborators ?? []) {
+      lines.push(`- ${e.repo}: ${e.member} (${utcToZoned(e.at, c.window.displayTz)}, ${e.actor})`)
     }
   }
 

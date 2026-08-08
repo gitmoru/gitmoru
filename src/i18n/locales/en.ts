@@ -51,7 +51,8 @@ export const en: Dict = {
     forced: (branches, commits) =>
       `${branches} still overwritten, ${commits} ${commits === 1 ? 'commit' : 'commits'} gone`,
     rewritten: (n) => `${n} with history replaced`,
-    exposed: (n) => `${n} went public`,
+    exposed: (n) => `${n} left`,
+    added: (n) => `${n} added`,
     exportHint: 'A record you can reopen later or hand to someone else',
     exportLabel: 'Save record',
     restore: 'Restore',
@@ -363,8 +364,12 @@ export const en: Dict = {
       unknown > 0 ? `${unknown} could not be checked` : `${failures} lookups failed`,
     incompleteDetail:
       'Part of this went unchecked, so the result is not conclusive. Do not read it as "nothing found".',
-    exposedTitle: (repos) =>
-      `${repos} ${plural(repos, 'repository', 'repositories')} went public`,
+    exposedTitle: (repos, forked) =>
+      forked === 0
+        ? `${repos} ${plural(repos, 'repository', 'repositories')} went public`
+        : forked === repos
+          ? `${repos} ${plural(repos, 'repository was', 'repositories were')} forked out`
+          : `${repos} ${plural(repos, 'repository', 'repositories')} left this org (${forked} by fork)`,
     exposedDetail: (files) =>
       `What was private is now on the internet. There is no way to find out who took a copy, so the keys and tokens that were inside get rotated, not restored.${files > 0 ? ` ${files} changed ${plural(files, 'file', 'files')} to look at as well.` : ''}`,
     noChanges: {
@@ -402,7 +407,9 @@ export const en: Dict = {
     rewritten: (n) =>
       `${n} of them were replaced with an unrelated history, so the number of lost commits cannot be counted.`,
     exposed: (n) =>
-      `${n} ${plural(n, 'repository', 'repositories')} that had been private went public in this window. There is no way to see who took a copy, so the keys and tokens inside them need to be reissued.`,
+      `${n} ${plural(n, 'repository', 'repositories')} that had been private left this window, by going public or by being forked. There is no way to see who took a copy, so the keys and tokens inside them need to be reissued.`,
+    added: (n) =>
+      `${n} ${plural(n, 'person was', 'people were')} added to a repository in this window. Locking the original account does not close that, and restoring branches does not remove it.`,
     workflow: (n) =>
       `${n} CI ${n === 1 ? 'definition' : 'definitions'} under .github/workflows changed. From the next push on, that is what runs.`,
     byRepo: 'By repository',
