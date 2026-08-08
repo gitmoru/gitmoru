@@ -44,6 +44,12 @@ export interface PushEvent {
    * "서명이 다 돼 있었다" 가 아니라 "모른다" 다.
    */
   signing?: CompareSigning
+  /**
+   * 이 푸시로 들어온 커밋들.
+   *
+   * 비교할 때 같이 딸려온다. 없으면 확인 못 한 것이지 커밋이 없었다는 뜻이 아니다.
+   */
+  commits?: CommitFacts[]
 }
 
 /**
@@ -140,6 +146,20 @@ export interface ApiUsage {
   resetAt?: string
 }
 
+/**
+ * 비교가 알려준 커밋 하나.
+ *
+ * 이것도 비교 응답에 원래 들어 있다. 예전에는 커밋마다 다시 받으러 갔는데,
+ * 실제 조직을 재보니 그게 전체 요청의 44% 였다.
+ */
+export interface CommitFacts {
+  sha: string
+  authorName: string
+  authorDate: string
+  committerName: string
+  committerDate: string
+}
+
 export interface CompareResult {
   status: 'ahead' | 'behind' | 'identical' | 'diverged'
   aheadBy: number
@@ -150,6 +170,8 @@ export interface CompareResult {
    * 비교 응답에 원래 들어 있던 것이다. 예전에는 위 세 개만 읽고 버렸다.
    */
   signing?: CompareSigning
+  /** 이 비교로 드러난 커밋들. 이어지지 않는 기록이면 비교 자체가 안 돼서 없다. */
+  commits?: CommitFacts[]
 }
 
 /**

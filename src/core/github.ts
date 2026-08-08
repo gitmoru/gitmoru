@@ -2,6 +2,7 @@ import { ghCall } from '../platform/bridge'
 import type {
   ApiUsage,
   BranchRef,
+  CommitFacts,
   CommitMeta,
   CompareResult,
   CompareSigning,
@@ -492,6 +493,7 @@ export class GitHubClient implements GitHubReader {
       behindBy: raw.behind_by,
       // 이미 받아온 응답 안에 있다. 안 읽으면 그냥 버려진다.
       signing: readSigning(raw),
+      commits: readCommits(raw),
     }
   }
 
@@ -606,7 +608,41 @@ export interface RawCompare {
   behind_by: number
   total_commits?: number
   base_commit?: { commit?: { verification?: { verified?: boolean; reason?: string } } }
-  commits?: Array<{ commit?: { verification?: { verified?: boolean; reason?: string } } }>
+  commits?: Array<{
+    sha?: string
+    commit?: {
+      author?: { name?: string; date?: string }
+      committer?: { name?: string; date?: string }
+      verification?: { verified?: boolean; reason?: string }
+    }
+  }>
+}
+
+/**
+ * 비교 응답에서 커밋들의 신원을 읽는다.
+ *
+ * 예전에는 커밋마다 따로 받으러 갔다. 실제 조직을 재보니 그게 전체 요청의 44% 였고,
+ * 그동안 이 응답 안에 같은 값이 들어 있었다.
+ *
+ * 이름이나 날짜가 없는 커밋은 뺀다. 지어내면 그게 곧 잘못된 신호가 된다.
+ */
+export function readCommits(raw: RawCompare): CommitFacts[] | undefined {
+  if (!Array.isArray(raw.commits)) return undefined
+
+  const out: CommitFacts[] = []
+  for (const c of raw.commits) {
+    const a = c.commit?.author
+    const m = c.commit?.committer
+    if (!c.sha || !a?.date || !m?.date) continue
+    out.push({
+      sha: c.sha,
+      authorName: a.name ?? '',
+      authorDate: a.date,
+      committerName: m.name ?? '',
+      committerDate: m.date,
+    })
+  }
+  return out
 }
 
 /**
