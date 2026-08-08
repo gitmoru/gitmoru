@@ -146,6 +146,7 @@ export const ja: Dict = {
     branchesAll: 'すべて',
     branchesPicked: (n) => `${n} 本のみ`,
     narrow: '絞り込む',
+    admin: '管理者',
   },
 
   actorPicker: {
@@ -461,6 +462,12 @@ export const ja: Dict = {
     hint: 'パスワードを変えても残るものがあります。ブランチには触れないので「掘る」では見つからず、代わりにいつできたかが記録されているので今すぐ確認できます。',
     looksFor: 'この 3 つを数えます',
     run: '点検する',
+    adminScope: (can, total) =>
+      can === total
+        ? `選んだ ${total} 件すべてを確認できます。`
+        : `選んだ ${total} 件のうち ${can} 件だけ確認できます。残りはリポジトリ管理者でないと取得できないため、出てこないことは「ない」ことではありません。`,
+    noneAdmin:
+      '選んだリポジトリに管理者権限のあるものがありません。ここで見るものはすべてリポジトリ管理者でないと取得できません。権限のある人に一度回してもらうほうが早いです。',
     running: '確認中...',
     progress: (done, total) => `リポジトリ確認 ${done}/${total}`,
     kinds: {

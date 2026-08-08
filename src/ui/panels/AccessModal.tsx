@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import {
   checkAccess,
@@ -8,7 +8,7 @@ import {
 } from '../../core/access'
 import type { GitHubClient } from '../../core/github'
 import { defang } from '../../core/safeText'
-import type { AccessKind, AccessReport } from '../../core/types'
+import type { AccessKind, AccessReport, RepoRef } from '../../core/types'
 import { useTr } from '../../i18n'
 import { Modal } from '../chrome/Modal'
 import { useViewport } from '../hooks/useViewport'
@@ -48,13 +48,38 @@ export function AccessModal({
   const [report, setReport] = useState<AccessReport | null>(null)
   const [failed, setFailed] = useState(false)
 
+  /*
+    누르기 전에 몇 개나 볼 수 있는지 알려준다.
+
+    여기서 보는 것은 거의 다 저장소 관리자여야 조회된다. 3개만 관리자인 사람이
+    버튼을 누르면 한참 기다린 끝에 대부분 "못 봤다" 인 화면을 받는다.
+    **그걸 누르기 전에 알 수 있었는데 안 알려준 것이다.**
+
+    목록을 여기서 미리 받는다고 요청이 느는 건 아니다. 누르면 어차피 받던 것을
+    앞으로 옮긴 것뿐이고, 눌렀을 때는 이미 받아둔 걸 쓴다.
+  */
+  const [scope, setScope] = useState<RepoRef[] | null>(null)
+
+  useEffect(() => {
+    if (!gh) return
+    let alive = true
+    gh.listAccessibleRepos()
+      .then((all) => alive && setScope(narrowRepos(all, { repos, orgs })))
+      .catch(() => alive && setScope([]))
+    return () => {
+      alive = false
+    }
+  }, [gh, repos, orgs])
+
+  const canCheck = scope?.filter((r) => r.isAdmin).length ?? 0
+  const nothingToCheck = scope !== null && scope.length > 0 && canCheck === 0
+
   const run = async () => {
     if (!gh) return
     setBusy(true)
     setFailed(false)
     try {
-      const all = await gh.listAccessibleRepos()
-      const picked = narrowRepos(all, { repos, orgs })
+      const picked = scope ?? narrowRepos(await gh.listAccessibleRepos(), { repos, orgs })
 
       const since = new Date(Date.now() - DEFAULT_RECENT_DAYS * 86_400_000).toISOString()
       const result = await checkAccess(gh, { repos: picked, orgs, since }, (done, total) =>
@@ -109,10 +134,25 @@ export function AccessModal({
               ))}
             </ul>
 
+            {/* 무엇을 볼 수 있는지가 무엇을 보는지만큼 중요하다 */}
+            {scope !== null && (
+              <p
+                className="mb-3 p-2.5 text-[10.5px] leading-relaxed"
+                style={{
+                  background: 'rgba(0,0,0,.25)',
+                  color: nothingToCheck ? 'var(--color-sand)' : 'var(--color-muted)',
+                }}
+              >
+                {nothingToCheck
+                  ? t.access.noneAdmin
+                  : t.access.adminScope(canCheck, scope.length)}
+              </p>
+            )}
+
             <button
               type="button"
               onClick={run}
-              disabled={busy || !gh}
+              disabled={busy || !gh || nothingToCheck}
               className="px-btn bg-[var(--color-moss)] px-4 py-2 text-[12px] font-semibold text-[#16241c] disabled:bg-[var(--color-edge)] disabled:text-[var(--color-faint)]"
             >
               {busy ? t.access.running : t.access.run}
