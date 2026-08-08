@@ -146,6 +146,7 @@ export const en: Dict = {
     branchesAll: 'All',
     branchesPicked: (n) => `${n} only`,
     narrow: 'Narrow',
+        admin: 'admin',
   },
 
   actorPicker: {
@@ -463,6 +464,12 @@ export const en: Dict = {
     hint: 'Some things survive a password reset. They never touch a branch, so a dig will not find them, but each one records when it was created, so we can check right now.',
     looksFor: 'These three are counted',
     run: 'Check doors',
+    adminScope: (can, total) =>
+      can === total
+        ? `All ${total} selected ${total === 1 ? 'repository' : 'repositories'} can be checked.`
+        : `${can} of the ${total} selected can be checked. The rest need repository admin, so nothing showing up there is not the same as nothing being there.`,
+    noneAdmin:
+      'You are not an admin on any of the selected repositories. Everything here needs repository admin to read. Asking someone who is will be faster.',
     running: 'Checking...',
     progress: (done, total) => `Checked ${done}/${total} repos`,
     kinds: {

@@ -137,6 +137,7 @@ export const ko = {
     branchesAll: '전체',
     branchesPicked: (n: number) => `${n}개만`,
     narrow: '좁히기',
+        admin: '관리자',
   },
 
   actorPicker: {
@@ -452,6 +453,12 @@ export const ko = {
     hint: '계정 비밀번호를 바꿔도 그대로 남는 것들이 있어요. 이건 브랜치를 안 건드려서 파보기에는 안 잡히고, 대신 언제 생겼는지가 남아 있어서 지금 확인할 수 있습니다.',
     looksFor: '이 세 가지를 셉니다',
     run: '문단속 하기',
+    adminScope: (can: number, total: number) =>
+      can === total
+        ? `고른 저장소 ${total}개 전부 볼 수 있어요.`
+        : `고른 저장소 ${total}개 중 ${can}개만 볼 수 있어요. 나머지는 저장소 관리자만 조회돼서, 안 나온다고 없는 게 아닙니다.`,
+    noneAdmin:
+      '고른 저장소 중에 관리자인 곳이 없어요. 여기서 보는 것들은 전부 저장소 관리자여야 조회됩니다. 관리자에게 한 번 돌려봐 달라고 부탁하는 게 빠릅니다.',
     running: '보는 중...',
     progress: (done: number, total: number) => `저장소 확인 ${done}/${total}`,
     kinds: {

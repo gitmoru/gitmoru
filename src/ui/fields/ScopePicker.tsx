@@ -40,6 +40,7 @@ export function ScopePicker({ gh, value, onChange, onFocus, onBlur }: Props) {
   const [open, setOpen] = useState(false)
   const searchRef = useRef<HTMLInputElement>(null)
 
+  const [admin, setAdmin] = useState<Set<string>>(new Set())
   const [branches, setBranches] = useState<string[]>([])
   const [branchesLoading, setBranchesLoading] = useState(false)
 
@@ -47,12 +48,15 @@ export function ScopePicker({ gh, value, onChange, onFocus, onBlur }: Props) {
     gh.listAccessibleRepos()
       .then((repos) => {
         setAll(repos.map((r) => r.fullName))
+        // 관리자인 곳을 기억해둔다. 문단속에서 볼 수 있는 곳이 어디인지가 여기서 갈린다.
+        setAdmin(new Set(repos.filter((r) => r.isAdmin).map((r) => r.fullName)))
         // 최근 푸시 순으로 오므로 그 순서대로 소유자를 모은다
         setOwners([...new Set(repos.map((r) => r.owner))])
       })
       .catch(() => {
         setAll([])
         setOwners([])
+        setAdmin(new Set())
       })
       .finally(() => setLoading(false))
   }, [gh])
@@ -178,6 +182,17 @@ export function ScopePicker({ gh, value, onChange, onFocus, onBlur }: Props) {
                 <span className="text-[var(--color-text)] group-hover:text-[#16241c]">
                   {h.split('/')[1]}
                 </span>
+                {/*
+                  관리자인 곳만 문단속이 됩니다.
+
+                  고를 때 보여야 의미가 있다. 다 고르고 눌러본 다음에 "권한이 없어요" 를
+                  듣는 건 늦다.
+                */}
+                {admin.has(h) && (
+                  <span className="ml-2 text-[9.5px] text-[var(--color-moss)] group-hover:text-[#2c4a38]">
+                    {t.scopePicker.admin}
+                  </span>
+                )}
               </button>
             ))}
           </>
