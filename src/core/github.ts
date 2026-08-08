@@ -283,6 +283,45 @@ export class GitHubClient implements GitHubReader {
     }>(`repos/${repo}/hooks`, 2)
   }
 
+  /**
+   * 등록된 self-hosted 러너.
+   *
+   * 여기 있으면 워크플로가 **누군가의 실제 컴퓨터**에서 돈다. GitHub 이 빌려주는
+   * 일회용 기계가 아니라서 이전 작업의 흔적이 남고, 사내망 안에 있는 경우가 많다.
+   * 계정을 잠그고 브랜치를 전부 되돌려도 러너는 그 자리에 그대로 있다.
+   *
+   * 배열이 아니라 `{ total_count, runners }` 로 온다. 그래서 paginate 를 안 쓴다.
+   * 그리고 **등록 시각을 안 준다.** 언제 생겼는지 모른다는 걸 그대로 들고 가야 한다.
+   */
+  async listRunners(repo: string) {
+    const raw = await this.request<{ runners?: Array<{ id: number; name: string; os: string }> }>(
+      `repos/${repo}/actions/runners?per_page=100`,
+    )
+    return raw.runners ?? []
+  }
+
+  /** 조직에 등록된 러너. `admin:org` 스코프가 있어야 보인다. */
+  async listOrgRunners(org: string) {
+    const raw = await this.request<{ runners?: Array<{ id: number; name: string; os: string }> }>(
+      `orgs/${org}/actions/runners?per_page=100`,
+    )
+    return raw.runners ?? []
+  }
+
+  /**
+   * Actions 비밀의 이름과 시각.
+   *
+   * **값은 안 준다. 이름과 시각뿐이다.** 그래서 우리가 쓸 수 있다.
+   * 공격자가 배포 비밀을 자기 것으로 갈아끼우면 그다음 빌드부터 정상 코드가
+   * 공격자 쪽으로 나가는데, diff 에는 아무 흔적도 안 남는다.
+   */
+  async listSecrets(repo: string) {
+    const raw = await this.request<{
+      secrets?: Array<{ name: string; created_at: string; updated_at: string }>
+    }>(`repos/${repo}/actions/secrets?per_page=100`)
+    return raw.secrets ?? []
+  }
+
   /** 저장소에 보낸 초대. 아직 수락 전이라 이건 막을 수 있다. */
   async listRepoInvitations(repo: string) {
     return this.paginate<{

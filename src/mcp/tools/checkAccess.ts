@@ -74,7 +74,7 @@ export function registerCheckAccess(server: McpServer, ctx: McpContext) {
                   // 웹훅 주소는 공격자 인프라일 수 있다. 눌리지 않는 형태로 넘긴다.
                   const where = item.target ? ` → ${defang(item.target)}` : ''
                   const ro = item.readOnly ? ' (읽기 전용)' : ''
-                  return `- [${item.kind}] ${item.repo} :: ${item.label}${where}${ro}  ${item.createdAt.slice(0, 10)}`
+                  return `- [${item.kind}] ${item.repo} :: ${item.label}${where}${ro}  ${(item.changedAt ?? item.createdAt ?? '').slice(0, 10)}`
                 }),
               ].join('\n')
             : `최근 ${days}일 안에 새로 생긴 건 없습니다.`,

@@ -91,7 +91,7 @@ async function checkRepo(
   const t = tr().access
   const found: AccessItem[] = []
 
-  const [keys, hooks, invites] = await Promise.all([
+  const [keys, hooks, invites, runners, secrets] = await Promise.all([
     gh.listDeployKeys(repo).catch((err) => {
       gaps.push({ target: `${repo} (keys)`, why: gapFor(err) })
       return []
@@ -104,7 +104,37 @@ async function checkRepo(
       gaps.push({ target: `${repo} (invitations)`, why: gapFor(err) })
       return []
     }),
+    gh.listRunners(repo).catch((err) => {
+      gaps.push({ target: `${repo} (runners)`, why: gapFor(err) })
+      return []
+    }),
+    gh.listSecrets(repo).catch((err) => {
+      gaps.push({ target: `${repo} (secrets)`, why: gapFor(err) })
+      return []
+    }),
   ])
+
+  for (const runner of runners) {
+    found.push({
+      kind: 'runner',
+      repo,
+      label: `${runner.name} (${runner.os})`,
+      // createdAt 이 없다. GitHub 이 안 준다. 지어내지 않는다.
+      href: `https://github.com/${repo}/settings/actions/runners`,
+    })
+  }
+
+  for (const secret of secrets) {
+    found.push({
+      kind: 'secret',
+      repo,
+      label: secret.name,
+      createdAt: secret.created_at,
+      // 비밀은 언제 생겼는지보다 **언제 바뀌었는지**가 중요하다
+      changedAt: secret.updated_at,
+      href: `https://github.com/${repo}/settings/secrets/actions`,
+    })
+  }
 
   for (const key of keys) {
     found.push({
@@ -201,15 +231,34 @@ export async function checkAccess(
     2년 전에 만든 배포 키는 뉴스가 아니다. 그런데 있다는 사실 자체는 알아야 하니
     나머지는 개수만 센다. 이러면 임계값 없이도 소음이 안 된다.
   */
-  const recent = all.filter((item) => item.createdAt >= scope.since)
-  const existing: AccessReport['existing'] = { deployKey: 0, webhook: 0, invitation: 0 }
-  for (const item of all) {
-    if (item.createdAt < scope.since) existing[item.kind]++
+  /*
+    언제 생겼는지 모르는 것은 어느 쪽에도 안 넣는다.
+
+    러너가 그렇다. GitHub 이 등록 시각을 안 준다. '최근' 에 넣으면 오래된 것을
+    이번 사고로 만들고, '이미 있던 것' 에 넣으면 방금 심은 것을 원래 있던 걸로 만든다.
+    둘 다 우리가 모르는 것을 아는 척하는 것이다.
+  */
+  const when = (item: AccessItem) => item.changedAt ?? item.createdAt
+
+  const undated = all.filter((item) => when(item) === undefined)
+  const dated = all.filter((item) => when(item) !== undefined)
+
+  const recent = dated.filter((item) => when(item)! >= scope.since)
+  const existing: AccessReport['existing'] = {
+    deployKey: 0,
+    webhook: 0,
+    invitation: 0,
+    runner: 0,
+    secret: 0,
+  }
+  for (const item of dated) {
+    if (when(item)! < scope.since) existing[item.kind]++
   }
 
   return {
     since: scope.since,
-    recent: recent.sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+    recent: recent.sort((a, b) => when(b)!.localeCompare(when(a)!)),
+    undated,
     existing,
     checked: targets.length,
     gaps,
