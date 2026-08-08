@@ -2,6 +2,7 @@ import { ghCall } from '../platform/bridge'
 import type {
   ApiUsage,
   BranchRef,
+  CollaboratorAdded,
   CommitFacts,
   CommitMeta,
   CompareResult,
@@ -329,7 +330,11 @@ export class GitHubClient implements GitHubReader {
     repo: string,
     since: string,
     until: string,
-  ): Promise<{ pushes: PushEvent[]; exposures: RepoExposure[] }> {
+  ): Promise<{
+    pushes: PushEvent[]
+    exposures: RepoExposure[]
+    collaborators: CollaboratorAdded[]
+  }> {
     const path = `repos/${repo}/events`
     const { items, truncated } = await this.fetchPages<RawEvent>(path, 3)
 
@@ -538,7 +543,16 @@ export interface RawEvent {
   type: string
   created_at: string
   actor: { login: string }
-  payload: { ref?: string; before?: string; head?: string }
+  payload: {
+    ref?: string
+    before?: string
+    head?: string
+    /** 포크된 저장소 */
+    forkee?: { full_name?: string }
+    /** MemberEvent 에서 무슨 일이 있었는지. 지금 뜻이 있는 건 `added` 뿐이다. */
+    action?: string
+    member?: { login?: string }
+  }
 }
 
 /**
@@ -557,7 +571,7 @@ export function splitRepoEvents(
   raw: RawEvent[],
   since: string,
   until: string,
-): { pushes: PushEvent[]; exposures: RepoExposure[] } {
+): { pushes: PushEvent[]; exposures: RepoExposure[]; collaborators: CollaboratorAdded[] } {
   const at = (iso: string) => iso.slice(0, 19)
   const inWindow = raw.filter((e) => at(e.created_at) >= at(since) && at(e.created_at) <= at(until))
 
@@ -573,10 +587,41 @@ export function splitRepoEvents(
         head: e.payload.head ?? '',
       })),
 
-    // payload 가 비어 있는 이벤트다. 뜻이 하나뿐이라 읽어낼 것이 없다.
-    exposures: inWindow
-      .filter((e) => e.type === 'PublicEvent')
-      .map((e) => ({ repo, at: e.created_at, actor: e.actor.login })),
+    /*
+      내용이 밖으로 나간 일 둘.
+
+      공개 전환은 payload 가 비어 있다. 뜻이 하나뿐이라 읽어낼 것이 없다.
+      포크는 어디로 갔는지가 payload 에 있고, 원본을 지워도 그 복사본은 안 없어진다.
+
+      둘 다 되돌릴 수 없어서 한 자리에 담는다. 브랜치를 되돌리는 일과는 성격이 다르다.
+    */
+    exposures: [
+      ...inWindow
+        .filter((e) => e.type === 'PublicEvent')
+        .map((e) => ({ repo, at: e.created_at, actor: e.actor.login, how: 'made-public' as const })),
+      ...inWindow.filter((e) => e.type === 'ForkEvent').map((e) => ({
+        repo,
+        at: e.created_at,
+        actor: e.actor.login,
+        how: 'forked' as const,
+        via: e.payload.forkee?.full_name,
+      })),
+    ],
+
+    /*
+      다시 들어올 길.
+
+      `added` 만 본다. 나머지 action 은 사람이 빠지는 쪽이라 여기서 말할 것이 없다.
+      계정을 잠가도 이건 안 닫히고, 브랜치를 전부 되돌려도 남는다.
+    */
+    collaborators: inWindow
+      .filter((e) => e.type === 'MemberEvent' && e.payload.action === 'added')
+      .map((e) => ({
+        repo,
+        at: e.created_at,
+        actor: e.actor.login,
+        member: e.payload.member?.login ?? '',
+      })),
   }
 }
 

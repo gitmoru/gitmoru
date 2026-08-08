@@ -37,7 +37,7 @@ describe('splitRepoEvents', () => {
 
     expect(out.pushes).toHaveLength(1)
     expect(out.exposures).toEqual([
-      { repo: 'a/b', at: '2026-08-06T02:00:00Z', actor: 'attacker' },
+      { repo: 'a/b', at: '2026-08-06T02:00:00Z', actor: 'attacker', how: 'made-public' },
     ])
   })
 
@@ -50,10 +50,11 @@ describe('splitRepoEvents', () => {
   })
 
   it('우리가 모르는 이벤트는 조용히 흘려보낸다', () => {
-    // 별 누르기, 포크, 이슈 코멘트. 여기 섞여 들어오면 숫자가 부풀어 오른다.
+    // 별 누르기, 위키 수정, 이슈 코멘트. 여기 섞여 들어오면 숫자가 부풀어 오른다.
+    // 포크는 이제 여기 없다. 그건 세는 쪽으로 옮겼다.
     const noise: RawEvent[] = [
       { type: 'WatchEvent', created_at: '2026-08-06T01:00:00Z', actor: { login: 'x' }, payload: {} },
-      { type: 'ForkEvent', created_at: '2026-08-06T01:00:00Z', actor: { login: 'x' }, payload: {} },
+      { type: 'GollumEvent', created_at: '2026-08-06T01:00:00Z', actor: { login: 'x' }, payload: {} },
     ]
     const out = split(noise)
 

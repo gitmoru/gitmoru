@@ -66,7 +66,14 @@ function fakeGitHub(opts: FakeOptions = {}) {
         before: p.before,
         head: p.head,
       })),
-      exposures: (opts.exposures ?? []).map((e) => ({ repo: REPO, at: e.at, actor: e.actor })),
+      exposures: (opts.exposures ?? []).map((e) => ({
+        repo: REPO,
+        at: e.at,
+        actor: e.actor,
+        how: 'made-public' as const,
+      })),
+      // 파이프라인이 새로 읽기 시작한 것. 가짜가 좁아서 여기가 먼저 깨진다.
+      collaborators: [],
     }),
 
     listBranches: async () => [{ repo: REPO, branch: 'main', sha: HEAD }],
@@ -122,7 +129,7 @@ describe('runScan 이 이어붙이는 자리', () => {
     const c = await scan({ exposures: [{ at: '2026-08-06T03:00:00Z', actor: 'attacker' }] })
 
     expect(c.exposures).toEqual([
-      { repo: REPO, at: '2026-08-06T03:00:00Z', actor: 'attacker' },
+      { repo: REPO, at: '2026-08-06T03:00:00Z', actor: 'attacker', how: 'made-public' },
     ])
     expect(c.timeline.map((t) => t.kind)).toEqual(['made-public'])
     expect(verdictOf(c)).toBe('exposed')

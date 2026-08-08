@@ -66,10 +66,38 @@ export interface PushEvent {
  */
 export interface RepoExposure {
   repo: string
-  /** 공개로 바뀐 시각 (ISO 8601, UTC) */
+  /** 그 일이 일어난 시각 (ISO 8601, UTC) */
   at: string
   /** 그 일을 한 계정 */
   actor: string
+  /**
+   * 어떻게 나갔는지.
+   *
+   * `made-public` - 비공개였던 저장소가 공개로 바뀌었다
+   * `forked`      - 누군가 통째로 복사해 갔다. 비공개 저장소는 접근 권한이 있어야 포크된다
+   *
+   * 이 검사가 생기기 전 사건에는 없다. 그때는 공개 전환만 봤으니 없으면 그걸로 읽는다.
+   */
+  how?: 'made-public' | 'forked'
+  /** 포크면 어디로 갔는지 (`누구/저장소`) */
+  via?: string
+}
+
+/**
+ * 시간대 안에 저장소에 추가된 사람.
+ *
+ * 나간 것이 아니라 **다시 들어올 길**이라 따로 둔다. 계정을 잠가도 안 닫히고,
+ * 브랜치를 전부 되돌려도 남는다.
+ *
+ * 권한이 없어도 보인다. 이벤트에 그냥 들어 있다.
+ */
+export interface CollaboratorAdded {
+  repo: string
+  at: string
+  /** 추가한 사람 */
+  actor: string
+  /** 추가된 사람 */
+  member: string
 }
 
 /**

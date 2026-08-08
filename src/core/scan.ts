@@ -12,6 +12,7 @@ import type {
   DetectorContext,
   Finding,
   PushEvent,
+  CollaboratorAdded,
   RepoExposure,
   RepoRef,
   ScanFailure,
@@ -96,6 +97,7 @@ export async function runScan(
     저장소가 공개됐다는 사실을 안 보겠다고 한 게 아니다.
   */
   const exposures: RepoExposure[] = []
+  const collaborators: CollaboratorAdded[] = []
 
   for (const [i, repo] of repos.entries()) {
     onProgress({
@@ -115,6 +117,7 @@ export async function runScan(
         }),
       )
       exposures.push(...found.exposures.filter((e) => !req.actor || e.actor === req.actor))
+      collaborators.push(...found.collaborators.filter((e) => !req.actor || e.actor === req.actor))
     } catch (err) {
       fail(repo.fullName, tr().progress.eventsFailed(String(err)))
     }
@@ -324,13 +327,20 @@ export async function runScan(
       actor: e.actor,
       kind: 'push' as const,
     })),
-    // 브랜치가 없다. 저장소 하나가 통째로 밖으로 나간 일이다.
+    // 브랜치가 없다. 저장소 단위로 일어난 일이다.
     ...exposures.map((e) => ({
       at: e.at,
       repo: e.repo,
       branch: '',
       actor: e.actor,
-      kind: 'made-public' as const,
+      kind: (e.how === 'forked' ? 'forked' : 'made-public') as 'forked' | 'made-public',
+    })),
+    ...collaborators.map((e) => ({
+      at: e.at,
+      repo: e.repo,
+      branch: '',
+      actor: e.actor,
+      kind: 'member-added' as const,
     })),
   ].sort((a, b) => a.at.localeCompare(b.at))
 
@@ -359,6 +369,7 @@ export async function runScan(
     changes,
     findings,
     exposures,
+    collaborators,
   }
 }
 
@@ -410,6 +421,10 @@ export function summarize(c: CaseFile) {
      * 화면에서 둘을 같은 0 으로 그리면, 안 본 것이 확인한 것처럼 보인다.
      */
     exposed: c.exposures ? c.exposures.length : null,
+    /** 그중 포크로 나간 것. 공개 전환과 할 일이 조금 다르다. */
+    forked: c.exposures ? c.exposures.filter((e) => e.how === 'forked').length : null,
+    /** 시간대 안에 저장소에 추가된 사람. `null` 은 안 봤다는 뜻이다. */
+    added: c.collaborators ? c.collaborators.length : null,
     complete: c.failures.length === 0,
   }
 }
@@ -461,7 +476,8 @@ export function verdictText(c: CaseFile): { title: string; detail: string } {
       }
     case 'exposed':
       return {
-        title: t.exposedTitle(s.exposed ?? 0),
+        // 공개 전환과 포크는 할 일이 조금 달라서 갈라 적는다
+        title: t.exposedTitle(s.exposed ?? 0, s.forked ?? 0),
         detail: t.exposedDetail(s.changedFiles),
       }
     case 'no-changes':
