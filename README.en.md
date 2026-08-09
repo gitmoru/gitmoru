@@ -9,7 +9,7 @@
 
 **A mole that digs through your repositories and tells you what happened**
 
-For the morning you find out someone rewrote every branch overnight.<br>
+For the morning you find out someone force-pushed over every branch overnight.<br>
 It downloads nothing, and sends nothing off this machine.
 
 [한국어](README.md) | **English** | [日本語](README.ja.md)
