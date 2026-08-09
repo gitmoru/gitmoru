@@ -4,3 +4,9 @@ allowBuilds:
   # 둘 다 플랫폼 바이너리를 내려받아 연결하는 공식 설치 스크립트라 허용한다.
   esbuild: true
   electron: true
+
+# postcss 가 물고 온 nanoid 가 3.3.17 아래라 무한 루프 취약점이 있다.
+# postcss 가 올려주기를 기다리는 대신 3.x 안에서 우리가 올린다.
+# 메이저를 넘기면 postcss 쪽이 깨지므로 범위를 벗어나지 않는다.
+overrides:
+  nanoid: '^3.3.17'
