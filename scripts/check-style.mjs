@@ -42,8 +42,18 @@ const ALLOW_FILES = new Set([
  * 영어로 읽은 사람만 옛날 이야기를 보고 있었다. 내용까지는 못 보지만
  * 큰 제목 개수가 다르면 한쪽에 뭔가 붙었거나 빠진 것이다.
  */
-const TRIOS = ['README', 'CONTRIBUTING']
-const LANGS = ['', '.en', '.ja']
+const TRIOS = [
+  /*
+    README 는 영어가 기본이다. GitHub 저장소 첫 화면과 npm 패키지 페이지가
+    이 파일을 그대로 보여주는데, 그 두 자리를 보는 사람은 전 세계다.
+  */
+  { base: 'README', langs: ['', '.ko', '.ja'] },
+  /*
+    CONTRIBUTING 은 한국어가 기본이다. 여기까지 온 사람은 이미 저장소 안에 있고,
+    이 팀이 한국어로 일한다. 간판과 작업 규칙은 읽는 사람이 다르다.
+  */
+  { base: 'CONTRIBUTING', langs: ['', '.en', '.ja'] },
+]
 
 function walk(dir, out = []) {
   for (const name of readdirSync(dir)) {
@@ -70,9 +80,9 @@ for (const path of walk('.')) {
   })
 }
 
-for (const base of TRIOS) {
+for (const { base, langs } of TRIOS) {
   const counted = []
-  for (const lang of LANGS) {
+  for (const lang of langs) {
     const file = `${base}${lang}.md`
     if (!existsSync(file)) {
       problems.push(`${file}  세 벌 중 하나가 없어요`)
@@ -82,7 +92,7 @@ for (const base of TRIOS) {
     counted.push({ file, heads })
   }
   const odd = counted.filter((c) => c.heads !== counted[0]?.heads)
-  if (counted.length === LANGS.length && odd.length) {
+  if (counted.length === langs.length && odd.length) {
     const shown = counted.map((c) => `${c.file} ${c.heads}개`).join(', ')
     problems.push(`${base}  세 벌의 큰 제목 개수가 달라요 (${shown})`)
   }
