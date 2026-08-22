@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.2](https://github.com/gitmoru/gitmoru/compare/v0.9.1...v0.9.2) (2026-08-22)
+
+
+### Bug Fixes
+
+* speak the reader's language in the terminal too ([#47](https://github.com/gitmoru/gitmoru/issues/47)) ([ebaef48](https://github.com/gitmoru/gitmoru/commit/ebaef482a245001fc507520e6d81bee03b3ff270))
+
 ## [0.9.1](https://github.com/gitmoru/gitmoru/compare/v0.9.0...v0.9.1) (2026-08-08)
 
 
