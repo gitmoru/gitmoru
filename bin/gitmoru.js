@@ -29,12 +29,13 @@ if (cmd === '--version' || cmd === '-v') {
 } else if (cmd === undefined || cmd === 'serve') {
   await import('./serve.mjs')
 } else {
+  const { msg } = await import('../server/messages.mjs')
   console.error(`
-  그런 명령은 없어요: ${cmd}
+  ${msg.unknownCommand(cmd)}
 
-  npx gitmoru             화면을 브라우저로 엽니다
-  npx gitmoru mcp         MCP 서버를 띄웁니다
-  npx gitmoru --version   버전을 찍습니다
+  npx gitmoru             ${msg.usageServe}
+  npx gitmoru mcp         ${msg.usageMcp}
+  npx gitmoru --version   ${msg.usageVersion}
 `)
   process.exit(1)
 }

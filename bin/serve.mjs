@@ -11,6 +11,7 @@ import { randomBytes } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import { extname, join, normalize, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { msg } from '../server/messages.mjs'
 import { handleApi, loadToken, SECURITY_HEADERS } from '../server/proxy.mjs'
 
 const ROOT = resolve(fileURLToPath(new URL('../dist', import.meta.url)))
@@ -91,10 +92,10 @@ server.listen(PORT, '127.0.0.1', () => {
 
   http://127.0.0.1:${PORT}
 
-  - 저장소를 내려받지 않습니다 (clone 하지 않음)
-  - 화면은 이 컴퓨터 밖으로 통신하지 않습니다
-  - GitHub 토큰은 이 프로세스 안에만 있습니다
+  - ${msg.noDownload}
+  - ${msg.noNetwork}
+  - ${msg.tokenStays}
 
-  종료하려면 Ctrl+C
+  ${msg.quit}
 `)
 })
