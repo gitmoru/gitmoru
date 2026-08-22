@@ -13,6 +13,7 @@ import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 
 import { deleteCase, listCases, readCase, saveCase } from './cases.mjs'
+import { msg } from './messages.mjs'
 
 const execFileAsync = promisify(execFile)
 
@@ -47,10 +48,16 @@ export async function loadToken() {
     if (!token) throw new Error('빈 토큰')
     cachedToken = token
     return token
-  } catch {
-    throw new Error(
-      'gh CLI 로그인이 필요합니다. 터미널에서 `gh auth login` 을 먼저 실행해주세요.',
-    )
+  } catch (err) {
+    /*
+      두 가지가 여기로 떨어진다. gh 가 아예 없는 것과, 있는데 로그인이 안 된 것.
+
+      고치는 방법이 서로 달라서 갈라 말해야 한다. CLI 가 없는 사람에게
+      "로그인하세요" 라고 하면 로그인할 방법을 못 찾고 제자리를 돈다.
+
+      없으면 실행 자체가 실패해서 ENOENT 가 온다.
+    */
+    throw new Error(err?.code === 'ENOENT' ? msg.ghMissing : msg.ghLoggedOut)
   }
 }
 
