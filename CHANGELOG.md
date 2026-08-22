@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.3](https://github.com/gitmoru/gitmoru/compare/v0.9.2...v0.9.3) (2026-08-22)
+
+
+### Bug Fixes
+
+* ship the english readme to the npm page ([#50](https://github.com/gitmoru/gitmoru/issues/50)) ([38694a1](https://github.com/gitmoru/gitmoru/commit/38694a10b8b290a7c38436208aa0e47cdba6974f))
+
 ## [0.9.2](https://github.com/gitmoru/gitmoru/compare/v0.9.1...v0.9.2) (2026-08-22)
 
 
