@@ -5,82 +5,88 @@
 <br>
 <br>
 
-<img src="docs/assets/mole.svg" alt="모루" width="120">
+<img src="docs/assets/mole.svg" alt="Moru" width="120">
 
-**저장소에 무슨 일이 있었는지, 파보고 알려주는 두더지**
+**A mole that digs through your repositories and tells you what happened**
 
-새벽에 누가 force push 로 브랜치를 통째로 갈아엎었을 때 켜는 도구입니다.<br>
-아무것도 내려받지 않고, 이 컴퓨터 밖으로 아무것도 보내지 않아요.
+For the morning you find out someone force-pushed over every branch overnight.<br>
+It downloads nothing, and sends nothing off this machine.
 
-**한국어** | [English](README.en.md) | [日本語](README.ja.md)
+**English** | [한국어](README.ko.md) | [日本語](README.ja.md)
 
 </div>
 
 <br>
 
-## 이게 뭔가요
+## What it is
 
-계정 하나가 털리면 조직 전체의 브랜치가 몇 시간 만에 덮어씌워집니다.
-그때 알아야 하는 건 세 가지예요.
+When one account gets taken over, an entire org's branches can be overwritten in hours.
+Three things matter at that moment.
 
-1. **어디가 당했나** - 저장소 수십 개 중 어디, 브랜치 몇 개
-2. **뭐가 들어왔나** - 그 파일이 무슨 코드인지
-3. **되돌릴 수 있나** - 공격 직전 커밋이 아직 남아 있는지
+1. **What got hit** - which repos, how many branches
+2. **What came in** - what that file actually does
+3. **Can it be undone** - is the pre-attack commit still on record
 
-gitmoru 은 1번과 3번을 합니다. 2번은 안 합니다.
-**대신 2번을 할 수 있는 AI 에게 넘길 수 있게 만들었습니다.**
-
-<br>
-
-## 왜 판정하지 않나요
-
-이 도구는 "감염됐습니다 / 안전합니다" 라고 말하지 않아요. 말하는 건 이것뿐입니다.
-
-> 이 시간대에 이 파일들이 이렇게 바뀌었습니다.
-
-이유가 있어요.
-
-탐지 규칙은 **겪어본 공격**에서 나옵니다. 새로운 수법은 정의상 규칙에 없어요.
-규칙이 판정을 내리는 구조에서는 **규칙이 못 잡은 공격이 "이상 없음" 으로 표시됩니다.**
-
-실제로 그랬습니다. 파일 이름으로 찾다가 다른 이름에 붙은 같은 페이로드를 놓쳤고,
-화면에는 "0건" 이 떴어요. 그 화면을 보고 한동안 안심했습니다.
-
-그래서 gitmoru 은 신호가 0건이어도 이렇게 씁니다.
-
-```
-눈에 띈 건 0개예요. 그래도 바뀐 파일 14개는 한 번 봐주세요.
-```
+gitmoru does 1 and 3. It does not do 2.
+**Instead it hands 2 to an AI that can.**
 
 <br>
 
-## 안 하는 것
+## Why it never gives a verdict
 
-| 안 함 | 왜 |
+This tool does not say "compromised" or "clean". It says one thing.
+
+> These files changed, in this window.
+
+There is a reason.
+
+Detection rules come from **attacks we have already seen**. A new technique is, by definition,
+not in the rules. When rules produce verdicts, **whatever the rules miss shows up as "nothing found".**
+
+That happened. A search by filename missed the same payload attached under a different name,
+and the screen said "0 findings". That screen was reassuring for a while.
+
+So when nothing matches, gitmoru says this instead:
+
+```
+No signals came up. Still worth skimming the 14 changed files.
+```
+
+<br>
+
+## What it will not do
+
+| Never | Why |
 |---|---|
-| `git clone` | 폴더를 편집기로 여는 순간 실행되는 페이로드가 있어요. **내려받는 순간 진 겁니다** |
-| 대상 코드 실행 | 린트, 빌드, 설치 전부 안 합니다. 읽어서 설명할 뿐이에요 |
-| 바깥으로 통신 | 화면에 CSP 를 걸어서, 페이로드에 박힌 주소로 요청을 보내는 것 자체가 불가능합니다 |
-| 토큰 보관 | `gh` 에서 빌려 쓰고, 화면으로는 내려보내지 않아요 |
-| 에이전트에게 쓰기 권한 | 에이전트는 공격자가 쓴 글을 읽습니다. 거기 지시문이 섞여 있을 수 있어요 |
+| `git clone` | Some payloads run the moment the folder is opened in an editor. **Downloading is already losing** |
+| Run target code | No lint, no build, no install. It reads and explains, nothing more |
+| Reach outside | A CSP on the renderer makes requesting an address found in a payload impossible |
+| Store tokens | Borrowed from `gh`, never handed to the renderer |
+| Give agents write access | Agents read attacker-authored text. It may contain instructions |
 
-자세한 건 [SAFETY.md](SAFETY.md) 에 있습니다.
+Details in [SAFETY.md](SAFETY.md).
 
 <br>
 
-## 시작하기
+## Getting started
 
-바로 켜보려면 한 줄이면 됩니다. [Node 22 이상](https://nodejs.org)과
-[GitHub CLI](https://cli.github.com) 만 있으면 돼요.
+One line gets you looking. You need [Node 22+](https://nodejs.org) and the [GitHub CLI](https://cli.github.com).
 
 ```bash
 gh auth login
 npx -y gitmoru
 ```
 
-브라우저에 화면이 뜹니다. 되돌리기까지 쓰려면 아래처럼 받아서 켜세요.
+The screen opens in your browser. For the restore button, clone it instead.
 
-미리 있어야 하는 것은 [Node 22 이상](https://nodejs.org), [pnpm](https://pnpm.io), [GitHub CLI](https://cli.github.com) 셋입니다.
+You are being asked to point an unfamiliar tool at a repository that was just
+compromised, so it is fair to ask where that package came from. npm carries a
+[provenance attestation](https://www.npmjs.com/package/gitmoru) for every release:
+GitHub signs the fact that this tarball was built by `release.yml` in this repository,
+at a specific commit. Nobody holds a publishing token that could be used to put
+something else there.
+
+That path also needs [pnpm](https://pnpm.io).
 
 ```bash
 git clone https://github.com/gitmoru/gitmoru.git
@@ -90,118 +96,116 @@ pnpm install
 pnpm app
 ```
 
-창이 뜨면 조직이나 저장소, 시간대를 넣고 `파보기` 를 누르세요.
-기본값은 오늘 새벽 0시부터 7시까지입니다. 밤사이 일어난 일을 아침에 알아보는 자리를 생각하고 고른 값이에요. 언제인지 알면 그 시간대로 바꿔주세요.
+Enter an org or repositories and a time window, then hit `Dig`.
+It defaults to midnight through 7am today, because the tool was built for finding out in the morning what happened overnight. If you know when, set that instead.
 
-설치 파일을 안 내놓는 건 게을러서가 아니에요. 이 도구는 저장소 접근 권한을 씁니다.
-서명 없는 실행 파일이 그걸 요구하는 모습은, 이 도구가 찾아내는 공격과 구분이 안 됩니다.
-**받는 사람은 방금 털린 사람이에요.** 그런 날에 건네야 할 건 읽을 수 있는 코드입니다.
+There is no installer, and that is on purpose. This tool asks for access to your
+repositories. An unsigned binary asking for exactly that is indistinguishable from
+the attack it goes looking for. **Whoever runs this just got breached.** What you
+hand someone on that day is source they can read.
 
-토큰은 `gh` 에서 빌려 씁니다. 이 저장소가 토큰을 따로 받아 적는 곳은 없어요.
-
-<br>
-
-## 어떻게 도나요
-
-```
-시간대 안의 활동 기록을 모은다 (푸시, 그리고 공개로 바뀐 저장소)
-        ↓
-공격 직전 커밋(payload.before)과 지금 트리를 맞춰본다
-        ↓
-바뀐 파일을 규칙과 무관하게 전부 모은다      ← 여기가 결과물
-        ↓
-탐지기가 먼저 볼 것에 형광펜을 친다          ← 판정이 아니라 순서
-        ↓
-사람 또는 AI 가 읽고 판단한다
-        ↓
-되돌리기는 사람이 앱에서 누른다
-```
-
-비공개였던 저장소가 그 시간대에 공개로 바뀌었다면 그것도 같이 말해줘요. 푸시가 하나도 없어도요.
-이건 되돌리기로 회수되지 않아서, 할 일이 아예 달라집니다.
-
-되돌아갈 커밋은 GitHub 이 기억하는 것에서 옵니다.
-활동 기록은 90일 정도까지만 남으니, 그 밖은 되돌릴 수 없어요. 이것도 화면에서 말해줍니다.
+The token is borrowed from `gh`. Nothing here ever writes one down.
 
 <br>
 
-## AI 붙이기
+## How it works
 
-MCP 서버가 같이 들어 있습니다. 붙이면 AI 가 결과를 직접 읽고,
-수상한 파일이 무슨 코드인지 설명해줘요.
+```
+collect activity inside the window (pushes, and repositories made public)
+        ↓
+compare the pre-attack commit (payload.before) against the current tree
+        ↓
+collect every changed file, regardless of rules      ← this is the output
+        ↓
+detectors highlight what to read first               ← ordering, not judgment
+        ↓
+a human or an AI reads and decides
+        ↓
+a human presses restore, in the app
+```
 
-Claude Code, Codex CLI, Gemini CLI, Claude 데스크톱, Cursor, Windsurf, VS Code 를 지원합니다.
-앱에서 `AI 붙이기` 를 누르면 **이 컴퓨터의 실제 설정 파일 경로**까지 알려줍니다.
+If a private repository went public in that window, it says so too, even when nothing was pushed.
+That one is not undone by restoring, so what you do next is a different job.
 
-| 도구 | 언제 쓰나 |
+Restore targets come from what GitHub remembers. Activity is kept for about 90 days,
+so anything older cannot be rewound. The app says so.
+
+<br>
+
+## Connecting an AI
+
+An MCP server ships with it. Once connected, an AI reads the results directly
+and explains what a suspicious file does.
+
+Claude Code, Codex CLI, Gemini CLI, Claude Desktop, Cursor, Windsurf, and VS Code are supported.
+`Connect AI` in the app shows **the real config path on this machine**.
+
+| Tool | When |
 |---|---|
-| `scan` | 시작. caseId 를 받습니다 |
-| `list_cases` | 보관된 사건 목록. **앱에서 훑은 것도 여기 나옵니다** |
-| `open_case` | 사건 하나 펼치기. 다시 훑기 전에 이걸 먼저 |
-| `triage` | 무엇부터 볼지 |
-| `list_changes` | 바뀐 파일 전부 |
-| `diff_file` | 공격 직전 파일과 지금 파일 비교. **여기서 판단이 일어납니다** |
-| `read_file` | 파일 전체 읽기 |
-| `list_forced_pushes` | 어느 브랜치가 커밋 몇 개를 잃었는지 |
-| `check_access` | 배포 키, 웹훅, 대기 초대. 시간대와 무관한 현황 점검 |
-| `preview_restore` | 무엇을 어디로 되돌리게 되는지 (실행은 안 합니다) |
-| `share_summary` | 팀 채널용 요약 |
+| `scan` | Start here. Returns a caseId |
+| `triage` | What to look at first |
+| `list_changes` | Every changed file |
+| `diff_file` | Compare the file before and after the attack. **This is where judgment happens** |
+| `read_file` | Read the whole file |
+| `check_access` | Deploy keys, webhooks, pending invites. A standing checkup, not a time window |
+| `preview_restore` | What would be rewound where (it does not execute) |
+| `share_summary` | A summary for your team channel |
 
-전부 읽기 전용입니다. [왜 그런지](docs/decisions/0005-mcp-is-read-only.md)
+All read-only. [Why](docs/decisions/0005-mcp-is-read-only.md)
 
 <br>
 
-## 모루
+## Moru
 
-<img src="docs/assets/mole.svg" alt="모루" width="72" align="left" hspace="16">
+<img src="docs/assets/mole.svg" alt="Moru" width="72" align="left" hspace="16">
 
-맨홀 뚜껑을 쓴 두더지입니다. 화면 아래 땅을 파고 다니면서 진행 상황을 알려줘요.
-마우스가 멈추면 그쪽으로 굴을 파서 옮겨오고, 한참 두면 잡니다.
+A mole wearing a manhole cover. It burrows along the ground at the bottom of the window
+and reports progress. It tunnels toward wherever your cursor stops, and falls asleep if left alone.
 
-그림은 전부 문자열 격자예요. CSS 로 늘였다 줄이는 게 아니라
-여러 장을 넘겨서 움직입니다. 앱 아이콘도 같은 그림에서 굽습니다.
+Every frame is a string grid. Movement comes from flipping between drawings,
+not from stretching one with CSS. The app icon is baked from the same drawing.
 
-모루는 **"안전해요" 라고 말하지 않습니다.**
+Moru never says "you're safe".
 
 <br clear="left">
 
 <br>
 
-## 언어
+## Language
 
-한국어, English, 日本語 를 지원합니다. 처음 켤 때 시스템 언어에 맞춰 뜨고,
-제목줄에서 바꿀 수 있어요.
+Korean, English, and Japanese. It picks up your system language on first launch,
+and you can change it from the title bar.
 
-번역이 아니라 **그 언어로 다시 썼습니다.** 어느 언어에서도 "안전합니다" 라고 말하지 않아요.
+Each one is **written in that language**, not translated. None of them says "safe".
 
 <br>
 
-## 문서
+## Docs
 
 | | |
 |---|---|
-| [SAFETY.md](SAFETY.md) | 기능보다 우선하는 규칙 |
-| [구조](docs/architecture.md) | 폴더가 어디에 뭐가 있는지 |
-| [결정 기록](docs/decisions/README.md) | 왜 이렇게 만들었는지 |
-| [언어 추가하기](docs/guides/adding-a-language.md) | 문구를 손보거나 언어를 늘릴 때 |
-| [같이 만들기](CONTRIBUTING.md) | 기여하기 전에 |
-| [AGENTS.md](AGENTS.md) | AI 로 작업할 때 |
+| [SAFETY.md](SAFETY.md) | Rules that outrank features |
+| [Architecture](docs/architecture.md) | Where everything lives |
+| [Decisions](docs/decisions/README.md) | Why it was built this way |
+| [Adding a language](docs/guides/adding-a-language.md) | Wording and new locales |
+| [Contributing](CONTRIBUTING.md) | Before you start |
+| [AGENTS.md](AGENTS.md) | Working on this with an AI |
 
 <br>
 
-## 만든 이유
+## Why it exists
 
-실제 사고를 CLI 로 수습하면서 만들었습니다.
-브랜치 200개가 넘어가니 명령을 손으로 치는 게 불가능했고,
-무엇보다 **잘못 짠 명령 하나가 조용히 "0건" 을 뱉는 게 무서웠습니다.**
+It was built while handling a real incident from the CLI.
+Past 200 branches, typing commands by hand stopped being possible,
+and worse, **a badly written command quietly returning "0" was terrifying.**
 
-그래서 이 도구는 실패를 숨기지 않아요.
-확인 못 한 게 있으면 개수를 세서 눈에 띄는 자리에 적습니다.
+So this tool does not hide failure.
+Whatever could not be checked gets counted and put somewhere you will see it.
 
 <br>
 
 ---
 
 <div align="center">
-<sub>개인용 도구입니다. 쓰기 전에 <a href="SAFETY.md">SAFETY.md</a> 를 읽어주세요.</sub>
+<sub>A personal tool. Please read <a href="SAFETY.md">SAFETY.md</a> before using it.</sub>
 </div>

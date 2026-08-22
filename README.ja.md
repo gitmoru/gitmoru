@@ -12,7 +12,7 @@
 夜のあいだに force push でブランチが全部書き換えられていた、そんな朝のための道具です。<br>
 何もダウンロードせず、このパソコンの外へは何も送りません。
 
-[한국어](README.md) | [English](README.en.md) | **日本語**
+[English](README.md) | [한국어](README.ko.md) | **日本語**
 
 </div>
 
@@ -70,7 +70,23 @@ gitmoru は 1 と 3 をやります。2 はやりません。
 
 ## はじめかた
 
-[Node 22 以上](https://nodejs.org)、[pnpm](https://pnpm.io)、[GitHub CLI](https://cli.github.com) が必要です。
+まず見るだけなら 1 行です。[Node 22 以上](https://nodejs.org)と
+[GitHub CLI](https://cli.github.com) があれば動きます。
+
+```bash
+gh auth login
+npx -y gitmoru
+```
+
+ブラウザに画面が出ます。復元まで使うなら、クローンして開いてください。
+
+たった今やられたリポジトリに見知らぬ道具を向ける話なので、これがどこから来たのかを
+問うのは当然です。npm にはリリースごとに
+[出所の証明](https://www.npmjs.com/package/gitmoru)が付いています。このリポジトリの
+`release.yml` が特定のコミットからビルドしたという事実に GitHub が署名します。
+別のものを代わりに置けるような公開用トークンは、誰も持っていません。
+
+そちらには [pnpm](https://pnpm.io) も要ります。
 
 ```bash
 git clone https://github.com/gitmoru/gitmoru.git
