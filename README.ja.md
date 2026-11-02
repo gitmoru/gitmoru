@@ -143,8 +143,8 @@ Claude Code、Codex CLI、Gemini CLI、Claude デスクトップ、Cursor、Wind
 | ツール | いつ使うか |
 |---|---|
 | `scan` | 最初に。caseId が返ります |
-| `list_cases` | 保存された案件の一覧。**アプリでの調査結果も表示されます** |
-| `open_case` | 案件を 1 つ開く。調べ直す前にまずこれを |
+| `list_cases` | 保存された記録の一覧。**アプリでの調査結果も表示されます** |
+| `open_case` | 記録を 1 つ開く。調べ直す前にまずこれを |
 | `triage` | 何から見るか |
 | `list_changes` | 変更されたファイル全件 |
 | `diff_file` | 攻撃直前と現在のファイルを比較。**ここで判断が起きます** |
