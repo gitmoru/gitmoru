@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.0](https://github.com/gitmoru/gitmoru/compare/v0.9.3...v0.10.0) (2026-11-02)
+
+
+### Features
+
+* add --help and a checked reference for the mcp tools ([#52](https://github.com/gitmoru/gitmoru/issues/52)) ([d06a639](https://github.com/gitmoru/gitmoru/commit/d06a639509c8e7ca35d5aa948784d9e23ac08bc7))
+
 ## [0.9.3](https://github.com/gitmoru/gitmoru/compare/v0.9.2...v0.9.3) (2026-08-22)
 
 
