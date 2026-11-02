@@ -4,6 +4,7 @@
  *
  *   npx gitmoru          화면을 브라우저로 연다
  *   npx gitmoru mcp      MCP 서버를 띄운다 (AI 가 stdio 로 붙는다)
+ *   npx gitmoru --help   쓸 수 있는 명령을 찍는다
  *
  * 되돌리기는 여기 없다. Electron 앱에서만 한다 (SAFETY.md 10번).
  * 저장소를 바꾸는 동작을 명령 한 줄로 열어두지 않는다.
@@ -30,12 +31,20 @@ if (cmd === '--version' || cmd === '-v') {
   await import('./serve.mjs')
 } else {
   const { msg } = await import('../server/messages.mjs')
-  console.error(`
-  ${msg.unknownCommand(cmd)}
-
+  // 처음 쓰는 사람과 에이전트가 가장 먼저 치는 게 --help 다. 틀린 명령 취급하면 안 된다.
+  const asked = cmd === '--help' || cmd === '-h'
+  const usage = `
   npx gitmoru             ${msg.usageServe}
   npx gitmoru mcp         ${msg.usageMcp}
   npx gitmoru --version   ${msg.usageVersion}
-`)
-  process.exit(1)
+  npx gitmoru --help      ${msg.usageHelp}
+`
+  if (asked) {
+    console.log(usage)
+  } else {
+    console.error(`
+  ${msg.unknownCommand(cmd)}
+${usage}`)
+    process.exit(1)
+  }
 }

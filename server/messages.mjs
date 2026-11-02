@@ -48,6 +48,7 @@ export const DICTS = {
     usageServe: '화면을 브라우저로 엽니다',
     usageMcp: 'MCP 서버를 띄웁니다',
     usageVersion: '버전을 찍습니다',
+    usageHelp: '이 안내를 봅니다',
     ghMissing:
       'GitHub CLI(gh) 가 안 보입니다. https://cli.github.com 에서 설치한 다음 `gh auth login` 을 실행해주세요.',
     ghLoggedOut:
@@ -62,6 +63,7 @@ export const DICTS = {
     usageServe: 'opens the screen in your browser',
     usageMcp: 'starts the MCP server',
     usageVersion: 'prints the version',
+    usageHelp: 'shows this help',
     ghMissing:
       'GitHub CLI (gh) was not found. Install it from https://cli.github.com, then run `gh auth login`.',
     ghLoggedOut: 'gh CLI is not logged in. Run `gh auth login` in your terminal first.',
@@ -75,6 +77,7 @@ export const DICTS = {
     usageServe: '画面をブラウザで開きます',
     usageMcp: 'MCP サーバーを起動します',
     usageVersion: 'バージョンを表示します',
+    usageHelp: 'この案内を表示します',
     ghMissing:
       'GitHub CLI (gh) が見つかりません。https://cli.github.com からインストールし、`gh auth login` を実行してください。',
     ghLoggedOut: 'gh CLI にログインしていません。先にターミナルで `gh auth login` を実行してください。',

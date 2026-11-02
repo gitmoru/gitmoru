@@ -143,15 +143,43 @@ Claude Code, Codex CLI, Gemini CLI, Claude Desktop, Cursor, Windsurf, and VS Cod
 | Tool | When |
 |---|---|
 | `scan` | Start here. Returns a caseId |
+| `list_cases` | Saved cases. **Scans from the app show up here too** |
+| `open_case` | Open one case. Try this before scanning again |
 | `triage` | What to look at first |
 | `list_changes` | Every changed file |
 | `diff_file` | Compare the file before and after the attack. **This is where judgment happens** |
 | `read_file` | Read the whole file |
+| `list_forced_pushes` | Which branch lost how many commits |
 | `check_access` | Deploy keys, webhooks, pending invites. A standing checkup, not a time window |
 | `preview_restore` | What would be rewound where (it does not execute) |
 | `share_summary` | A summary for your team channel |
 
-All read-only. [Why](docs/decisions/0005-mcp-is-read-only.md)
+All read-only. [Why](docs/decisions/0005-mcp-is-read-only.md) Inputs and the usual order are in the [tool reference](docs/guides/mcp-tools.md), in Korean.
+
+To connect by hand, run the server with `npx -y gitmoru mcp`.
+
+<br>
+
+## What measuring changed
+
+This tool exists to tell you whether a "0" can be trusted, so its own numbers got measured first.
+Every comparison below used the same org, the same window, 14 repositories and 135 branches.
+
+| What | Before | After |
+|---|---|---|
+| "Commits lost" on screen | 24 affected branches, 13,724 commits | 2 branches still overwritten, 4 commits |
+| GitHub requests for one scan | 996 in 249s | 494 in 190s |
+| Advisories in the build chain (`pnpm audit`) | 20 | 0 |
+
+13,724 was a sum over pushes. A branch overwritten four times counted the same commits four times, and branches restored afterwards were still in there.
+Each branch is now compared once, from just before its first push to now, so only what was really lost gets counted.
+When the numbers in an incident tool are inflated the whole response goes wrong, so this came before cost.
+
+There were plenty of mistakes along the way.
+
+- Tree lookups looked like the main cost. Measuring showed they were 26 of 996 requests. Now it gets measured before it gets fixed
+- `npm audit` returned `{}`, which looked clean. It had failed. An empty result is not a success
+- `tsc -b` passed from its cache and hid a case `describeFinding` did not handle. CI runs it again from a clean state
 
 <br>
 
@@ -207,5 +235,5 @@ Whatever could not be checked gets counted and put somewhere you will see it.
 ---
 
 <div align="center">
-<sub>A personal tool. Please read <a href="SAFETY.md">SAFETY.md</a> before using it.</sub>
+<sub>A personal tool, built by <a href="https://github.com/INSANE-P">Chanbin Park</a>. Please read <a href="SAFETY.md">SAFETY.md</a> before using it.</sub>
 </div>

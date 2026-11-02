@@ -14,6 +14,7 @@ gitmoru 은 **악성 코드가 들어있을 수 있는 저장소를 들여다보
 | 왜 이렇게 만들었는지 | [docs/decisions/](docs/decisions/README.md) |
 | 탐지 규칙 추가 | [docs/guides/adding-a-detector.md](docs/guides/adding-a-detector.md) |
 | MCP 도구 추가, 에이전트 붙이기 | [docs/guides/connecting-agents.md](docs/guides/connecting-agents.md) |
+| MCP 도구별 입력과 쓰는 순서 | [docs/guides/mcp-tools.md](docs/guides/mcp-tools.md) |
 | 되돌리기 건드리기 | [docs/guides/restoring-branches.md](docs/guides/restoring-branches.md) |
 | 화면 문구 손보기, 언어 추가 | [docs/guides/adding-a-language.md](docs/guides/adding-a-language.md) |
 | 실행, 빌드 | [docs/guides/running-locally.md](docs/guides/running-locally.md) |

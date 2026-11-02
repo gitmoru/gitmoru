@@ -16,7 +16,7 @@ gitmoru 은 MCP 서버를 함께 들고 있다. 붙이면 AI 가 결과를 직�
 ```json
 {
   "mcpServers": {
-    "gitmoru": { "command": "npx", "args": ["tsx", "<gitmoru>/src/mcp/index.ts"] }
+    "gitmoru": { "command": "npx", "args": ["-y", "gitmoru", "mcp"] }
   }
 }
 ```
@@ -26,23 +26,15 @@ Codex CLI 는 TOML 이다.
 ```toml
 [mcp_servers.gitmoru]
 command = "npx"
-args = ["tsx", "<gitmoru>/src/mcp/index.ts"]
+args = ["-y", "gitmoru", "mcp"]
 ```
 
 VS Code 는 `servers` 키를 쓰고 `type: "stdio"` 가 필요하다.
 
 ## 도구 목록
 
-| 도구 | 언제 |
-|---|---|
-| `scan` | 시작. caseId 를 받는다 |
-| `triage` | 무엇부터 볼지 |
-| `list_changes` | 바뀐 파일 전부 (빠짐없이 봐야 할 때) |
-| `read_file` | 의심 파일 읽기. **여기서 판단이 일어난다** |
-| `preview_restore` | 무엇을 어디로 되돌리게 되는지 |
-| `check_access` | 배포 키, 웹훅, 대기 초대. **시간대와 무관한 현황 점검** |
-| `share_summary` | 팀 채널용 요약 |
-| `list_cases` | 이번 세션의 사건들 |
+도구마다 언제 쓰고 무엇을 넣는지는 [MCP 도구 레퍼런스](mcp-tools.md) 에 있다.
+도구를 더하거나 입력을 바꾸면 그 문서도 같이 고친다. 빠뜨리면 `pnpm test` 가 잡는다.
 
 ## 읽기 전용이다
 
