@@ -152,7 +152,32 @@ Claude Code, Codex CLI, Gemini CLI, Claude 데스크톱, Cursor, Windsurf, VS Co
 | `preview_restore` | 무엇을 어디로 되돌리게 되는지 (실행은 안 합니다) |
 | `share_summary` | 팀 채널용 요약 |
 
-전부 읽기 전용입니다. [왜 그런지](docs/decisions/0005-mcp-is-read-only.md)
+전부 읽기 전용입니다. [왜 그런지](docs/decisions/0005-mcp-is-read-only.md) 입력과 쓰는 순서는 [도구 레퍼런스](docs/guides/mcp-tools.md) 에 있어요.
+
+직접 붙이려면 `npx -y gitmoru mcp` 로 서버를 띄우면 됩니다.
+
+<br>
+
+## 재 보고 고친 것
+
+"0건" 같은 말을 믿어도 되는지 알려주는 도구라서, 이 도구가 하는 말부터 재 봤어요.
+같은 조직, 같은 시간대, 저장소 14개와 브랜치 135개로 비교했습니다.
+
+| 무엇 | 전 | 후 |
+|---|---|---|
+| 화면의 "사라진 커밋" | 강제 푸시 24곳, 13,724개 | 덮어써진 채 2곳, 4개 |
+| 한 번 훑는 데 드는 GitHub 요청 | 996회, 249초 | 494회, 190초 |
+| 빌드 도구의 취약점 (`pnpm audit`) | 20건 | 0건 |
+
+13,724 는 푸시마다 더한 값이었어요. 네 번 덮어쓴 브랜치는 같은 커밋을 네 번 셌고, 덮어쓴 뒤 되돌린 브랜치도 들어 있었습니다.
+이제 브랜치마다 첫 푸시 직전과 지금을 한 번만 비교해서, 실제로 잃은 것만 셉니다.
+조사 도구의 숫자가 부풀면 대응 전체가 틀어져서, 비용보다 이걸 먼저 고쳤어요.
+
+고치면서 틀린 적도 많습니다.
+
+- 트리 조회가 비용 대부분일 거라 예상했는데, 재 보니 996회 중 26회였어요. 그 뒤로 고치기 전에 먼저 잽니다
+- `npm audit` 이 `{}` 를 돌려줘서 깨끗한 줄 알았는데, 실패한 것이었어요. 빈 결과는 성공이 아닙니다
+- `tsc -b` 가 캐시 때문에 통과해서, `describeFinding` 에서 처리를 빠뜨린 경우를 숨겼어요. CI 는 깨끗한 상태에서 다시 돌립니다
 
 <br>
 
@@ -208,5 +233,5 @@ Claude Code, Codex CLI, Gemini CLI, Claude 데스크톱, Cursor, Windsurf, VS Co
 ---
 
 <div align="center">
-<sub>개인용 도구입니다. 쓰기 전에 <a href="SAFETY.md">SAFETY.md</a> 를 읽어주세요.</sub>
+<sub><a href="https://github.com/INSANE-P">박찬빈</a>이 만든 개인용 도구입니다. 쓰기 전에 <a href="SAFETY.md">SAFETY.md</a> 를 읽어주세요.</sub>
 </div>

@@ -1,6 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 
+import pkg from '../../package.json'
 import { setGhTransport } from '../platform/bridge'
 import { createContext } from './context'
 import { registerScan } from './tools/scan'
@@ -58,7 +59,8 @@ setGhTransport(async (path, opts) => {
   }
 })
 
-const server = new McpServer({ name: 'gitmoru', version: '0.1.0' })
+// 0.1.0 으로 박혀 있어서 어느 버전이 도는지 에이전트가 알 수 없었다.
+const server = new McpServer({ name: 'gitmoru', version: pkg.version })
 const ctx = createContext()
 
 // 등록 순서가 곧 쓰는 순서다. 훑고 → 추리고 → 바뀐 줄을 보고 → 필요하면 전체를 읽고 → 되돌릴지 본다.
